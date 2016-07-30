@@ -60,27 +60,35 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 		end
 	end
 
+	--- Check Profession Useable ---
+	local function isUseable(id)
+		local name = GetSpellInfo(id)
+		return IsUsableSpell(name)
+	end
+
 	--- Update Profession Tabs ---
 	local function updateTabs()
 		local mainTabs, subTabs = {}, {}
 
 		local _, class = UnitClass('player')
-		if class == 'DEATHKNIGHT' then
+		if class == 'DEATHKNIGHT' and isUseable(53428) then
 			mainTabs[1] = 53428 --RuneForging
-		elseif class == 'ROGUE' then
+		elseif class == 'ROGUE' and isUseable(1804) then
 			subTabs[1] = 1804 --PickLock
 		end
 
 		local prof1, prof2, arch, fishing, cooking, firstaid = GetProfessions()
 		local profs = {prof1, prof2, cooking, firstaid}
 		for _, prof in pairs(profs) do
-			local _, _, _, _, num, offset = GetProfessionInfo(prof)
+			local num, offset = select(5, GetProfessionInfo(prof))
 			for i = 1, num do
 				local _, id = GetSpellBookItemInfo(offset + i, BOOKTYPE_PROFESSION)
-				if (i == 1) then
-					mainTabs[#mainTabs + 1] = id
-				else
-					subTabs[#subTabs + 1] = id
+				if isUseable(id) then
+					if (i == 1) then
+						mainTabs[#mainTabs + 1] = id
+					else
+						subTabs[#subTabs + 1] = id
+					end
 				end
 			end
 		end
