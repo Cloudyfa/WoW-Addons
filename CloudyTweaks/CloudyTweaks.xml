@@ -1,0 +1,339 @@
+<!--
+	Cloudy Tweaks
+	Copyright (c) 2016, Cloudyfa
+	All rights reserved.
+-->
+
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+	<Script file="CloudyTweaks.lua"/>
+
+	<Frame name="CTweaks" parent="UIParent">
+		<Scripts>
+			<OnLoad>
+				CTweaks_OnLoad(self)
+			</OnLoad>
+
+			<OnEvent>
+				CTweaks_OnEvent(self, event, ...)
+			</OnEvent>
+		</Scripts>
+	</Frame>
+
+	<Frame name="CTweaksUI" parent="InterfaceOptionsFramePanelContainer">
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentTitle" inherits="GameFontNormalLarge" justifyH="LEFT" justifyV="TOP">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="16" y="-16" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+
+				<FontString name="$parentSubText" inherits="GameFontHighlightSmall" justifyH="LEFT" justifyV="TOP">
+					<Size>
+						<AbsDimension x="0" y="24"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentTitle" relativePoint="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="0" y="-8"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+
+		<Frames>
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentGroup" text="GROUPS" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parentSubText" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_ConfirmLoot" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentGroup" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_AcceptInvite" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ConfirmLoot" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_AcceptSummon" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_AcceptInvite" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentMinimap" text="MINIMAP_LABEL" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parent_AcceptSummon" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_MinimapWheel" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentMinimap" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_HideZoomButton" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_MinimapWheel" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_HideMapButton" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_HideZoomButton" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_DayNight" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_HideMapButton" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentQuest" text="QUESTS_LABEL" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parent_DayNight" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_QuestLevel" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentQuest" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_QuestColor" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_QuestLevel" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_HideTracker" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_QuestColor" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_QuestAccept" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_HideTracker" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_QuestTurnin" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_QuestAccept" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentCombat" text="COMBAT" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parentSubText" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="300" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_AcceptResurrect" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentCombat" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_AutoRelease" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_AcceptResurrect" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentMerchant" text="MERCHANT" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parent_AutoRelease" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_AutoSell" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentMerchant" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_AutoRepair" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_AutoSell" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+				<Scripts>
+					<OnUpdate>
+						if self:GetChecked() then
+							CTweaksUI_SelfRepair:Enable()
+							CTweaksUI_SelfRepair:SetAlpha(1.0)
+						else
+							CTweaksUI_SelfRepair:Disable()
+							CTweaksUI_SelfRepair:SetAlpha(0.5)
+						end
+					</OnUpdate>
+				</Scripts>
+			</CheckButton>
+
+			<CheckButton name="$parent_SelfRepair" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_AutoRepair" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="10" y="4"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</CheckButton>
+
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentMisc" text="MISCELLANEOUS" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parent_SelfRepair" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="-10" y="-4"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_SkipGossip" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentMisc" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_DressUpButton" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_SkipGossip" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_MapFade" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_DressUpButton" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_ChatFade" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_MapFade" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_ChatArrow" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ChatFade" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_EliteFrame" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ChatArrow" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_HideGryphons" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_EliteFrame" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_ActionCam" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_HideGryphons" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+		</Frames>
+
+		<Scripts>
+			<OnLoad>
+				CTweaksUI_OnLoad(self)
+			</OnLoad>
+		</Scripts>
+	</Frame>
+</Ui>

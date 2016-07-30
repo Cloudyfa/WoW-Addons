@@ -1,0 +1,256 @@
+<!--
+	Cloudy Tooltip Mod
+	Copyright (c) 2016, Cloudyfa
+	All rights reserved.
+-->
+
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+	<Script file="CloudyTooltipMod.lua"/>
+
+	<Frame name="CTipMod" parent="UIParent">
+		<Scripts>
+			<OnLoad>
+				CTipMod_OnLoad(self)
+			</OnLoad>
+
+			<OnEvent>
+				CTipMod_OnEvent(self, event, ...)
+			</OnEvent>
+		</Scripts>
+	</Frame>
+
+	<Frame name="CTipModUI" parent="InterfaceOptionsFramePanelContainer">
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentTitle" inherits="GameFontNormalLarge" justifyH="LEFT" justifyV="TOP">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="16" y="-16" />
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+
+				<FontString name="$parentSubText" inherits="GameFontHighlightSmall" justifyH="LEFT" justifyV="TOP">
+					<Size>
+						<AbsDimension x="0" y="24"/>
+					</Size>
+					<Anchors>
+						<Anchor point="TOPLEFT" relativeTo="$parentTitle" relativePoint="BOTTOMLEFT">
+							<Offset>
+								<AbsDimension x="0" y="-8"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+
+		<Frames>
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentAnchor" text="Tooltip Anchor" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parentSubText" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_MouseAnchor" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentAnchor" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentStyle" text="Tooltip Style" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parent_MouseAnchor" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_TipColor" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentStyle" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+				<Scripts>
+					<OnUpdate>
+						if self:GetChecked() then
+							CTipModUI_ClassColor:Enable()
+							CTipModUI_ClassColor:SetAlpha(1.0)
+						else
+							CTipModUI_ClassColor:Disable()
+							CTipModUI_ClassColor:SetAlpha(0.5)
+						end
+					</OnUpdate>
+				</Scripts>
+			</CheckButton>
+
+			<CheckButton name="$parent_ClassColor" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_TipColor" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="10" y="4"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_HideHealth" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassColor" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="-10" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_HideBorder" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_HideHealth" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentScale" text="Tooltip Scale" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parent_HideBorder" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<Slider name="$parent_TipScale" inherits="OptionsSliderTemplate" minValue="0.75" maxValue="1.25" defaultValue="1.0" valueStep="0.05">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentScale" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="8" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</Slider>
+
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentDetail" text="Tooltip Detail" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parentSubText" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="300" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_UnitTitle" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentDetail" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_UnitGender" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_UnitTitle" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_UnitStatus" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_UnitGender" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_UnitRealm" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_UnitStatus" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_GuildRank" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_UnitRealm" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentInfo" text="Tooltip Info" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parent_GuildRank" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_TargetOfTarget" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentInfo" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_TradeGoodsInfo" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_TargetOfTarget" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+		</Frames>
+
+		<Scripts>
+			<OnLoad>
+				CTipModUI_OnLoad(self)
+			</OnLoad>
+		</Scripts>
+	</Frame>
+</Ui>
