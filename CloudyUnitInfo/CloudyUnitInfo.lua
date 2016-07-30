@@ -17,7 +17,6 @@ local detailColor = '|cffffffff'
 
 local gearPrefix = STAT_AVERAGE_ITEM_LEVEL .. ': '
 local specPrefix = SPECIALIZATION .. ': '
-local _
 
 
 --- Create Frame ---
@@ -212,7 +211,7 @@ local function UnitGear(unit)
 
 	if (not delay) then
 		if (unit == 'player') and (GetAverageItemLevel() > 0) then
-			_, ilvl = GetAverageItemLevel()
+			ilvl = select(2, GetAverageItemLevel())
 		else
 			ilvl = total / count
 		end
@@ -238,7 +237,7 @@ local function UnitSpec(unit)
 		local specIndex = GetSpecialization()
 
 		if specIndex then
-			_, specName = GetSpecializationInfo(specIndex)
+			specName = select(2, GetSpecializationInfo(specIndex))
 		else
 			specName = NONE
 		end
@@ -246,7 +245,7 @@ local function UnitSpec(unit)
 		local specID = GetInspectSpecialization(unit)
 
 		if specID and (specID > 0) then
-			_, specName = GetSpecializationInfoByID(specID)
+			specName = select(2, GetSpecializationInfoByID(specID))
 		elseif (specID == 0) then
 			specName = NONE
 		end
