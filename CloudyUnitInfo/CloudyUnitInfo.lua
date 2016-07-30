@@ -147,9 +147,8 @@ local function UnitGear(unit)
 	local ulvl = UnitLevel(unit)
 	local class = select(2, UnitClass(unit))
 
-	local ilvl, boa, pvp = 0, 0, 0
-	local total, count, delay = 0, 16, nil
-	local mainhand, offhand, twohand = 1, 1, 0
+	local boa, pvp = 0, 0
+	local ilvl, total, delay = 0, 0, nil
 
 	for i = 1, 17 do
 		if (i ~= 4) then
@@ -188,32 +187,22 @@ local function UnitGear(unit)
 							total = total + level
 						end
 
-						if (i >= 16) then
+						if (i == 16) then
 							if (slot == 'INVTYPE_2HWEAPON') or (slot == 'INVTYPE_RANGED') or ((slot == 'INVTYPE_RANGEDRIGHT') and (class == 'HUNTER')) then
-								twohand = twohand + 1
+								total = total + level
 							end
 						end
 					end
 				end
-			else
-				if (i == 16) then
-					mainhand = 0
-				elseif (i == 17) then
-					offhand = 0
-				end
 			end
 		end
-	end
-
-	if (mainhand == 0) and (offhand == 0) or (twohand == 1) then
-		count = count - 1
 	end
 
 	if (not delay) then
 		if (unit == 'player') and (GetAverageItemLevel() > 0) then
 			ilvl = select(2, GetAverageItemLevel())
 		else
-			ilvl = total / count
+			ilvl = total / 16
 		end
 
 		if (ilvl > 0) then ilvl = string.format('%.1f', ilvl) end
