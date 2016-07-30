@@ -39,6 +39,7 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 		tab:SetScript('OnEvent', isCurrentTab)
 		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
 
+		tab.id = id
 		tab.tooltip = name
 		tab:SetAttribute('type', 'spell')
 		tab:SetAttribute('spell', name)
@@ -84,7 +85,16 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 			end
 		end
 
-		if not (numTabs == #mainTabs + #subTabs) then
+		local sameTabs = true
+		for i = 1, #mainTabs do
+			local tab = _G['CTradeSkillTab' .. i]
+			if tab and not (tab.id == mainTabs[i]) then
+				sameTabs = false
+				break
+			end
+		end
+
+		if not sameTabs or not (numTabs == #mainTabs + #subTabs) then
 			removeTabs()
 			numTabs = #mainTabs + #subTabs
 			for i = 1, numTabs do
