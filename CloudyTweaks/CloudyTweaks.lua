@@ -74,14 +74,14 @@ end
 
 		for i = 1, GetNumGossipActiveQuests() do
 			local quest = {}
-			quest.title, quest.level = select(5 * (i - 1) + 1, GetGossipActiveQuests())
+			quest.title, quest.level = select(6 * (i - 1) + 1, GetGossipActiveQuests())
 
 			table.insert(ListQuests, quest)
 		end
 
 		for i = 1, GetNumGossipAvailableQuests() do
 			local quest = {}
-			quest.title, quest.level = select(6 * (i - 1) + 1, GetGossipAvailableQuests())
+			quest.title, quest.level = select(7 * (i - 1) + 1, GetGossipAvailableQuests())
 
 			table.insert(ListQuests, quest)
 		end
