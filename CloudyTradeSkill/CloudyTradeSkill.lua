@@ -107,7 +107,6 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 				addTab(mainTabs[i] or subTabs[i - #mainTabs], i, mainTabs[i] and 0 or 1)
 			end
 		end
-
 	end
 
 

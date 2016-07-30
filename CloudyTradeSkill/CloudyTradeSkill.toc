@@ -1,7 +1,7 @@
 ## Interface: 70000
 ## Title: Cloudy Trade Skill
 ## Notes: Improve default TradeSkill UI.
-## Version: 1.4
+## Version: 1.5
 ## Author: Cloudyfa
 ## LoadOnDemand: 1
 ## LoadWith: Blizzard_TradeSkillUI
