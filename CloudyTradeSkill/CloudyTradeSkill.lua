@@ -83,12 +83,10 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 			local num, offset = select(5, GetProfessionInfo(prof))
 			for i = 1, num do
 				local _, id = GetSpellBookItemInfo(offset + i, BOOKTYPE_PROFESSION)
-				if isUseable(id) then
-					if (i == 1) then
-						mainTabs[#mainTabs + 1] = id
-					else
-						subTabs[#subTabs + 1] = id
-					end
+				if (i == 1) then
+					mainTabs[#mainTabs + 1] = id
+				else
+					subTabs[#subTabs + 1] = id
 				end
 			end
 		end
