@@ -36,7 +36,9 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', 1, -44 * index + (-32 * isSub))
 
 		tab:SetScript('OnEvent', isCurrentTab)
-		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
+		if not tab:IsEventRegistered('CURRENT_SPELL_CAST_CHANGED') then
+			tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
+		end
 
 		tab.tooltip = name
 		tab:SetAttribute('type', 'spell')
