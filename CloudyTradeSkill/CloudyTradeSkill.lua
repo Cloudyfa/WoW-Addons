@@ -19,7 +19,7 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 	--- Check Current Tab ---
 	local function isCurrentTab(self)
 		if TradeSkillFrame and TradeSkillFrame:IsShown() then
-			if self.spell and IsCurrentSpell(self.spell) then
+			if self.tooltip and IsCurrentSpell(self.tooltip) then
 				self:SetChecked(true)
 			else
 				self:SetChecked(false)
@@ -33,17 +33,15 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 		if (not name) or (not icon) then return end
 
 		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate,SecureActionButtonTemplate')
-		tab.spell = name
-		tab.spellID = id
-		tab.tooltip = name
+		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', 1, -44 * index + (-32 * isSub))
 
 		tab:SetScript('OnEvent', isCurrentTab)
 		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
 
+		tab.tooltip = name
 		tab:SetAttribute('type', 'spell')
 		tab:SetAttribute('spell', name)
 		tab:SetNormalTexture(icon)
-		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', 1, -44 * index + (-32 * isSub))
 		tab:Show()
 
 		isCurrentTab(tab)
