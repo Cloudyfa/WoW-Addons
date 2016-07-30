@@ -19,12 +19,10 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 --- Local Functions ---
 	--- Check Current Tab ---
 	local function isCurrentTab(self)
-		if TradeSkillFrame and TradeSkillFrame:IsShown() then
-			if self.tooltip and IsCurrentSpell(self.tooltip) then
-				self:SetChecked(true)
-			else
-				self:SetChecked(false)
-			end
+		if self.tooltip and IsCurrentSpell(self.tooltip) then
+			self:SetChecked(true)
+		else
+			self:SetChecked(false)
 		end
 	end
 
