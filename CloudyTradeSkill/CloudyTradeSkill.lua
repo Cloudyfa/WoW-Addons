@@ -18,15 +18,11 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 --- Local Functions ---
 	--- Check Current Tab ---
 	local function isCurrentTab(self)
-		if InCombatLockdown() then return end
-
 		if TradeSkillFrame and TradeSkillFrame:IsShown() then
 			if self.spell and IsCurrentSpell(self.spell) then
 				self:SetChecked(true)
-				self:Disable()
 			else
 				self:SetChecked(false)
-				self:Enable()
 			end
 		end
 	end
