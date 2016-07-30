@@ -8,6 +8,7 @@
 --- Variables ---
 local itemDisplay = 30
 local enableTabs = true
+local numTabs = 0
 
 
 --- Create Frame ---
@@ -36,9 +37,7 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', 1, -44 * index + (-32 * isSub))
 
 		tab:SetScript('OnEvent', isCurrentTab)
-		if not tab:IsEventRegistered('CURRENT_SPELL_CAST_CHANGED') then
-			tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
-		end
+		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
 
 		tab.tooltip = name
 		tab:SetAttribute('type', 'spell')
@@ -51,9 +50,10 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 
 	--- Remove Tab Buttons ---
 	local function removeTabs()
-		for i = 1, 10 do
+		for i = 1, numTabs do
 			local tab = _G['CTradeSkillTab' .. i]
 			if tab and tab:IsShown() then
+				tab:UnregisterEvent('CURRENT_SPELL_CAST_CHANGED')
 				tab:Hide()
 			end
 		end
@@ -84,12 +84,14 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 			end
 		end
 
-		for i = 1, #mainTabs do
-			addTab(mainTabs[i], i, 0)
+		if not (numTabs == #mainTabs + #subTabs) then
+			removeTabs()
+			numTabs = #mainTabs + #subTabs
+			for i = 1, numTabs do
+				addTab(mainTabs[i] or subTabs[i - #mainTabs], i, mainTabs[i] and 0 or 1)
+			end
 		end
-		for i = 1, #subTabs do
-			addTab(subTabs[i], #mainTabs + i, 1)
-		end
+
 	end
 
 
@@ -140,7 +142,6 @@ f:SetScript('OnEvent', function(self, event, ...)
 				HybridScrollFrame_CreateButtons(TradeSkillFrame.RecipeList, 'TradeSkillRowButtonTemplate', 0, 0)
 			end
 			if enableTabs and not InCombatLockdown() then
-				removeTabs()
 				updateTabs()
 			end
 		end
