@@ -67,7 +67,7 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 		if class == 'DEATHKNIGHT' then
 			mainTabs[1] = 53428 --RuneForging
 		elseif class == 'ROGUE' then
-			mainTabs[1] = 1804 --PickLock
+			subTabs[1] = 1804 --PickLock
 		end
 
 		local prof1, prof2, arch, fishing, cooking, firstaid = GetProfessions()
