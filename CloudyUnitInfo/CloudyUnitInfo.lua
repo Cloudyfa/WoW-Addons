@@ -6,7 +6,7 @@
 
 
 --- Variables ---
-local currentUNIT, currentGUID
+local currentUNIT, currentGUID, scanTip
 local GearDB, SpecDB = {}, {}
 
 local nextInspectRequest = 0
@@ -17,6 +17,7 @@ local detailColor = '|cffffffff'
 
 local gearPrefix = STAT_AVERAGE_ITEM_LEVEL .. ': '
 local specPrefix = SPECIALIZATION .. ': '
+local lvlPattern = gsub(ITEM_LEVEL, '%%d', '(%%d+)')
 
 
 --- Create Frame ---
@@ -68,31 +69,6 @@ local function SetUnitInfo(gear, spec)
 end
 
 
---- Upgraded Item Bonus ---
-local UGBonus = {
-	['001'] =  8, ['373'] =  4, ['374'] =  8, ['375'] =  4,
-	['376'] =  4, ['377'] =  4, ['379'] =  4, ['380'] =  4,
-	['446'] =  4, ['447'] =  8, ['452'] =  8, ['454'] =  4,
-	['455'] =  8, ['457'] =  8, ['459'] =  4, ['460'] =  8,
-	['461'] = 12, ['462'] = 16, ['466'] =  4, ['467'] =  8,
-	['469'] =  4, ['470'] =  8, ['471'] = 12, ['472'] = 16,
-	['492'] =  4, ['493'] =  8, ['494'] =  4, ['495'] =  8,
-	['496'] =  8, ['497'] = 12, ['498'] = 16, ['504'] = 12,
-	['505'] = 16, ['506'] = 20, ['507'] = 24, ['530'] =  5,
-	['531'] = 10,
-}
-
-
---- Timewarped Items ---
-local TWItems = {
-	-- Timewarped
-	['615'] = 660,
-	['692'] = 675,
-	-- Warforged
-	['656'] = 675,
-}
-
-
 --- BOA Items ---
 local BOAItems = {
 	['133585'] = 1, ['133595'] = 1, ['133596'] = 1,
@@ -141,6 +117,27 @@ local function IsPVPItem(link)
 end
 
 
+--- Scan Item Level ---
+local function scanItemLevel(link)
+	if not scanTip then
+		scanTip = CreateFrame('GameTooltip', 'CUnitScan', nil, 'GameTooltipTemplate')
+ 		scanTip:SetOwner(UIParent, 'ANCHOR_NONE')
+	end
+	scanTip:ClearLines()
+ 	scanTip:SetHyperlink(link)
+
+	for i = 2, scanTip:NumLines() do
+		local textLine = _G['CUnitScanTextLeft' .. i]
+		if textLine and textLine:GetText() then
+			local level = strmatch(textLine:GetText(), lvlPattern)
+			if level then
+				return tonumber(level)
+			end
+		end
+	end
+end
+
+
 --- Unit Gear Info ---
 local function UnitGear(unit)
 	if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
@@ -175,15 +172,7 @@ local function UnitGear(unit)
 								pvp = pvp + 1
 							end
 
-							local tid = strmatch(itemLink, '.+:512:22.+:(%d+):100')
-							if TWItems[tid] then
-								level = TWItems[tid]
-							elseif (level >= 458) then
-								local uid = strmatch(itemLink, '.+:(%d+)')
-								if UGBonus[uid] then
-									level = level + UGBonus[uid]
-								end
-							end
+							level = scanItemLevel(itemLink) or level
 						end
 
 						if (i == 16) then
