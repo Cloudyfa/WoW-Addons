@@ -47,7 +47,6 @@ local function SetUnitInfo(gear, spec)
 
 	if gear then
 		gear = prefixColor .. gearPrefix .. detailColor .. gear
-
 		if gearLine then
 			gearLine:SetText(gear)
 		else
@@ -55,9 +54,8 @@ local function SetUnitInfo(gear, spec)
 		end
 	end
 
-	if spec then
+	if spec and UnitLevel(unit) > 10 then
 		spec = prefixColor .. specPrefix .. detailColor .. spec
-
 		if specLine then
 			specLine:SetText(spec)
 		else
@@ -95,8 +93,10 @@ local function BOALevel(level, id)
 		level = 187 - (80 - level) * 4
 	elseif (level > 57) then
 		level = 105 - (67 - level) * 2.8
-	else
+	elseif (level > 10) then
 		level = level + 5
+	else
+		level = 10
 	end
 
 	return floor(level + 0.5)
@@ -214,7 +214,6 @@ local function UnitSpec(unit)
 	if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
 
 	local specName
-
 	if (unit == 'player') then
 		local specIndex = GetSpecialization()
 
@@ -338,9 +337,7 @@ end)
 
 GameTooltip:HookScript('OnTooltipSetUnit', function(self)
 	local _, unit = self:GetUnit()
-
 	if (not unit) or (not CanInspect(unit)) then return end
-	if (UnitLevel(unit) > 0) and (UnitLevel(unit) < 10) then return end
 
 	currentUNIT, currentGUID = unit, UnitGUID(unit)
 	ScanUnit(unit)
