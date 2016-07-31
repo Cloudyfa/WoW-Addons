@@ -102,6 +102,7 @@ local BOAItems = {
 
 --- BOA Item Level ---
 local function BOALevel(level, id)
+	if (level > 100) then level = 100 end
 	if (level > 97) then
 		if BOAItems[id] then
 			level = 715
@@ -122,7 +123,7 @@ local function BOALevel(level, id)
 		level = level + 5
 	end
 
-	return level
+	return floor(level + 0.5)
 end
 
 
@@ -147,7 +148,7 @@ local function UnitGear(unit)
 	local ulvl = UnitLevel(unit)
 	local class = select(2, UnitClass(unit))
 
-	local boa, pvp = 0, 0
+	local boa, pvp, twohand = 0, 0, 1
 	local ilvl, total, delay = 0, 0, nil
 
 	for i = 1, 17 do
@@ -168,7 +169,7 @@ local function UnitGear(unit)
 						if (quality == 7) then
 							boa = boa + 1
 							local id = strmatch(itemLink, 'item:(%d+)')
-							total = total + BOALevel(ulvl, id)
+							level = BOALevel(ulvl, id)
 						else
 							if IsPVPItem(itemLink) then
 								pvp = pvp + 1
@@ -183,15 +184,15 @@ local function UnitGear(unit)
 									level = level + UGBonus[uid]
 								end
 							end
-
-							total = total + level
 						end
 
 						if (i == 16) then
 							if (slot == 'INVTYPE_2HWEAPON') or (slot == 'INVTYPE_RANGED') or ((slot == 'INVTYPE_RANGEDRIGHT') and (class == 'HUNTER')) then
-								total = total + level
+								twohand = 2
 							end
 						end
+
+						total = total + level * twohand
 					end
 				end
 			end
