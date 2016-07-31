@@ -7,7 +7,7 @@
 
 --- Variables ---
 local currentUNIT, currentGUID, scanTip
-local GearDB, SpecDB = {}, {}
+local GearDB, SpecDB, ItemDB = {}, {}, {}
 
 local nextInspectRequest = 0
 lastInspectRequest = 0
@@ -119,6 +119,8 @@ end
 
 --- Scan Item Level ---
 local function scanItemLevel(link)
+	if ItemDB[link] then return ItemDB[link] end
+
 	if not scanTip then
 		scanTip = CreateFrame('GameTooltip', 'CUnitScan', nil, 'GameTooltipTemplate')
  		scanTip:SetOwner(UIParent, 'ANCHOR_NONE')
@@ -131,7 +133,8 @@ local function scanItemLevel(link)
 		if textLine and textLine:GetText() then
 			local level = strmatch(textLine:GetText(), lvlPattern)
 			if level then
-				return tonumber(level)
+				ItemDB[link] = tonumber(level)
+				return ItemDB[link]
 			end
 		end
 	end
