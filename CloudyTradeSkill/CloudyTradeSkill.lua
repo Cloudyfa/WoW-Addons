@@ -5,15 +5,18 @@
 ]]
 
 
---- Variables ---
+--- Initialization ---
 local itemDisplay = 30
-local enableTabs = true
 local numTabs = 0
+local function InitDB()
+	itemDisplay = CTSkill_itemDisplay
+end
 
 
 --- Create Frame ---
 local f = CreateFrame('Frame', 'CloudyTradeSkill')
 f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
+f:RegisterEvent('PLAYER_LOGIN')
 
 
 --- Local Functions ---
@@ -209,12 +212,15 @@ end
 
 --- Handle Events ---
 f:SetScript('OnEvent', function(self, event, ...)
-	if (event == 'TRADE_SKILL_LIST_UPDATE') then
+	if (event == 'PLAYER_LOGIN') then
+		InitDB()
+		updateSize()
+	elseif (event == 'TRADE_SKILL_LIST_UPDATE') then
 		if TradeSkillFrame and TradeSkillFrame.RecipeList then
 			if TradeSkillFrame.RecipeList.buttons and #TradeSkillFrame.RecipeList.buttons < (itemDisplay + 2) then
 				HybridScrollFrame_CreateButtons(TradeSkillFrame.RecipeList, 'TradeSkillRowButtonTemplate', 0, 0)
 			end
-			if enableTabs and not InCombatLockdown() then
+			if not InCombatLockdown() then
 				updateTabs()
 			end
 		end
