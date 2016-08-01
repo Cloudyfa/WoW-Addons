@@ -32,7 +32,7 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 		if (not name) or (not icon) then return end
 
 		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate,SecureActionButtonTemplate')
-		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', 1, -44 * index + (-32 * isSub))
+		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', 0, -44 * index + (-32 * isSub))
 
 		tab:SetScript('OnEvent', isCurrentTab)
 		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
@@ -78,13 +78,16 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 		local prof1, prof2, arch, fishing, cooking, firstaid = GetProfessions()
 		local profs = {prof1, prof2, cooking, firstaid}
 		for _, prof in pairs(profs) do
-			local num, offset = select(5, GetProfessionInfo(prof))
+			local num, offset, _, _, _, spec = select(5, GetProfessionInfo(prof))
+			if (spec and spec ~= 0) then num = 1 end
 			for i = 1, num do
-				local _, id = GetSpellBookItemInfo(offset + i, BOOKTYPE_PROFESSION)
-				if (i == 1) then
-					mainTabs[#mainTabs + 1] = id
-				else
-					subTabs[#subTabs + 1] = id
+				if not IsPassiveSpell(offset + i, BOOKTYPE_PROFESSION) then
+					local _, id = GetSpellBookItemInfo(offset + i, BOOKTYPE_PROFESSION)
+					if (i == 1) then
+						mainTabs[#mainTabs + 1] = id
+					else
+						subTabs[#subTabs + 1] = id
+					end
 				end
 			end
 		end
@@ -151,7 +154,7 @@ TradeSkillFrame.DetailsFrame.Background:SetHeight(itemDisplay * 16 - 17) --383
 f:SetScript('OnEvent', function(self, event, ...)
 	if (event == 'TRADE_SKILL_LIST_UPDATE') then
 		if TradeSkillFrame and TradeSkillFrame.RecipeList then
-			if TradeSkillFrame.RecipeList.buttons and #TradeSkillFrame.RecipeList.buttons ~= (itemDisplay + 2) then
+			if TradeSkillFrame.RecipeList.buttons and #TradeSkillFrame.RecipeList.buttons < (itemDisplay + 2) then
 				HybridScrollFrame_CreateButtons(TradeSkillFrame.RecipeList, 'TradeSkillRowButtonTemplate', 0, 0)
 			end
 			if enableTabs and not InCombatLockdown() then
