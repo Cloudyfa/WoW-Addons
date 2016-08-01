@@ -105,9 +105,10 @@ ItemRefTooltip:HookScript('OnTooltipSetItem', OnTooltipSetItem)
 
 --- Pet Unit Tooltip ---
 GameTooltip:HookScript('OnTooltipSetUnit', function(self)
-	local name, unit = self:GetUnit()
+	local _, unit = self:GetUnit()
 
 	if unit and UnitIsWildBattlePet(unit) then
+		local name = GetUnitName(unit)
 		SetPetInfo(self, name)
 	end
 end)
