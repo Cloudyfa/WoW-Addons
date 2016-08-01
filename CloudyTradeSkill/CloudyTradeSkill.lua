@@ -9,7 +9,7 @@
 local itemDisplay = 30
 local numTabs = 0
 local function InitDB()
-	itemDisplay = CTSkill_itemDisplay
+	itemDisplay = CTSkill_itemDisplay or itemDisplay
 end
 
 
@@ -35,7 +35,7 @@ f:RegisterEvent('PLAYER_LOGIN')
 		if (not name) or (not icon) then return end
 
 		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate,SecureActionButtonTemplate')
-		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', 0, -44 * index + (-32 * isSub))
+		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', 0, -44 * index + (-50 * isSub))
 
 		tab:SetScript('OnEvent', isCurrentTab)
 		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
@@ -139,7 +139,7 @@ f:RegisterEvent('PLAYER_LOGIN')
 		end
 	end)
 
-	--- Mouse Events ---
+	--- Mouse Click Events ---
 	local offsetX, offsetY
 	local function resizeBar_OnMouseDown(self, button)
 		if (button == 'LeftButton') and not InCombatLockdown() then
@@ -173,19 +173,19 @@ f:RegisterEvent('PLAYER_LOGIN')
 		end
 	end
 	local function resizeBar_OnLeave()
-		ResetCursor()
+		if not InCombatLockdown() then
+			ResetCursor()
+		end
 	end
 
+
 --- Create Resize Bar ---
-local resizeBar
-if resizeBar == nil then
-	resizeBar = CreateFrame('Button', nil, TradeSkillFrame)
-	resizeBar:SetAllPoints(TradeSkillFrameBottomBorder)
-	resizeBar:SetScript('OnMouseDown', resizeBar_OnMouseDown)
-	resizeBar:SetScript('OnMouseUp', resizeBar_OnMouseUp)
-	resizeBar:SetScript('OnEnter', resizeBar_OnEnter)
-	resizeBar:SetScript('OnLeave', resizeBar_OnLeave)
-end
+resizeBar = CreateFrame('Button', nil, TradeSkillFrame)
+resizeBar:SetAllPoints(TradeSkillFrameBottomBorder)
+resizeBar:SetScript('OnMouseDown', resizeBar_OnMouseDown)
+resizeBar:SetScript('OnMouseUp', resizeBar_OnMouseUp)
+resizeBar:SetScript('OnEnter', resizeBar_OnEnter)
+resizeBar:SetScript('OnLeave', resizeBar_OnLeave)
 
 
 --- Fix SearchBox ---
