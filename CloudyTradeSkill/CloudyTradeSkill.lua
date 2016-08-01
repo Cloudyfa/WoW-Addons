@@ -110,6 +110,80 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 		end
 	end
 
+	--- Update Frame Size ---
+	local function updateSize()
+		TradeSkillFrame:SetHeight(itemDisplay * 16 + 96) --496
+		TradeSkillFrame.RecipeInset:SetHeight(itemDisplay * 16 + 10) --410
+		TradeSkillFrame.DetailsInset:SetHeight(itemDisplay * 16 - 10) --390
+		TradeSkillFrame.DetailsFrame:SetHeight(itemDisplay * 16 - 15) --385
+		TradeSkillFrame.DetailsFrame.Background:SetHeight(itemDisplay * 16 - 17) --383
+
+		if TradeSkillFrame.RecipeList.FilterBar:IsVisible() then
+			TradeSkillFrame.RecipeList:SetHeight(itemDisplay * 16 - 11) --389
+		else
+			TradeSkillFrame.RecipeList:SetHeight(itemDisplay * 16 + 5) --405
+		end
+	end
+
+	--- Refresh Recipe List ---
+	hooksecurefunc('HybridScrollFrame_Update', function(self, ...)
+		if (self == TradeSkillFrame.RecipeList) then
+			if self.FilterBar:IsVisible() then
+				self:SetHeight(itemDisplay * 16 - 11) --389
+			else
+				self:SetHeight(itemDisplay * 16 + 5) --405
+			end
+		end
+	end)
+
+	--- Mouse Events ---
+	local offsetX, offsetY
+	local function resizeBar_OnMouseDown(self, button)
+		if (button == 'LeftButton') and not InCombatLockdown() then
+			offsetX = TradeSkillFrame:GetLeft()
+			offsetY = TradeSkillFrame:GetTop()
+
+			TradeSkillFrame:SetResizable(true)
+			TradeSkillFrame:SetMinResize(670, offsetY/2 + 100)
+			TradeSkillFrame:SetMaxResize(670, offsetY - 50)
+			TradeSkillFrame:StartSizing('BOTTOM')
+		end
+	end
+	local function resizeBar_OnMouseUp(self, button)
+		if (button == 'LeftButton') and not InCombatLockdown() then
+			TradeSkillFrame:StopMovingOrSizing()
+			TradeSkillFrame:SetResizable(false)
+			TradeSkillFrame:ClearAllPoints()
+			TradeSkillFrame:SetPoint('TOPLEFT', UIParent, 'BOTTOMLEFT', offsetX, offsetY)
+
+			local item = (TradeSkillFrame:GetHeight() - 96) / 16
+			itemDisplay = floor(item, 0.5)
+			CTSkill_itemDisplay = itemDisplay
+			updateSize()
+		end
+	end
+
+	--- Change Mouse Cursor ---
+	local function resizeBar_OnEnter()
+		if not InCombatLockdown() then
+			SetCursor('CAST_CURSOR')
+		end
+	end
+	local function resizeBar_OnLeave()
+		ResetCursor()
+	end
+
+--- Create Resize Bar ---
+local resizeBar
+if resizeBar == nil then
+	resizeBar = CreateFrame('Button', nil, TradeSkillFrame)
+	resizeBar:SetAllPoints(TradeSkillFrameBottomBorder)
+	resizeBar:SetScript('OnMouseDown', resizeBar_OnMouseDown)
+	resizeBar:SetScript('OnMouseUp', resizeBar_OnMouseUp)
+	resizeBar:SetScript('OnEnter', resizeBar_OnEnter)
+	resizeBar:SetScript('OnLeave', resizeBar_OnLeave)
+end
+
 
 --- Fix SearchBox ---
 hooksecurefunc('ChatEdit_InsertLink', function(link)
@@ -131,23 +205,6 @@ C_TradeSkillUI.GetRecipeLink = function(link)
 		return getRecipe(link)
 	end
 end
-
-
---- Modify Default Frame ---
-hooksecurefunc('HybridScrollFrame_Update', function(self, ...)
-	if (self == TradeSkillFrame.RecipeList) then
-		if self.FilterBar:IsVisible() then
-			self:SetHeight(itemDisplay * 16 - 11) --389
-		else
-			self:SetHeight(itemDisplay * 16 + 5) --405
-		end
-	end
-end)
-TradeSkillFrame:SetHeight(itemDisplay * 16 + 96) --496
-TradeSkillFrame.RecipeInset:SetHeight(itemDisplay * 16 + 10) --410
-TradeSkillFrame.DetailsInset:SetHeight(itemDisplay * 16 - 10) --390
-TradeSkillFrame.DetailsFrame:SetHeight(itemDisplay * 16 - 15) --385
-TradeSkillFrame.DetailsFrame.Background:SetHeight(itemDisplay * 16 - 17) --383
 
 
 --- Handle Events ---
