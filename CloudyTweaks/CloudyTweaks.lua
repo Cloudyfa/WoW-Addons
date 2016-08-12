@@ -294,8 +294,8 @@ local function CTweaks_Hooks()
 		if (not CTweaksDB['QuestLevel']) or (not GossipFrame:IsShown()) then return end
 
 		local GossipQuests = scanGossip()
-
 		for _, quest in pairs(GossipQuests) do
+			if (not quest.level) or (not quest.title) then return end
 			if (quest.level == -1) then quest.level = UnitLevel('player') end
 
 			for i = 1, GossipFrame.buttonIndex do
@@ -314,7 +314,6 @@ local function CTweaks_Hooks()
 		if (not CTweaksDB['QuestLevel']) or (not QuestFrameGreetingPanel:IsShown()) then return end
 
 		local GreetingQuests = scanGreeting()
-
 		for index, quest in pairs(GreetingQuests) do
 			if (quest.level == -1) then quest.level = UnitLevel('player') end
 
