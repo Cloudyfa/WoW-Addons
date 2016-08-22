@@ -41,7 +41,7 @@ local function CTweaksDB_Init()
 		CTweaksDB['ChatArrow'] = 1
 		CTweaksDB['EliteFrame'] = 1
 		CTweaksDB['HideGryphons'] = nil
-		CTweaksDB['ActionCam'] = 1
+		CTweaksDB['CamDistance'] = nil
 	end
 end
 
@@ -467,10 +467,10 @@ local function CTweaks_Handler()
 		MainMenuBarRightEndCap:Show()
 	end
 
-	if CTweaksDB['ActionCam'] then
-		ConsoleExec('ActionCam on')
+	if CTweaksDB['CamDistance'] then
+		SetCVar('cameraDistanceMaxFactor', '2.6')
 	else
-		ConsoleExec('ActionCam off')
+		SetCVar('cameraDistanceMaxFactor', '1.9')
 	end
 end
 
@@ -478,6 +478,7 @@ end
 --- CTweaks Loaded ---
 function CTweaks_OnLoad(self)
 	self:RegisterEvent('PLAYER_LOGIN')
+	self:RegisterEvent('PLAYER_ENTERING_WORLD')
 end
 
 
@@ -489,6 +490,11 @@ function CTweaks_OnEvent(self, event, ...)
 
 		CTweaks_Hooks()
 		CTweaks_Handler()
+
+	elseif (event == 'PLAYER_ENTERING_WORLD') then
+		if CTweaksDB['CamDistance'] then
+			SetCVar('cameraDistanceMaxFactor', '2.6')
+		end
 
 	elseif (event == 'CONFIRM_LOOT_ROLL') or (event == 'CONFIRM_DISENCHANT_ROLL') then
 		local id, roll = ...
@@ -679,7 +685,7 @@ function CTweaksUI_Load()
 	CTweaksUI_ChatArrow:SetChecked(CTweaksDB['ChatArrow'])
 	CTweaksUI_EliteFrame:SetChecked(CTweaksDB['EliteFrame'])
 	CTweaksUI_HideGryphons:SetChecked(CTweaksDB['HideGryphons'])
-	CTweaksUI_ActionCam:SetChecked(CTweaksDB['ActionCam'])
+	CTweaksUI_CamDistance:SetChecked(CTweaksDB['CamDistance'])
 end
 
 
@@ -714,7 +720,7 @@ function CTweaksUI_Save()
 	CTweaksDB['ChatArrow'] = CTweaksUI_ChatArrow:GetChecked()
 	CTweaksDB['EliteFrame'] = CTweaksUI_EliteFrame:GetChecked()
 	CTweaksDB['HideGryphons'] = CTweaksUI_HideGryphons:GetChecked()
-	CTweaksDB['ActionCam'] = CTweaksUI_ActionCam:GetChecked()
+	CTweaksDB['CamDistance'] = CTweaksUI_CamDistance:GetChecked()
 end
 
 
@@ -764,5 +770,5 @@ function CTweaksUI_OnLoad(self)
 	CTweaksUI_ChatArrowText:SetText('Enable chat arrow keys')
 	CTweaksUI_EliteFrameText:SetText('Player elite frame')
 	CTweaksUI_HideGryphonsText:SetText('Hide gryphons')
-	CTweaksUI_ActionCamText:SetText('Action camera mode')
+	CTweaksUI_CamDistanceText:SetText('Increase camera distance')
 end

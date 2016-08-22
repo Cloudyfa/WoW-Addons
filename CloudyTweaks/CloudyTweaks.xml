@@ -323,7 +323,7 @@
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_ActionCam" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_CamDistance" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_HideGryphons" relativePoint="BOTTOMLEFT" />
 				</Anchors>
