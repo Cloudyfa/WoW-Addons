@@ -149,6 +149,7 @@ local function UnitGear(unit)
 	local class = select(2, UnitClass(unit))
 
 	local boa, pvp = 0, 0
+	local flvl, fslot = 0, 0
 	local ilvl, total, delay = 0, 0, nil
 
 	for i = 1, 17 do
@@ -179,8 +180,30 @@ local function UnitGear(unit)
 						end
 
 						if (i == 16) then
+							if (class == 'WARRIOR') then
+								flvl = level
+								fslot = slot
+							end
 							if (slot == 'INVTYPE_2HWEAPON') or (slot == 'INVTYPE_RANGED') or ((slot == 'INVTYPE_RANGEDRIGHT') and (class == 'HUNTER')) then
 								level = level * 2
+							end
+						end
+
+						if (i == 17) and (class == 'WARRIOR') then
+							if (fslot ~= 'INVTYPE_2HWEAPON') and (slot == 'INVTYPE_2HWEAPON') then
+								if (level > flvl) then
+									level = level * 2 - flvl
+								end
+							elseif (fslot == 'INVTYPE_2HWEAPON') then
+								if (level > flvl) then
+									if (slot == 'INVTYPE_2HWEAPON') then
+										level = level * 2 - flvl * 2
+									else
+										level = level - flvl
+									end
+								else
+									level = 0
+								end
 							end
 						end
 
