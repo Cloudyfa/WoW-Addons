@@ -204,6 +204,16 @@ end)
 TradeSkillFrame.SearchBox:SetWidth(205)
 
 
+--- Fix StackSplit ---
+hooksecurefunc('ContainerFrameItemButton_OnModifiedClick', function(self, button)
+	if TradeSkillFrame and TradeSkillFrame:IsShown() then
+		if (button == 'LeftButton') then
+			StackSplitFrame:Hide()
+		end
+	end
+end)
+
+
 --- Fix RecipeLink ---
 local getRecipe = C_TradeSkillUI.GetRecipeLink
 C_TradeSkillUI.GetRecipeLink = function(link)
