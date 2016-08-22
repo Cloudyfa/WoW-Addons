@@ -120,15 +120,18 @@ local function CTipMod_Hooks()
 
 	-- Tooltip Color --
 	GameTooltip:HookScript('OnUpdate', function(self)
-		local _, unit = self:GetUnit()
-		local color = unit and GetUnitColor(unit)
+		local name, unit = self:GetUnit()
 
-		if (not color) then
+		if (not name) and (not unit) then
 			local _, link = self:GetItem()
-			color = link and strmatch(link, '(|c%x+)')
+			local color = link and strmatch(link, '(|c%x+)')
+			ColorTooltip(self, color)
+		else
+			local color = unit and GetUnitColor(unit)
+			if color then
+				ColorTooltip(self, color)
+			end
 		end
-
-		ColorTooltip(self, color)
 	end)
 
 	-- Hyperlink Tooltip Color --
