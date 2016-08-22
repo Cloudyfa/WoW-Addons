@@ -8,6 +8,7 @@
 --- Initialization ---
 local itemDisplay = 30
 local numTabs = 0
+local searchTxt = ''
 local function InitDB()
 	itemDisplay = CTSkill_itemDisplay or itemDisplay
 end
@@ -15,8 +16,10 @@ end
 
 --- Create Frame ---
 local f = CreateFrame('Frame', 'CloudyTradeSkill')
-f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 f:RegisterEvent('PLAYER_LOGIN')
+f:RegisterEvent('TRADE_SKILL_SHOW')
+f:RegisterEvent('TRADE_SKILL_CLOSE')
+f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 
 
 --- Local Functions ---
@@ -24,6 +27,9 @@ f:RegisterEvent('PLAYER_LOGIN')
 	local function isCurrentTab(self)
 		if self.tooltip and IsCurrentSpell(self.tooltip) then
 			self:SetChecked(true)
+			searchTxt = TradeSkillFrame.SearchBox:GetText()
+			TradeSkillFrame.SearchBox:SetText('')
+			TradeSkillFrame.SearchBox:SetText(searchTxt)
 		else
 			self:SetChecked(false)
 		end
@@ -228,6 +234,10 @@ f:SetScript('OnEvent', function(self, event, ...)
 	if (event == 'PLAYER_LOGIN') then
 		InitDB()
 		updateSize()
+	elseif (event == 'TRADE_SKILL_SHOW') then
+		TradeSkillFrame.SearchBox:SetText(searchTxt)
+	elseif (event == 'TRADE_SKILL_CLOSE') then
+		searchTxt = TradeSkillFrame.SearchBox:GetText()
 	elseif (event == 'TRADE_SKILL_LIST_UPDATE') then
 		if TradeSkillFrame and TradeSkillFrame.RecipeList then
 			if TradeSkillFrame.RecipeList.buttons and #TradeSkillFrame.RecipeList.buttons < (itemDisplay + 2) then
