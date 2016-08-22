@@ -148,7 +148,7 @@ local function UnitGear(unit)
 	local ulvl = UnitLevel(unit)
 	local class = select(2, UnitClass(unit))
 
-	local boa, pvp, twohand = 0, 0, 1
+	local boa, pvp = 0, 0
 	local ilvl, total, delay = 0, 0, nil
 
 	for i = 1, 17 do
@@ -180,11 +180,11 @@ local function UnitGear(unit)
 
 						if (i == 16) then
 							if (slot == 'INVTYPE_2HWEAPON') or (slot == 'INVTYPE_RANGED') or ((slot == 'INVTYPE_RANGEDRIGHT') and (class == 'HUNTER')) then
-								twohand = 2
+								level = level * 2
 							end
 						end
 
-						total = total + level * twohand
+						total = total + level
 					end
 				end
 			end
@@ -192,13 +192,9 @@ local function UnitGear(unit)
 	end
 
 	if (not delay) then
-		if (unit == 'player') and (GetAverageItemLevel() > 0) then
-			ilvl = select(2, GetAverageItemLevel())
-		else
-			ilvl = total / 16
-		end
-
+		ilvl = total / 16
 		if (ilvl > 0) then ilvl = string.format('%.1f', ilvl) end
+
 		if (boa > 0) then ilvl = ilvl .. '  |cffe6cc80' .. boa .. ' BOA' end
 		if (pvp > 0) then ilvl = ilvl .. '  |cffa335ee' .. pvp .. ' PVP' end
 	else
@@ -294,7 +290,7 @@ hooksecurefunc('PaperDollFrame_SetArmor', function(_, unit)
 	CharacterStatsPane.ItemLevelCategory:Show()
 	CharacterStatsPane.ItemLevelFrame:Show()
 	CharacterStatsPane.ItemLevelFrame.Value:SetText(ilvl)
-	CharacterStatsPane.AttributesCategory:SetPoint('TOP', CharacterStatsPane.ItemLevelFrame, 'BOTTOM', 0, -10)
+	CharacterStatsPane.AttributesCategory:SetPoint('TOP', CharacterStatsPane.ItemLevelFrame, 'BOTTOM', 0, -2)
 end)
 
 
