@@ -191,6 +191,9 @@ resizeBar:SetScript('OnLeave', resizeBar_OnLeave)
 --- Fix SearchBox ---
 hooksecurefunc('ChatEdit_InsertLink', function(link)
 	if link and TradeSkillFrame and TradeSkillFrame:IsShown() then
+		local activeWindow = ChatEdit_GetActiveWindow();
+		if activeWindow then return end
+
 		local text = strmatch(link, '|h%[(.+)%]|h|r')
 		if text then
 			text = strmatch(text, ':%s(.+)') or text
