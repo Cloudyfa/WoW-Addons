@@ -1,7 +1,7 @@
 ## Interface: 70000
 ## Title: Cloudy TradeSkill
 ## Notes: Improve default TradeSkill UI.
-## Version: 1.6
+## Version: 1.7
 ## Author: Cloudyfa
 ## Dependencies: Blizzard_TradeSkillUI
 ## SavedVariablesPerCharacter: CTSkill_itemDisplay
