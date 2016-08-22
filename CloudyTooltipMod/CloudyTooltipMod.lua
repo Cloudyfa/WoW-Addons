@@ -90,7 +90,7 @@ end
 
 	-- Color Tooltip --
 	local function ColorTooltip(tooltip, color)
-		local r, g, b = 1, 1, 1
+		local r, g, b = 0.7, 0.7, 0.7
 		local border = (CTipModDB['HideBorder'] and 0) or 1
 
 		if CTipModDB['TipColor'] then
@@ -101,8 +101,8 @@ end
 			end
 		end
 
-		tooltip:SetBackdropBorderColor((r + 0.2) * 0.95, (g + 0.2) * 0.95, (b + 0.2) * 0.95, border)
-		tooltip:SetBackdropColor((r + 0.1) * 0.15, (g + 0.1) * 0.15, (b + 0.1) * 0.15)
+		tooltip:SetBackdropBorderColor(r  * 1.2, g * 1.2, b * 1.2, border)
+		tooltip:SetBackdropColor(r * 0.2, g * 0.2, b * 0.2)
 	end
 
 
