@@ -30,6 +30,11 @@ local function CTipModDB_Init()
 		CTipModDB['TargetOfTarget'] = 1
 		CTipModDB['TradeGoodsInfo'] = 1
 	end
+
+	-- Change tooltip style --
+	CTipBackdrop = GameTooltip:GetBackdrop()
+	CTipBackdrop.insets = {left = 2, right = 2, top = 2, bottom = 2}
+	GameTooltipStatusBar:SetHeight(5)
 end
 
 
@@ -91,8 +96,6 @@ end
 	-- Color Tooltip --
 	local function ColorTooltip(tooltip, color)
 		local r, g, b = 0.7, 0.7, 0.7
-		local border = (CTipModDB['HideBorder'] and 0) or 1
-
 		if CTipModDB['TipColor'] then
 			if color and (strlen(color) == 10) then
 				r = tonumber(strsub(color, 5, 6), 16) / 255
@@ -101,7 +104,7 @@ end
 			end
 		end
 
-		tooltip:SetBackdropBorderColor(r  * 1.2, g * 1.2, b * 1.2, border)
+		tooltip:SetBackdropBorderColor(r  * 1.2, g * 1.2, b * 1.2)
 		tooltip:SetBackdropColor(r * 0.2, g * 0.2, b * 0.2)
 	end
 
@@ -394,6 +397,13 @@ local function CTipMod_Handler()
 	else
 		GameTooltipStatusBar:SetStatusBarTexture('Interface\\TargetingFrame\\UI-TargetingFrame-BarFill')
 	end
+
+	if CTipModDB['HideBorder'] then
+		CTipBackdrop.edgeSize = 0.01
+	else
+		CTipBackdrop.edgeSize = 12
+	end
+	GameTooltip:SetBackdrop(CTipBackdrop)
 
 	GameTooltip:SetScale(CTipModDB['TipScale'])
 	ItemRefTooltip:SetScale(CTipModDB['TipScale'])
