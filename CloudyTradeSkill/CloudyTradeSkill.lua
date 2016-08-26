@@ -9,6 +9,7 @@
 local itemDisplay = 30
 local numTabs = 0
 local searchTxt = ''
+local filterMats, filterSkill
 local function InitDB()
 	itemDisplay = CTSkill_itemDisplay or itemDisplay
 end
@@ -18,18 +19,30 @@ end
 local f = CreateFrame('Frame', 'CloudyTradeSkill')
 f:RegisterEvent('PLAYER_LOGIN')
 f:RegisterEvent('TRADE_SKILL_SHOW')
-f:RegisterEvent('TRADE_SKILL_CLOSE')
 f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 
 
 --- Local Functions ---
+	--- Save Filters ---
+	local function saveFilters()
+		searchTxt = TradeSkillFrame.SearchBox:GetText()
+		filterMats = C_TradeSkillUI.GetOnlyShowMakeableRecipes()
+		filterSkill = C_TradeSkillUI.GetOnlyShowSkillUpRecipes()
+	end
+
+	--- Restore Filters ---
+	local function restoreFilters()
+		TradeSkillFrame.SearchBox:SetText('')
+		TradeSkillFrame.SearchBox:SetText(searchTxt)
+		C_TradeSkillUI.SetOnlyShowMakeableRecipes(filterMats)
+		C_TradeSkillUI.SetOnlyShowSkillUpRecipes(filterSkill)
+	end
+
 	--- Check Current Tab ---
 	local function isCurrentTab(self)
 		if self.tooltip and IsCurrentSpell(self.tooltip) then
 			self:SetChecked(true)
-			searchTxt = TradeSkillFrame.SearchBox:GetText()
-			TradeSkillFrame.SearchBox:SetText('')
-			TradeSkillFrame.SearchBox:SetText(searchTxt)
+			restoreFilters()
 		else
 			self:SetChecked(false)
 		end
@@ -279,10 +292,9 @@ f:SetScript('OnEvent', function(self, event, ...)
 		updateSize()
 		injectButtons()
 	elseif (event == 'TRADE_SKILL_SHOW') then
-		TradeSkillFrame.SearchBox:SetText(searchTxt)
-	elseif (event == 'TRADE_SKILL_CLOSE') then
-		searchTxt = TradeSkillFrame.SearchBox:GetText()
+		restoreFilters()
 	elseif (event == 'TRADE_SKILL_LIST_UPDATE') then
+		saveFilters()
 		if TradeSkillFrame and TradeSkillFrame.RecipeList then
 			if TradeSkillFrame.RecipeList.buttons and #TradeSkillFrame.RecipeList.buttons < (itemDisplay + 2) then
 				HybridScrollFrame_CreateButtons(TradeSkillFrame.RecipeList, 'TradeSkillRowButtonTemplate', 0, 0)
