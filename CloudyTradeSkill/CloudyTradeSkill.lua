@@ -43,9 +43,11 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 	local function isCurrentTab(self)
 		if self.tooltip and IsCurrentSpell(self.tooltip) then
 			self:SetChecked(true)
+			self:RegisterForClicks(nil)
 			restoreFilters()
 		else
 			self:SetChecked(false)
+			self:RegisterForClicks('LeftButtonDown')
 		end
 	end
 
