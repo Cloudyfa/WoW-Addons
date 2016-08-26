@@ -62,7 +62,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		local name, _, icon = GetSpellInfo(id)
 		if (not name) or (not icon) then return end
 
-		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate,SecureActionButtonTemplate')
+		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate, SecureActionButtonTemplate')
 		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', skinTabs and 1 or 0, (-44 * index) + (-40 * isSub))
 
 		tab:SetScript('OnEvent', isCurrentTab)
