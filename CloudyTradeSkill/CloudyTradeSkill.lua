@@ -20,6 +20,7 @@ local f = CreateFrame('Frame', 'CloudyTradeSkill')
 f:RegisterEvent('PLAYER_LOGIN')
 f:RegisterEvent('TRADE_SKILL_SHOW')
 f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
+f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 
 --- Local Functions ---
@@ -149,18 +150,12 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 		else
 			TradeSkillFrame.RecipeList:SetHeight(itemDisplay * 16 + 5) --405
 		end
-	end
 
-	--- Refresh Recipe List ---
-	hooksecurefunc('HybridScrollFrame_Update', function(self, ...)
-		if (self == TradeSkillFrame.RecipeList) then
-			if self.FilterBar:IsVisible() then
-				self:SetHeight(itemDisplay * 16 - 11) --389
-			else
-				self:SetHeight(itemDisplay * 16 + 5) --405
-			end
+		if #TradeSkillFrame.RecipeList.buttons < (itemDisplay + 2) then
+			HybridScrollFrame_CreateButtons(TradeSkillFrame.RecipeList, 'TradeSkillRowButtonTemplate', 0, 0)
+			TradeSkillFrame.RecipeList:Refresh()
 		end
-	end)
+	end
 
 	--- Mouse Click Events ---
 	local offsetX, offsetY
@@ -219,6 +214,18 @@ end)
 movBar:SetScript('OnMouseUp', function()
 	TradeSkillFrame:StopMovingOrSizing()
 	TradeSkillFrame:SetMovable(false)
+end)
+
+
+--- Refresh Recipe List ---
+hooksecurefunc('HybridScrollFrame_Update', function(self, ...)
+	if (self == TradeSkillFrame.RecipeList) then
+		if self.FilterBar:IsVisible() then
+			self:SetHeight(itemDisplay * 16 - 11) --389
+		else
+			self:SetHeight(itemDisplay * 16 + 5) --405
+		end
+	end
 end)
 
 
@@ -295,13 +302,9 @@ f:SetScript('OnEvent', function(self, event, ...)
 		restoreFilters()
 	elseif (event == 'TRADE_SKILL_LIST_UPDATE') then
 		saveFilters()
-		if TradeSkillFrame and TradeSkillFrame.RecipeList then
-			if TradeSkillFrame.RecipeList.buttons and #TradeSkillFrame.RecipeList.buttons < (itemDisplay + 2) then
-				HybridScrollFrame_CreateButtons(TradeSkillFrame.RecipeList, 'TradeSkillRowButtonTemplate', 0, 0)
-			end
-			if not InCombatLockdown() then
-				updateTabs()
-			end
+	elseif (event == 'TRADE_SKILL_DATA_SOURCE_CHANGED') then
+		if not InCombatLockdown() then
+			updateTabs()
 		end
 	end
 end)
