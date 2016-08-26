@@ -8,10 +8,16 @@
 --- Initialization ---
 local itemDisplay = 30
 local numTabs = 0
+local skinTabs
 local searchTxt = ''
 local filterMats, filterSkill
 local function InitDB()
 	itemDisplay = CTSkill_itemDisplay or itemDisplay
+	if IsAddOnLoaded('Aurora') then
+		skinTabs = 'Aurora'
+	elseif IsAddOnLoaded('ElvUI') then
+		skinTabs = 'ElvUI'
+	end
 end
 
 
@@ -57,7 +63,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		if (not name) or (not icon) then return end
 
 		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate,SecureActionButtonTemplate')
-		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', 0, -44 * index + (-50 * isSub))
+		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', skinTabs and 1 or 0, (-44 * index) + (-40 * isSub))
 
 		tab:SetScript('OnEvent', isCurrentTab)
 		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
@@ -67,9 +73,25 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		tab:SetAttribute('type', 'spell')
 		tab:SetAttribute('spell', name)
 		tab:SetNormalTexture(icon)
-		tab:Show()
+
+		if skinTabs and not tab.skinned then
+			local checkedTexture
+			if (skinTabs == 'Aurora') then
+				checkedTexture = 'Interface\\AddOns\\Aurora\\media\\CheckButtonHilight'
+			elseif (skinTabs == 'ElvUI') then
+				checkedTexture = tab:CreateTexture(nil, 'HIGHLIGHT')
+				checkedTexture:SetColorTexture(1, 1, 1, 0.3)
+				checkedTexture:SetInside()
+				tab:SetHighlightTexture(nil)
+			end
+			tab:SetCheckedTexture(checkedTexture)
+			tab:GetNormalTexture():SetTexCoord(.08, .92, .08, .92)
+			tab:GetRegions():Hide()
+			tab.skinned = true
+		end
 
 		isCurrentTab(tab)
+		tab:Show()
 	end
 
 	--- Remove Tab Buttons ---
@@ -278,6 +300,15 @@ local function injectButtons()
 		macro:SetPoint(button:GetPoint())
 		macro:SetFrameStrata('HIGH')
 		macro:SetText(text)
+
+		if skinTabs == 'Aurora' then
+			local F = unpack(Aurora)
+			F.Reskin(macro)
+		elseif skinTabs == 'ElvUI' then
+			local E = unpack(ElvUI)
+			local S = E:GetModule('Skins')
+			S:HandleButton(macro, true)
+		end
 
 		macro:HookScript('OnClick', button:GetScript('OnClick'))
 		button:HookScript('OnDisable', function()
