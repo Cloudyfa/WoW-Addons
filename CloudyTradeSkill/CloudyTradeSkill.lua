@@ -153,8 +153,8 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 			offsetY = TradeSkillFrame:GetTop()
 
 			TradeSkillFrame:SetResizable(true)
-			TradeSkillFrame:SetMinResize(670, offsetY/2 + 100)
-			TradeSkillFrame:SetMaxResize(670, offsetY - 50)
+			TradeSkillFrame:SetMinResize(670, 470)
+			TradeSkillFrame:SetMaxResize(670, offsetY - 40)
 			TradeSkillFrame:StartSizing('BOTTOM')
 		end
 	end
@@ -172,32 +172,43 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 		end
 	end
 
-	--- Change Mouse Cursor ---
-	local function resizeBar_OnEnter()
-		if not InCombatLockdown() then
-			SetCursor('CAST_CURSOR')
-		end
-	end
-	local function resizeBar_OnLeave()
-		if not InCombatLockdown() then
-			ResetCursor()
-		end
-	end
-
 
 --- Create Resize Bar ---
-resizeBar = CreateFrame('Button', nil, TradeSkillFrame)
+local resizeBar = CreateFrame('Button', nil, TradeSkillFrame)
 resizeBar:SetAllPoints(TradeSkillFrameBottomBorder)
 resizeBar:SetScript('OnMouseDown', resizeBar_OnMouseDown)
 resizeBar:SetScript('OnMouseUp', resizeBar_OnMouseUp)
-resizeBar:SetScript('OnEnter', resizeBar_OnEnter)
-resizeBar:SetScript('OnLeave', resizeBar_OnLeave)
+resizeBar:SetScript('OnEnter', function()
+	if not InCombatLockdown() then
+		SetCursor('CAST_CURSOR')
+	end
+end)
+resizeBar:SetScript('OnLeave', function()
+	if not InCombatLockdown() then
+		ResetCursor()
+	end
+end)
+
+
+--- Create Movable Bar ---
+local movBar = CreateFrame('Button', nil, TradeSkillFrame)
+movBar:SetAllPoints(TradeSkillFrameTopBorder)
+movBar:SetScript('OnMouseDown', function(self, button)
+	if (button == 'LeftButton') then
+		TradeSkillFrame:SetMovable(true)
+		TradeSkillFrame:StartMoving()
+	end
+end)
+movBar:SetScript('OnMouseUp', function()
+	TradeSkillFrame:StopMovingOrSizing()
+	TradeSkillFrame:SetMovable(false)
+end)
 
 
 --- Fix SearchBox ---
 hooksecurefunc('ChatEdit_InsertLink', function(link)
 	if link and TradeSkillFrame and TradeSkillFrame:IsShown() then
-		local activeWindow = ChatEdit_GetActiveWindow();
+		local activeWindow = ChatEdit_GetActiveWindow()
 		if activeWindow then return end
 
 		local text = strmatch(link, '|h%[(.+)%]|h|r')
