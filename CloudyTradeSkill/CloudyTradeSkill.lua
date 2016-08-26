@@ -84,6 +84,10 @@ f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 			subTabs[1] = 1804 --PickLock
 		end
 
+		if GetItemCount(87216) ~= 0 then
+			subTabs[#subTabs + 1] = 126462 --ThermalAnvil
+		end
+
 		local prof1, prof2, arch, fishing, cooking, firstaid = GetProfessions()
 		local profs = {prof1, prof2, cooking, firstaid}
 		for _, prof in pairs(profs) do
