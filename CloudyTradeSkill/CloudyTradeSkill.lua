@@ -244,11 +244,40 @@ C_TradeSkillUI.GetRecipeLink = function(link)
 end
 
 
+--- Druid Unshapeshift ---
+local function injectButtons()
+	local _, class = UnitClass('player')
+	if (class ~= 'DRUID') then return end
+
+	local function injectMacro(button, text)
+		local macro = CreateFrame('Button', nil, button:GetParent(), 'SecureActionButtonTemplate, MagicButtonTemplate')
+		macro:SetAttribute('type', 'macro')
+		macro:SetAttribute('macrotext', SLASH_CANCELFORM1)
+		macro:SetPoint(button:GetPoint())
+		macro:SetFrameStrata('HIGH')
+		macro:SetText(text)
+
+		macro:HookScript('OnClick', button:GetScript('OnClick'))
+		button:HookScript('OnDisable', function()
+			macro:SetAlpha(0)
+			macro:RegisterForClicks(nil)
+		end)
+		button:HookScript('OnEnable', function()
+			macro:SetAlpha(1)
+			macro:RegisterForClicks('LeftButtonDown')
+		end)
+	end
+	injectMacro(TradeSkillFrame.DetailsFrame.CreateButton, CREATE_PROFESSION)
+	injectMacro(TradeSkillFrame.DetailsFrame.CreateAllButton, CREATE_ALL)
+end
+
+
 --- Handle Events ---
 f:SetScript('OnEvent', function(self, event, ...)
 	if (event == 'PLAYER_LOGIN') then
 		InitDB()
 		updateSize()
+		injectButtons()
 	elseif (event == 'TRADE_SKILL_SHOW') then
 		TradeSkillFrame.SearchBox:SetText(searchTxt)
 	elseif (event == 'TRADE_SKILL_CLOSE') then
