@@ -70,9 +70,15 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 		tab.id = id
 		tab.tooltip = name
-		tab:SetAttribute('type', 'spell')
-		tab:SetAttribute('spell', name)
 		tab:SetNormalTexture(icon)
+
+		if (id == 126462) then
+			tab:SetAttribute('type', 'item')
+			tab:SetAttribute('item', name)
+		else
+			tab:SetAttribute('type', 'spell')
+			tab:SetAttribute('spell', name)
+		end
 
 		if skinTabs and not tab.skinned then
 			local checkedTexture
