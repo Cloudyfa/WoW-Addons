@@ -301,10 +301,10 @@ local function injectButtons()
 		macro:SetFrameStrata('HIGH')
 		macro:SetText(text)
 
-		if skinTabs == 'Aurora' then
+		if (skinTabs == 'Aurora') then
 			local F = unpack(Aurora)
 			F.Reskin(macro)
-		elseif skinTabs == 'ElvUI' then
+		elseif (skinTabs == 'ElvUI') then
 			local E = unpack(ElvUI)
 			local S = E:GetModule('Skins')
 			S:HandleButton(macro, true)
@@ -312,10 +312,12 @@ local function injectButtons()
 
 		macro:HookScript('OnClick', button:GetScript('OnClick'))
 		button:HookScript('OnDisable', function()
+			button:SetAlpha(1)
 			macro:SetAlpha(0)
 			macro:RegisterForClicks(nil)
 		end)
 		button:HookScript('OnEnable', function()
+			button:SetAlpha(0)
 			macro:SetAlpha(1)
 			macro:RegisterForClicks('LeftButtonDown')
 		end)
