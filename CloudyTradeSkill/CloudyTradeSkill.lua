@@ -8,15 +8,19 @@
 --- Initialization ---
 local itemDisplay = 30
 local numTabs = 0
-local skinTabs
 local searchTxt = ''
 local filterMats, filterSkill
+local skinUI, loadedUI
 local function InitDB()
 	itemDisplay = CTSkill_itemDisplay or itemDisplay
+
+	-- Load UI addons --
 	if IsAddOnLoaded('Aurora') then
-		skinTabs = 'Aurora'
+		skinUI = 'Aurora'
+		loadedUI = unpack(Aurora)
 	elseif IsAddOnLoaded('ElvUI') then
-		skinTabs = 'ElvUI'
+		skinUI = 'ElvUI'
+		loadedUI = unpack(ElvUI):GetModule('Skins')
 	end
 end
 
@@ -63,7 +67,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		if (not name) or (not icon) then return end
 
 		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate, SecureActionButtonTemplate')
-		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', skinTabs and 1 or 0, (-44 * index) + (-40 * isSub))
+		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', skinUI and 1 or 0, (-44 * index) + (-40 * isSub))
 
 		tab:SetScript('OnEvent', isCurrentTab)
 		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
@@ -80,11 +84,11 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 			tab:SetAttribute('spell', name)
 		end
 
-		if skinTabs and not tab.skinned then
+		if skinUI and not tab.skinned then
 			local checkedTexture
-			if (skinTabs == 'Aurora') then
+			if (skinUI == 'Aurora') then
 				checkedTexture = 'Interface\\AddOns\\Aurora\\media\\CheckButtonHilight'
-			elseif (skinTabs == 'ElvUI') then
+			elseif (skinUI == 'ElvUI') then
 				checkedTexture = tab:CreateTexture(nil, 'HIGHLIGHT')
 				checkedTexture:SetColorTexture(1, 1, 1, 0.3)
 				checkedTexture:SetInside()
@@ -307,13 +311,10 @@ local function injectButtons()
 		macro:SetFrameStrata('HIGH')
 		macro:SetText(text)
 
-		if (skinTabs == 'Aurora') then
-			local F = unpack(Aurora)
-			F.Reskin(macro)
-		elseif (skinTabs == 'ElvUI') then
-			local E = unpack(ElvUI)
-			local S = E:GetModule('Skins')
-			S:HandleButton(macro, true)
+		if (skinUI == 'Aurora') then
+			loadedUI.Reskin(macro)
+		elseif (skinUI == 'ElvUI') then
+			loadedUI:HandleButton(macro, true)
 		end
 
 		macro:HookScript('OnClick', button:GetScript('OnClick'))
