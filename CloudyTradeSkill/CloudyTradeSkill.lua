@@ -6,13 +6,16 @@
 
 
 --- Initialization ---
-local itemDisplay = 30
 local numTabs = 0
 local searchTxt = ''
 local filterMats, filterSkill
 local skinUI, loadedUI
 local function InitDB()
-	itemDisplay = CTSkill_itemDisplay or itemDisplay
+	-- Create new DB if needed --
+	if (not CTradeSkillDB) then
+		CTradeSkillDB = {}
+		CTradeSkillDB['Size'] = 30
+	end
 
 	-- Load UI addons --
 	if IsAddOnLoaded('Aurora') then
@@ -173,19 +176,19 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 	--- Update Frame Size ---
 	local function updateSize()
-		TradeSkillFrame:SetHeight(itemDisplay * 16 + 96) --496
-		TradeSkillFrame.RecipeInset:SetHeight(itemDisplay * 16 + 10) --410
-		TradeSkillFrame.DetailsInset:SetHeight(itemDisplay * 16 - 10) --390
-		TradeSkillFrame.DetailsFrame:SetHeight(itemDisplay * 16 - 15) --385
-		TradeSkillFrame.DetailsFrame.Background:SetHeight(itemDisplay * 16 - 17) --383
+		TradeSkillFrame:SetHeight(CTradeSkillDB['Size'] * 16 + 96) --496
+		TradeSkillFrame.RecipeInset:SetHeight(CTradeSkillDB['Size'] * 16 + 10) --410
+		TradeSkillFrame.DetailsInset:SetHeight(CTradeSkillDB['Size'] * 16 - 10) --390
+		TradeSkillFrame.DetailsFrame:SetHeight(CTradeSkillDB['Size'] * 16 - 15) --385
+		TradeSkillFrame.DetailsFrame.Background:SetHeight(CTradeSkillDB['Size'] * 16 - 17) --383
 
 		if TradeSkillFrame.RecipeList.FilterBar:IsVisible() then
-			TradeSkillFrame.RecipeList:SetHeight(itemDisplay * 16 - 11) --389
+			TradeSkillFrame.RecipeList:SetHeight(CTradeSkillDB['Size'] * 16 - 11) --389
 		else
-			TradeSkillFrame.RecipeList:SetHeight(itemDisplay * 16 + 5) --405
+			TradeSkillFrame.RecipeList:SetHeight(CTradeSkillDB['Size'] * 16 + 5) --405
 		end
 
-		if #TradeSkillFrame.RecipeList.buttons < (itemDisplay + 2) then
+		if #TradeSkillFrame.RecipeList.buttons < (CTradeSkillDB['Size'] + 2) then
 			HybridScrollFrame_CreateButtons(TradeSkillFrame.RecipeList, 'TradeSkillRowButtonTemplate', 0, 0)
 			TradeSkillFrame.RecipeList:Refresh()
 		end
@@ -212,8 +215,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 			TradeSkillFrame:SetPoint('TOPLEFT', UIParent, 'BOTTOMLEFT', offsetX, offsetY)
 
 			local item = (TradeSkillFrame:GetHeight() - 96) / 16
-			itemDisplay = floor(item, 0.5)
-			CTSkill_itemDisplay = itemDisplay
+			CTradeSkillDB['Size'] = floor(item, 0.5)
 			updateSize()
 		end
 	end
@@ -255,9 +257,9 @@ end)
 hooksecurefunc('HybridScrollFrame_Update', function(self, ...)
 	if (self == TradeSkillFrame.RecipeList) then
 		if self.FilterBar:IsVisible() then
-			self:SetHeight(itemDisplay * 16 - 11) --389
+			self:SetHeight(CTradeSkillDB['Size'] * 16 - 11) --389
 		else
-			self:SetHeight(itemDisplay * 16 + 5) --405
+			self:SetHeight(CTradeSkillDB['Size'] * 16 + 5) --405
 		end
 	end
 end)
