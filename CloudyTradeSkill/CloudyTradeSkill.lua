@@ -175,7 +175,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 	end
 
 	--- Update Frame Size ---
-	local function updateSize()
+	local function updateSize(forced)
 		TradeSkillFrame:SetHeight(CTradeSkillDB['Size'] * 16 + 96) --496
 		TradeSkillFrame.RecipeInset:SetHeight(CTradeSkillDB['Size'] * 16 + 10) --410
 		TradeSkillFrame.DetailsInset:SetHeight(CTradeSkillDB['Size'] * 16 - 10) --390
@@ -188,22 +188,24 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 			TradeSkillFrame.RecipeList:SetHeight(CTradeSkillDB['Size'] * 16 + 5) --405
 		end
 
-		if #TradeSkillFrame.RecipeList.buttons < (CTradeSkillDB['Size'] + 2) then
+		if forced and #TradeSkillFrame.RecipeList.buttons < floor(CTradeSkillDB['Size'], 0.5) + 2 then
 			HybridScrollFrame_CreateButtons(TradeSkillFrame.RecipeList, 'TradeSkillRowButtonTemplate', 0, 0)
 			TradeSkillFrame.RecipeList:Refresh()
 		end
 	end
 
-	--- Mouse Click Events ---
-	local offsetX, offsetY
+	--- Reset Frame Position ---
+	local function resetPosition()
+		TradeSkillFrame:ClearAllPoints()
+		TradeSkillFrame:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', 623, -116)
+	end
+
+	--- Resize Frame Events ---
 	local function resizeBar_OnMouseDown(self, button)
 		if (button == 'LeftButton') and not InCombatLockdown() then
-			offsetX = TradeSkillFrame:GetLeft()
-			offsetY = TradeSkillFrame:GetTop()
-
 			TradeSkillFrame:SetResizable(true)
 			TradeSkillFrame:SetMinResize(670, 470)
-			TradeSkillFrame:SetMaxResize(670, offsetY - 40)
+			TradeSkillFrame:SetMaxResize(670, TradeSkillFrame:GetTop() - 40)
 			TradeSkillFrame:StartSizing('BOTTOM')
 		end
 	end
@@ -211,12 +213,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		if (button == 'LeftButton') and not InCombatLockdown() then
 			TradeSkillFrame:StopMovingOrSizing()
 			TradeSkillFrame:SetResizable(false)
-			TradeSkillFrame:ClearAllPoints()
-			TradeSkillFrame:SetPoint('TOPLEFT', UIParent, 'BOTTOMLEFT', offsetX, offsetY)
-
-			local item = (TradeSkillFrame:GetHeight() - 96) / 16
-			CTradeSkillDB['Size'] = floor(item, 0.5)
-			updateSize()
+			updateSize(true)
 		end
 	end
 
@@ -239,21 +236,37 @@ end)
 
 
 --- Create Movable Bar ---
+UIPanelWindows['TradeSkillFrame'].area = nil
 local movBar = CreateFrame('Button', nil, TradeSkillFrame)
 movBar:SetAllPoints(TradeSkillFrameTopBorder)
 movBar:SetScript('OnMouseDown', function(self, button)
 	if (button == 'LeftButton') then
 		TradeSkillFrame:SetMovable(true)
 		TradeSkillFrame:StartMoving()
+	elseif (button == 'RightButton') then
+		if not InCombatLockdown() then
+			resetPosition()
+		end
 	end
 end)
-movBar:SetScript('OnMouseUp', function()
-	TradeSkillFrame:StopMovingOrSizing()
-	TradeSkillFrame:SetMovable(false)
+movBar:SetScript('OnMouseUp', function(self, button)
+	if (button == 'LeftButton') then
+		TradeSkillFrame:StopMovingOrSizing()
+		TradeSkillFrame:SetMovable(false)
+	end
 end)
 
 
---- Refresh Recipe List ---
+--- Refresh TSFrame ---
+TradeSkillFrame:HookScript('OnSizeChanged', function()
+	if not InCombatLockdown() then
+		CTradeSkillDB['Size'] = (TradeSkillFrame:GetHeight() - 96) / 16
+		updateSize()
+	end
+end)
+
+
+--- Refresh RecipeList ---
 hooksecurefunc('HybridScrollFrame_Update', function(self, ...)
 	if (self == TradeSkillFrame.RecipeList) then
 		if self.FilterBar:IsVisible() then
@@ -266,6 +279,7 @@ end)
 
 
 --- Fix SearchBox ---
+TradeSkillFrame.SearchBox:SetWidth(206)
 hooksecurefunc('ChatEdit_InsertLink', function(link)
 	if link and TradeSkillFrame and TradeSkillFrame:IsShown() then
 		local activeWindow = ChatEdit_GetActiveWindow()
@@ -278,7 +292,6 @@ hooksecurefunc('ChatEdit_InsertLink', function(link)
 		end
 	end
 end)
-TradeSkillFrame.SearchBox:SetWidth(205)
 
 
 --- Fix StackSplit ---
@@ -340,7 +353,8 @@ end
 f:SetScript('OnEvent', function(self, event, ...)
 	if (event == 'PLAYER_LOGIN') then
 		InitDB()
-		updateSize()
+		updateSize(true)
+		resetPosition()
 		injectButtons()
 	elseif (event == 'TRADE_SKILL_SHOW') then
 		restoreFilters()
