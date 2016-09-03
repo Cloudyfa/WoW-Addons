@@ -69,7 +69,18 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 	--- Add Tab Button ---
 	local function addTab(id, index, isSub)
-		local name, _, icon = GetSpellInfo(id)
+		local name, icon, tabType
+		if (id == 134020) then
+			name, icon = select(2, C_ToyBox.GetToyInfo(134020))
+			tabType = 'toy'
+		else
+			name, _, icon = GetSpellInfo(id)
+			if (id == 126462) then
+				tabType = 'item'
+			else
+				tabType = 'spell'
+			end
+		end
 		if (not name) or (not icon) then return end
 
 		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate, SecureActionButtonTemplate')
@@ -80,17 +91,8 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		tab.isSub = isSub
 		tab.tooltip = name
 		tab:SetNormalTexture(icon)
-
-		if (id == 67556) then
-			tab:SetAttribute('type', 'toy')
-			tab:SetAttribute('toy', name)
-		elseif (id == 126462) then
-			tab:SetAttribute('type', 'item')
-			tab:SetAttribute('item', name)
-		else
-			tab:SetAttribute('type', 'spell')
-			tab:SetAttribute('spell', name)
-		end
+		tab:SetAttribute('type', tabType)
+		tab:SetAttribute(tabType, name)
 
 		if skinUI and not tab.skinned then
 			local checkedTexture
@@ -178,8 +180,8 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 			tinsert(subTabs, 1804) --PickLock
 		end
 
-		if GetItemCount(134020) ~= 0 then
-			tinsert(subTabs, 67556) --CheftHat
+		if C_ToyBox.IsToyUsable(134020) then
+			tinsert(subTabs, 134020) --CheftHat
 		end
 		if GetItemCount(87216) ~= 0 then
 			tinsert(subTabs, 126462) --ThermalAnvil
@@ -456,15 +458,15 @@ local function createOptions()
 			info.notCheckable = true
 			info.hasArrow = true
 
-			info.text = PRIMARY;
-			info.value = 1;
+			info.text = PRIMARY
+			info.value = 1
 			info.disabled = InCombatLockdown()
-			UIDropDownMenu_AddButton(info, level);
+			UIDropDownMenu_AddButton(info, level)
 
-			info.text = SECONDARY;
-			info.value = 2;
+			info.text = SECONDARY
+			info.value = 2
 			info.disabled = InCombatLockdown()
-			UIDropDownMenu_AddButton(info, level);
+			UIDropDownMenu_AddButton(info, level)
 		elseif level == 2 then
 			info.isNotRadio = true
 			info.keepShownOnClick = true
