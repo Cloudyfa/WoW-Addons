@@ -16,6 +16,7 @@ local function InitDB()
 		CTradeSkillDB = {}
 		CTradeSkillDB['Size'] = 30
 	end
+	if not CTradeSkillDB['Tabs'] then CTradeSkillDB['Tabs'] = {} end
 
 	-- Load UI addons --
 	if IsAddOnLoaded('Aurora') then
@@ -130,13 +131,13 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 		local _, class = UnitClass('player')
 		if class == 'DEATHKNIGHT' and isUseable(53428) then
-			mainTabs[1] = 53428 --RuneForging
+			tinsert(mainTabs, 53428) --RuneForging
 		elseif class == 'ROGUE' and isUseable(1804) then
-			subTabs[1] = 1804 --PickLock
+			tinsert(subTabs, 1804) --PickLock
 		end
 
 		if GetItemCount(87216) ~= 0 then
-			subTabs[#subTabs + 1] = 126462 --ThermalAnvil
+			tinsert(subTabs, 126462) --ThermalAnvil
 		end
 
 		local prof1, prof2, arch, fishing, cooking, firstaid = GetProfessions()
@@ -148,28 +149,31 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 				if not IsPassiveSpell(offset + i, BOOKTYPE_PROFESSION) then
 					local _, id = GetSpellBookItemInfo(offset + i, BOOKTYPE_PROFESSION)
 					if (i == 1) then
-						mainTabs[#mainTabs + 1] = id
+						tinsert(mainTabs, id)
 					else
-						subTabs[#subTabs + 1] = id
+						tinsert(subTabs, id)
 					end
 				end
 			end
 		end
 
 		local sameTabs = true
-		for i = 1, #mainTabs do
-			local tab = _G['CTradeSkillTab' .. i]
-			if tab and not (tab.id == mainTabs[i]) then
+		for i = 1, #mainTabs + #subTabs do
+			local id = mainTabs[i] or subTabs[i - #mainTabs]
+			if CTradeSkillDB['Tabs'][id] == nil then
+				CTradeSkillDB['Tabs'][id] = true
 				sameTabs = false
 				break
 			end
 		end
 
-		if not sameTabs or not (numTabs == #mainTabs + #subTabs) then
+		if not sameTabs or (numTabs ~= #mainTabs + #subTabs) then
 			removeTabs()
 			numTabs = #mainTabs + #subTabs
+
 			for i = 1, numTabs do
-				addTab(mainTabs[i] or subTabs[i - #mainTabs], i, mainTabs[i] and 0 or 1)
+				local id = mainTabs[i] or subTabs[i - #mainTabs]
+				addTab(id, i, mainTabs[i] and 0 or 1)
 			end
 		end
 	end
