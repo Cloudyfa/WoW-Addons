@@ -80,7 +80,10 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		tab.tooltip = name
 		tab:SetNormalTexture(icon)
 
-		if (id == 126462) then
+		if (id == 67556) then
+			tab:SetAttribute('type', 'toy')
+			tab:SetAttribute('toy', name)
+		elseif (id == 126462) then
 			tab:SetAttribute('type', 'item')
 			tab:SetAttribute('item', name)
 		else
@@ -136,6 +139,9 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 			tinsert(subTabs, 1804) --PickLock
 		end
 
+		if GetItemCount(134020) ~= 0 then
+			tinsert(subTabs, 67556) --CheftHat
+		end
 		if GetItemCount(87216) ~= 0 then
 			tinsert(subTabs, 126462) --ThermalAnvil
 		end
