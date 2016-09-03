@@ -15,6 +15,7 @@ local function InitDB()
 	if (not CTradeSkillDB) then
 		CTradeSkillDB = {}
 		CTradeSkillDB['Size'] = 30
+		CTradeSkillDB['Fade'] = true
 	end
 	if not CTradeSkillDB['Tabs'] then CTradeSkillDB['Tabs'] = {} end
 
@@ -135,6 +136,27 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 					tab:Hide()
 				end
 			end
+		end
+	end
+
+	--- Check Fading State ---
+	local function fadeState()
+		if GetUnitSpeed('player') == 0 then
+			TradeSkillFrame:SetAlpha(1.0)
+		else
+			if CTradeSkillDB['Fade'] == true then
+				TradeSkillFrame:SetAlpha(0.4)
+			else
+				TradeSkillFrame:SetAlpha(1.0)
+			end
+		end
+
+		if CTradeSkillDB['Fade'] == true then
+			f:RegisterEvent('PLAYER_STARTED_MOVING')
+			f:RegisterEvent('PLAYER_STOPPED_MOVING')
+		else
+			f:UnregisterEvent('PLAYER_STARTED_MOVING')
+			f:UnregisterEvent('PLAYER_STOPPED_MOVING')
 		end
 	end
 
@@ -394,6 +416,14 @@ local function createOptions()
 			info.notCheckable = false
 			info.keepShownOnClick = true
 
+			info.text = 'UI ' .. ACTION_SPELL_AURA_REMOVED_BUFF
+			info.func = function()
+				CTradeSkillDB['Fade'] = not CTradeSkillDB['Fade']
+				fadeState()
+			end
+			info.checked = CTradeSkillDB['Fade']
+			UIDropDownMenu_AddButton(info, level)
+
 			info.func = nil
 			info.checked = 	nil
 			info.notCheckable = true
@@ -471,6 +501,11 @@ f:SetScript('OnEvent', function(self, event, ...)
 		resetPosition()
 		createOptions()
 		injectButtons()
+		fadeState()
+	elseif (event == 'PLAYER_STARTED_MOVING') then
+		TradeSkillFrame:SetAlpha(0.4)
+	elseif (event == 'PLAYER_STOPPED_MOVING') then
+		TradeSkillFrame:SetAlpha(1.0)
 	elseif (event == 'TRADE_SKILL_SHOW') then
 		restoreFilters()
 	elseif (event == 'TRADE_SKILL_LIST_UPDATE') then
