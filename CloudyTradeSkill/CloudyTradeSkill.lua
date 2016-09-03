@@ -61,7 +61,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 			restoreFilters()
 		else
 			self:SetChecked(false)
-			self:RegisterForClicks('LeftButtonDown')
+			self:RegisterForClicks('AnyDown')
 		end
 	end
 
@@ -71,12 +71,11 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		if (not name) or (not icon) then return end
 
 		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate, SecureActionButtonTemplate')
-		tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', skinUI and 1 or 0, (-44 * index) + (-40 * isSub))
-
 		tab:SetScript('OnEvent', isCurrentTab)
 		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
 
 		tab.id = id
+		tab.isSub = isSub
 		tab.tooltip = name
 		tab:SetNormalTexture(icon)
 
@@ -118,6 +117,23 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 			if tab and tab:IsShown() then
 				tab:UnregisterEvent('CURRENT_SPELL_CAST_CHANGED')
 				tab:Hide()
+			end
+		end
+	end
+
+	--- Sort Tabs ---
+	local function sortTabs()
+		local index = 1
+		for i = 1, numTabs do
+			local tab = _G['CTradeSkillTab' .. i]
+			if tab then
+				if CTradeSkillDB['Tabs'][tab.id] == true then
+					tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', skinUI and 1 or 0, (-44 * index) + (-40 * tab.isSub))
+					tab:Show()
+					index = index + 1
+				else
+					tab:Hide()
+				end
 			end
 		end
 	end
@@ -181,6 +197,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 				local id = mainTabs[i] or subTabs[i - #mainTabs]
 				addTab(id, i, mainTabs[i] and 0 or 1)
 			end
+			sortTabs()
 		end
 	end
 
@@ -289,7 +306,8 @@ end)
 
 
 --- Fix SearchBox ---
-TradeSkillFrame.SearchBox:SetWidth(206)
+TradeSkillFrame.RankFrame:SetWidth(500)
+TradeSkillFrame.SearchBox:SetWidth(240)
 hooksecurefunc('ChatEdit_InsertLink', function(link)
 	if link and TradeSkillFrame and TradeSkillFrame:IsShown() then
 		local activeWindow = ChatEdit_GetActiveWindow()
@@ -329,7 +347,7 @@ local function injectButtons()
 	if (class ~= 'DRUID') then return end
 
 	local function injectMacro(button, text)
-		local macro = CreateFrame('Button', nil, button:GetParent(), 'SecureActionButtonTemplate, MagicButtonTemplate')
+		local macro = CreateFrame('Button', nil, button:GetParent(), 'MagicButtonTemplate, SecureActionButtonTemplate')
 		macro:SetAttribute('type', 'macro')
 		macro:SetAttribute('macrotext', SLASH_CANCELFORM1)
 		macro:SetPoint(button:GetPoint())
@@ -359,12 +377,99 @@ local function injectButtons()
 end
 
 
+--- Create Option Menu ---
+local function createOptions()
+	--- Dropdown Menu ---
+	local function CTSDropdown_Init(self, level)
+		local info = UIDropDownMenu_CreateInfo()
+		if level == 1 then
+			info.text = f:GetName()
+			info.isTitle = true
+			info.notCheckable = true
+			UIDropDownMenu_AddButton(info, level)
+
+			info.isTitle = false
+			info.disabled = false
+			info.isNotRadio = true
+			info.notCheckable = false
+			info.keepShownOnClick = true
+
+			info.func = nil
+			info.checked = 	nil
+			info.notCheckable = true
+			info.hasArrow = true
+
+			info.text = PRIMARY;
+			info.value = 1;
+			info.disabled = InCombatLockdown()
+			UIDropDownMenu_AddButton(info, level);
+
+			info.text = SECONDARY;
+			info.value = 2;
+			info.disabled = InCombatLockdown()
+			UIDropDownMenu_AddButton(info, level);
+		elseif level == 2 then
+			info.isNotRadio = true
+			info.keepShownOnClick = true
+			if UIDROPDOWNMENU_MENU_VALUE == 1 then
+				for i = 1, numTabs do
+					local tab = _G['CTradeSkillTab' .. i]
+					if tab and (tab.isSub == 0) then
+						info.text = tab.tooltip
+						info.func = function()
+							CTradeSkillDB['Tabs'][tab.id] = not CTradeSkillDB['Tabs'][tab.id]
+							sortTabs()
+						end
+						info.checked = CTradeSkillDB['Tabs'][tab.id]
+						UIDropDownMenu_AddButton(info, level)
+					end
+				end
+			elseif UIDROPDOWNMENU_MENU_VALUE == 2 then
+				for i = 1, numTabs do
+					local tab = _G['CTradeSkillTab' .. i]
+					if tab and (tab.isSub == 1) then
+						info.text = tab.tooltip
+						info.func = function()
+							CTradeSkillDB['Tabs'][tab.id] = not CTradeSkillDB['Tabs'][tab.id]
+							sortTabs()
+						end
+						info.checked = CTradeSkillDB['Tabs'][tab.id]
+						UIDropDownMenu_AddButton(info, level)
+					end
+				end
+			end
+		end
+	end
+	local menu = CreateFrame('Frame', 'CTSDropdown', nil, 'UIDropDownMenuTemplate')
+	UIDropDownMenu_Initialize(CTSDropdown, CTSDropdown_Init, 'MENU')
+
+	--- Option Button ---
+	local button = CreateFrame('Button', 'CTSOption', TradeSkillFrame.FilterButton, 'UIMenuButtonStretchTemplate')
+	button:SetScript('OnClick', function(self) ToggleDropDownMenu(1, nil, CTSDropdown, self, 2, -6) end)
+	button:SetPoint('RIGHT', TradeSkillFrame.FilterButton, 'LEFT', -8, 0)
+	button:SetText(GAMEOPTIONS_MENU)
+	button:SetSize(80, 22)
+	button.Icon = button:CreateTexture(nil, 'ARTWORK')
+	button.Icon:SetPoint('RIGHT')
+	button.Icon:Hide()
+
+	if (skinUI == 'Aurora') then
+		loadedUI.ReskinFilterButton(button)
+	elseif (skinUI == 'ElvUI') then
+		button:StripTextures(true)
+		button:CreateBackdrop('Default', true)
+		button.backdrop:SetAllPoints()
+	end
+end
+
+
 --- Handle Events ---
 f:SetScript('OnEvent', function(self, event, ...)
 	if (event == 'PLAYER_LOGIN') then
 		InitDB()
 		updateSize(true)
 		resetPosition()
+		createOptions()
 		injectButtons()
 	elseif (event == 'TRADE_SKILL_SHOW') then
 		restoreFilters()
