@@ -16,6 +16,7 @@ local function InitDB()
 		CTradeSkillDB = {}
 		CTradeSkillDB['Size'] = 30
 		CTradeSkillDB['Fade'] = true
+		CTradeSkillDB['Unlock'] = false
 	end
 	if not CTradeSkillDB['Tabs'] then CTradeSkillDB['Tabs'] = {} end
 
@@ -243,26 +244,18 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		end
 	end
 
-	--- Reset Frame Position ---
-	local function resetPosition()
-		TradeSkillFrame:ClearAllPoints()
-		TradeSkillFrame:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', 623, -116)
-	end
-
-	--- Resize Frame Events ---
-	local function resizeBar_OnMouseDown(self, button)
-		if (button == 'LeftButton') and not InCombatLockdown() then
-			TradeSkillFrame:SetResizable(true)
-			TradeSkillFrame:SetMinResize(670, 470)
-			TradeSkillFrame:SetMaxResize(670, TradeSkillFrame:GetTop() - 40)
-			TradeSkillFrame:StartSizing('BOTTOM')
-		end
-	end
-	local function resizeBar_OnMouseUp(self, button)
-		if (button == 'LeftButton') and not InCombatLockdown() then
-			TradeSkillFrame:StopMovingOrSizing()
-			TradeSkillFrame:SetResizable(false)
-			updateSize(true)
+	--- Update Frame Position ---
+	local function updatePosition()
+		if CTradeSkillDB['Unlock'] then
+			UIPanelWindows['TradeSkillFrame'].area = nil
+			TradeSkillFrame:ClearAllPoints()
+			if CTradeSkillDB['OffsetX'] and CTradeSkillDB['OffsetY'] then
+				TradeSkillFrame:SetPoint('TOPLEFT', UIParent, 'BOTTOMLEFT', CTradeSkillDB['OffsetX'], CTradeSkillDB['OffsetY'])
+			else
+				TradeSkillFrame:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', GetUIPanel('left') and 623 or 16, -116)
+			end
+		else
+			UpdateUIPanelPositions(TradeSkillFrame)
 		end
 	end
 
@@ -270,8 +263,21 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 --- Create Resize Bar ---
 local resizeBar = CreateFrame('Button', nil, TradeSkillFrame)
 resizeBar:SetAllPoints(TradeSkillFrameBottomBorder)
-resizeBar:SetScript('OnMouseDown', resizeBar_OnMouseDown)
-resizeBar:SetScript('OnMouseUp', resizeBar_OnMouseUp)
+resizeBar:SetScript('OnMouseDown', function(_, button)
+	if (button == 'LeftButton') and not InCombatLockdown() then
+		TradeSkillFrame:SetResizable(true)
+		TradeSkillFrame:SetMinResize(670, 470)
+		TradeSkillFrame:SetMaxResize(670, TradeSkillFrame:GetTop() - 40)
+		TradeSkillFrame:StartSizing('BOTTOM')
+	end
+end)
+resizeBar:SetScript('OnMouseUp', function(_, button)
+	if (button == 'LeftButton') and not InCombatLockdown() then
+		TradeSkillFrame:StopMovingOrSizing()
+		TradeSkillFrame:SetResizable(false)
+		updateSize(true)
+	end
+end)
 resizeBar:SetScript('OnEnter', function()
 	if not InCombatLockdown() then
 		SetCursor('CAST_CURSOR')
@@ -285,23 +291,36 @@ end)
 
 
 --- Create Movable Bar ---
-UIPanelWindows['TradeSkillFrame'].area = nil
 local movBar = CreateFrame('Button', nil, TradeSkillFrame)
 movBar:SetAllPoints(TradeSkillFrameTopBorder)
-movBar:SetScript('OnMouseDown', function(self, button)
+movBar:SetScript('OnMouseDown', function(_, button)
 	if (button == 'LeftButton') then
 		TradeSkillFrame:SetMovable(true)
 		TradeSkillFrame:StartMoving()
 	elseif (button == 'RightButton') then
 		if not InCombatLockdown() then
-			resetPosition()
+			CTradeSkillDB['OffsetX'] = nil
+			CTradeSkillDB['OffsetY'] = nil
+			updatePosition()
 		end
 	end
 end)
-movBar:SetScript('OnMouseUp', function(self, button)
+movBar:SetScript('OnMouseUp', function(_, button)
 	if (button == 'LeftButton') then
 		TradeSkillFrame:StopMovingOrSizing()
 		TradeSkillFrame:SetMovable(false)
+
+		CTradeSkillDB['OffsetX'] = TradeSkillFrame:GetLeft()
+		CTradeSkillDB['OffsetY'] = TradeSkillFrame:GetTop()
+	end
+end)
+
+
+--- Force ESC Close ---
+hooksecurefunc('ToggleGameMenu', function()
+	if CTradeSkillDB['Unlock'] and TradeSkillFrame:IsShown() then
+		C_TradeSkillUI.CloseTradeSkill()
+		HideUIPanel(GameMenuFrame)
 	end
 end)
 
@@ -424,6 +443,14 @@ local function createOptions()
 			info.checked = CTradeSkillDB['Fade']
 			UIDropDownMenu_AddButton(info, level)
 
+			info.text = UNLOCK_FRAME
+			info.func = function()
+				CTradeSkillDB['Unlock'] = not CTradeSkillDB['Unlock']
+				ReloadUI()
+			end
+			info.checked = CTradeSkillDB['Unlock']
+			UIDropDownMenu_AddButton(info, level)
+
 			info.func = nil
 			info.checked = 	nil
 			info.notCheckable = true
@@ -498,7 +525,7 @@ f:SetScript('OnEvent', function(self, event, ...)
 	if (event == 'PLAYER_LOGIN') then
 		InitDB()
 		updateSize(true)
-		resetPosition()
+		updatePosition()
 		createOptions()
 		injectButtons()
 		fadeState()
