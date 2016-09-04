@@ -17,6 +17,7 @@ local function InitDB()
 		CTradeSkillDB['Size'] = 30
 		CTradeSkillDB['Fade'] = true
 		CTradeSkillDB['Unlock'] = false
+		CTradeSkillDB['Level'] = true
 	end
 	if not CTradeSkillDB['Tabs'] then CTradeSkillDB['Tabs'] = {} end
 
@@ -348,6 +349,41 @@ hooksecurefunc('HybridScrollFrame_Update', function(self, ...)
 end)
 
 
+--- Required Level Display ---
+TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
+	for i = 1, #TradeSkillFrame.RecipeList.buttons do
+		if CTradeSkillDB and CTradeSkillDB['Level'] == true then
+			local button = TradeSkillFrame.RecipeList.buttons[i]
+			local lvlFrame = _G['CTSLevel_' .. i] or CreateFrame('Frame', 'CTSLevel_' .. i, button)
+			if not lvlFrame.Text then
+				lvlFrame.Text = lvlFrame:CreateFontString(nil, 'BACKGROUND', 'GameFontNormalSmall')
+				lvlFrame.Text:SetPoint('RIGHT', button.Text, 'LEFT', 1, 0)
+			end
+
+			if button.tradeSkillInfo and not button.isHeader then
+				local recipe = button.tradeSkillInfo.recipeID
+				local item = C_TradeSkillUI.GetRecipeItemLink(recipe)
+				local quality, _, level = select(3, GetItemInfo(item))
+				if quality and level and level > 1 then
+					lvlFrame.Text:SetText(level)
+					lvlFrame.Text:SetTextColor(GetItemQualityColor(quality))
+				else
+					lvlFrame.Text:SetText('')
+				end
+			else
+				if lvlFrame.Text then
+					lvlFrame.Text:SetText('')
+				end
+			end
+		else
+			if _G['CTSLevel_' .. i] then
+				_G['CTSLevel_' .. i].Text:SetText('')
+			end
+		end
+	end
+end)
+
+
 --- Fix SearchBox ---
 TradeSkillFrame.RankFrame:SetWidth(500)
 TradeSkillFrame.SearchBox:SetWidth(240)
@@ -451,6 +487,14 @@ local function createOptions()
 				ReloadUI()
 			end
 			info.checked = CTradeSkillDB['Unlock']
+			UIDropDownMenu_AddButton(info, level)
+
+			info.text = STAT_AVERAGE_ITEM_LEVEL
+			info.func = function()
+				CTradeSkillDB['Level'] = not CTradeSkillDB['Level']
+				TradeSkillFrame.RecipeList:Refresh()
+			end
+			info.checked = CTradeSkillDB['Level']
 			UIDropDownMenu_AddButton(info, level)
 
 			info.func = nil
