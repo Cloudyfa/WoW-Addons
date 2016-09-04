@@ -59,9 +59,11 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 	--- Check Current Tab ---
 	local function isCurrentTab(self)
 		if self.tooltip and IsCurrentSpell(self.tooltip) then
+			CTradeSkillDB['Panel'] = C_TradeSkillUI.GetTradeSkillLine()
+			restoreFilters()
+
 			self:SetChecked(true)
 			self:RegisterForClicks(nil)
-			restoreFilters()
 		else
 			self:SetChecked(false)
 			self:RegisterForClicks('AnyDown')
@@ -86,6 +88,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate, SecureActionButtonTemplate')
 		tab:SetScript('OnEvent', isCurrentTab)
+		tab:RegisterEvent('TRADE_SKILL_SHOW')
 		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
 
 		tab.id = id
@@ -120,6 +123,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		for i = 1, numTabs do
 			local tab = _G['CTradeSkillTab' .. i]
 			if tab and tab:IsShown() then
+				tab:UnregisterEvent('TRADE_SKILL_SHOW')
 				tab:UnregisterEvent('CURRENT_SPELL_CAST_CHANGED')
 				tab:Hide()
 			end
@@ -171,7 +175,8 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 	end
 
 	--- Update Profession Tabs ---
-	local function updateTabs()
+	local function updateTabs(init)
+		if init and CTradeSkillDB['Panel'] then return end
 		local mainTabs, subTabs = {}, {}
 
 		local _, class = UnitClass('player')
@@ -182,7 +187,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		end
 
 		if C_ToyBox.IsToyUsable(134020) then
-			tinsert(subTabs, 134020) --CheftHat
+			tinsert(subTabs, 134020) --ChefHat
 		end
 		if GetItemCount(87216) ~= 0 then
 			tinsert(subTabs, 126462) --ThermalAnvil
@@ -191,13 +196,17 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		local prof1, prof2, arch, fishing, cooking, firstaid = GetProfessions()
 		local profs = {prof1, prof2, cooking, firstaid}
 		for _, prof in pairs(profs) do
-			local num, offset, _, _, _, spec = select(5, GetProfessionInfo(prof))
+			local num, offset, line, _, _, spec = select(5, GetProfessionInfo(prof))
 			if (spec and spec ~= 0) then num = 1 end
 			for i = 1, num do
 				if not IsPassiveSpell(offset + i, BOOKTYPE_PROFESSION) then
 					local _, id = GetSpellBookItemInfo(offset + i, BOOKTYPE_PROFESSION)
 					if (i == 1) then
 						tinsert(mainTabs, id)
+						if init and not CTradeSkillDB['Panel'] then
+							CTradeSkillDB['Panel'] = line
+							return
+						end
 					else
 						tinsert(subTabs, id)
 					end
@@ -211,7 +220,6 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 			if CTradeSkillDB['Tabs'][id] == nil then
 				CTradeSkillDB['Tabs'][id] = true
 				sameTabs = false
-				break
 			end
 		end
 
@@ -572,6 +580,7 @@ f:SetScript('OnEvent', function(self, event, ...)
 		InitDB()
 		updateSize(true)
 		updatePosition()
+		updateTabs(true)
 		createOptions()
 		injectButtons()
 		fadeState()
@@ -589,4 +598,3 @@ f:SetScript('OnEvent', function(self, event, ...)
 		end
 	end
 end)
-

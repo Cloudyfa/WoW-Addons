@@ -1,0 +1,17 @@
+<!--
+	Cloudy TradeSkill
+	Copyright (c) 2016, Cloudyfa
+	All rights reserved.
+-->
+
+<Bindings>
+	<Binding name="Cloudy TradeSkill" category="ADDONS">
+		if TradeSkillFrame:IsShown() then
+			C_TradeSkillUI.CloseTradeSkill()
+		else
+			if CTradeSkillDB and CTradeSkillDB['Panel'] then
+				C_TradeSkillUI.OpenTradeSkill(CTradeSkillDB['Panel'])
+			end
+		end
+	</Binding>
+</Bindings>
