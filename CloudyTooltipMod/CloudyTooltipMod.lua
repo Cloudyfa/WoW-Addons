@@ -29,6 +29,7 @@ local function CTipModDB_Init()
 
 		CTipModDB['TargetOfTarget'] = 1
 		CTipModDB['TradeGoodsInfo'] = 1
+		CTipModDB['FactionIcon'] = nil
 		CTipModDB['LinkIcon'] = 1
 	end
 
@@ -204,7 +205,7 @@ local function CTipMod_Hooks()
 		if (not unit) then return end
 
 		-- Analyzing --
-		local nameLine, guildLine, detailLine, lootLine
+		local nameLine, guildLine, detailLine, factionLine, lootLine
 
 		for i = 1, self:NumLines() do
 			local line = _G[self:GetName() .. 'TextLeft' .. i]
@@ -224,6 +225,11 @@ local function CTipMod_Hooks()
 					line:Hide()
 				elseif (text == PVP) then
 					line:Hide()
+				elseif (text == FACTION_ALLIANCE) or (text == FACTION_HORDE) then
+					if CTipModDB['FactionIcon'] then
+						factionLine = text
+						line:Hide()
+					end
 				end
 			end
 		end
@@ -408,6 +414,20 @@ local function CTipMod_Hooks()
 			self:AddLine(defaultColor .. TARGET .. ': ' .. targetColor .. targetName)
 		end
 
+		-- Faction Icon --
+		if factionLine then
+			if not self.icon then
+				self.icon = self:CreateTexture(nil, 'ARTWORK')
+				self.icon:SetPoint('TOPRIGHT', 10, 8)
+				self.icon:SetSize(32, 32)
+			end
+			local texture = 'Interface\\Timer\\' .. factionLine .. '-Logo'
+			self.icon:SetTexture(texture)
+			self.icon:Show()
+		else
+			if self.icon then self.icon:Hide() end
+		end
+
 		-- Cleanup Tooltip --
 		for i = 1, self:NumLines() do
 			local line = _G[self:GetName() .. 'TextLeft' .. i]
@@ -502,6 +522,7 @@ function CTipModUI_Load()
 
 	CTipModUI_TargetOfTarget:SetChecked(CTipModDB['TargetOfTarget'])
 	CTipModUI_TradeGoodsInfo:SetChecked(CTipModDB['TradeGoodsInfo'])
+	CTipModUI_FactionIcon:SetChecked(CTipModDB['FactionIcon'])
 	CTipModUI_LinkIcon:SetChecked(CTipModDB['LinkIcon'])
 end
 
@@ -525,6 +546,7 @@ function CTipModUI_Save()
 
 	CTipModDB['TargetOfTarget'] = CTipModUI_TargetOfTarget:GetChecked()
 	CTipModDB['TradeGoodsInfo'] = CTipModUI_TradeGoodsInfo:GetChecked()
+	CTipModDB['FactionIcon'] = CTipModUI_FactionIcon:GetChecked()
 	CTipModDB['LinkIcon'] = CTipModUI_LinkIcon:GetChecked()
 end
 
@@ -561,5 +583,6 @@ function CTipModUI_OnLoad(self)
 
 	CTipModUI_TargetOfTargetText:SetText('Target of Target')
 	CTipModUI_TradeGoodsInfoText:SetText('Trade Goods info')
+	CTipModUI_FactionIconText:SetText('Faction Icon')
 	CTipModUI_LinkIconText:SetText('Link Icon')
 end
