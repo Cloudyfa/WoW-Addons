@@ -171,10 +171,9 @@ local function CTipMod_Hooks()
 		local id = strmatch(link, 'item:(%d+)')
 		if (not id) then return end
 
-		local itemType, subType = select(6, GetItemInfo(id))
-
-		if (itemType == 'Trade Goods') or (itemType == 'Artisanat') or (itemType == 'Handwerkswaren') or (itemType == 'Mercadorias') or (itemType == 'Objeto comerciable') or (itemType == 'Beni commerciali') or (itemType == 'Хозяйственные товары') or (itemType == '직업용품') or (itemType == '商品') then
-			self:AddLine(itemType .. ': |cffaaff77' .. (subType or UNKNOWN))
+		local itemType, subType = select(2, GetItemInfoInstant(id))
+		if strfind(TRADESKILLS, itemType, 1, true) then
+			self:AddLine(BAG_FILTER_TRADE_GOODS .. ': |cffaaff77' .. (subType or UNKNOWN))
 		end
 	end
 	GameTooltip:HookScript('OnTooltipSetItem', OnTooltipSetItem)
