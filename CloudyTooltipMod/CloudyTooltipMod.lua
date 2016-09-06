@@ -141,17 +141,13 @@ local function CTipMod_Hooks()
 	end)
 
 	-- Hyperlink Tooltip Color --
-	hooksecurefunc('ChatFrame_OnHyperlinkShow', function(_, str, link)
-		local source = str and strmatch(str, '(%w+)')
-
-		if (source ~= 'player') and (source ~= 'channel') and (source ~= 'trade') then
-			local color = link and strmatch(link, '(|c%x+)')
-			ColorTooltip(ItemRefTooltip, color)
-		end
+	hooksecurefunc('SetItemRef', function(str, link)
+		local color = link and strmatch(link, '(|c%x+)')
+		ColorTooltip(ItemRefTooltip, color)
 
 		if CTipModDB['LinkIcon'] and _G['CTMIcon'] then
 			local icon
-			local id = strmatch(link, '%w+:(%d+)')
+			local source, id = strmatch(str, '(%w+):(%d+)')
 			if (source == 'item') then
 				icon = GetItemIcon(id)
 			elseif (source == 'spell') then
@@ -176,7 +172,6 @@ local function CTipMod_Hooks()
 			for _, tooltip in pairs(self.shoppingTooltips) do
 				local _, link = tooltip:GetItem()
 				local color = link and strmatch(link, '(|c%x+)')
-
 				ColorTooltip(tooltip, color)
 			end
 		end
