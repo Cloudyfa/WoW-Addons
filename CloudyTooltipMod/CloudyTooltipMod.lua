@@ -205,7 +205,7 @@ local function CTipMod_Hooks()
 		if (not unit) then return end
 
 		-- Analyzing --
-		local nameLine, guildLine, detailLine, factionLine, lootLine
+		local nameLine, guildLine, detailLine, lootLine, faction
 
 		for i = 1, self:NumLines() do
 			local line = _G[self:GetName() .. 'TextLeft' .. i]
@@ -227,7 +227,7 @@ local function CTipMod_Hooks()
 					line:Hide()
 				elseif (text == FACTION_ALLIANCE) or (text == FACTION_HORDE) then
 					if CTipModDB['FactionIcon'] then
-						factionLine = text
+						faction = text
 						line:Hide()
 					end
 				end
@@ -415,17 +415,23 @@ local function CTipMod_Hooks()
 		end
 
 		-- Faction Icon --
-		if factionLine then
+		if faction then
 			if not self.icon then
 				self.icon = self:CreateTexture(nil, 'ARTWORK')
 				self.icon:SetPoint('TOPRIGHT', 10, 8)
 				self.icon:SetSize(32, 32)
 			end
-			local texture = 'Interface\\Timer\\' .. factionLine .. '-Logo'
-			self.icon:SetTexture(texture)
+			if (faction == FACTION_ALLIANCE) then
+				self.icon:SetTexture('Interface\\Timer\\Alliance-Logo')
+			elseif (faction == FACTION_HORDE) then
+				self.icon:SetTexture('Interface\\Timer\\Horde-Logo')
+			end
 			self.icon:Show()
 		else
-			if self.icon then self.icon:Hide() end
+			if self.icon and self.icon:IsShown() then
+				self.icon:SetTexture(nil)
+				self.icon:Hide()
+			end
 		end
 
 		-- Cleanup Tooltip --
