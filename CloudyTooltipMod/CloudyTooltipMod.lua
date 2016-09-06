@@ -29,6 +29,7 @@ local function CTipModDB_Init()
 
 		CTipModDB['TargetOfTarget'] = 1
 		CTipModDB['TradeGoodsInfo'] = 1
+		CTipModDB['LinkIcon'] = 1
 	end
 
 	-- Change tooltip style --
@@ -140,12 +141,32 @@ local function CTipMod_Hooks()
 	end)
 
 	-- Hyperlink Tooltip Color --
-	hooksecurefunc('ChatFrame_OnHyperlinkShow', function(_, link, text)
-		local linkType = link and strmatch(link, '(%w+)')
+	hooksecurefunc('ChatFrame_OnHyperlinkShow', function(_, str, link)
+		local source = str and strmatch(str, '(%w+)')
 
-		if (linkType ~= 'player') and (linkType ~= 'channel') and (linkType ~= 'trade') then
-			local color = text and strmatch(text, '(|c%x+)')
+		if (source ~= 'player') and (source ~= 'channel') and (source ~= 'trade') then
+			local color = link and strmatch(link, '(|c%x+)')
 			ColorTooltip(ItemRefTooltip, color)
+		end
+
+		if CTipModDB['LinkIcon'] and _G['CTMIcon'] then
+			local icon
+			local id = strmatch(link, '%w+:(%d+)')
+			if (source == 'item') then
+				icon = GetItemIcon(id)
+			elseif (source == 'spell') then
+				icon = GetSpellTexture(id)
+			elseif (source == 'achievement') then
+				icon = select(10,GetAchievementInfo(id))
+			end
+
+			if icon then
+				_G['CTMIcon'].texture:SetTexture(icon)
+				_G['CTMIcon']:Show()
+			else
+				_G['CTMIcon'].texture:SetTexture(nil)
+				_G['CTMIcon']:Hide()
+			end
 		end
 	end)
 
@@ -393,6 +414,22 @@ end
 
 --- CTipMod Handler ---
 local function CTipMod_Handler()
+	if CTipModDB['LinkIcon'] then
+		if not _G['CTMIcon'] then
+			local icon = CreateFrame('Frame', 'CTMIcon', ItemRefTooltip)
+			icon:SetPoint('TOPRIGHT', ItemRefTooltip, 'TOPLEFT', 0, -2)
+			icon:SetSize(36,36)
+			icon.texture = icon:CreateTexture(nil, 'BACKGROUND')
+			icon.texture:SetAllPoints(icon)
+			icon.texture:SetTexCoord(.08, .92, .08, .92)
+		end
+	else
+		if _G['CTMIcon'] then
+			_G['CTMIcon'].texture:SetTexture(nil)
+			_G['CTMIcon']:Hide()
+		end
+	end
+
 	if CTipModDB['HideHealth'] then
 		GameTooltipStatusBar:SetStatusBarTexture('')
 	else
@@ -452,6 +489,7 @@ function CTipModUI_Load()
 
 	CTipModUI_TargetOfTarget:SetChecked(CTipModDB['TargetOfTarget'])
 	CTipModUI_TradeGoodsInfo:SetChecked(CTipModDB['TradeGoodsInfo'])
+	CTipModUI_LinkIcon:SetChecked(CTipModDB['LinkIcon'])
 end
 
 
@@ -474,6 +512,7 @@ function CTipModUI_Save()
 
 	CTipModDB['TargetOfTarget'] = CTipModUI_TargetOfTarget:GetChecked()
 	CTipModDB['TradeGoodsInfo'] = CTipModUI_TradeGoodsInfo:GetChecked()
+	CTipModDB['LinkIcon'] = CTipModUI_LinkIcon:GetChecked()
 end
 
 
@@ -509,4 +548,5 @@ function CTipModUI_OnLoad(self)
 
 	CTipModUI_TargetOfTargetText:SetText('Target of Target')
 	CTipModUI_TradeGoodsInfoText:SetText('Trade Goods info')
+	CTipModUI_LinkIconText:SetText('Link Icon')
 end

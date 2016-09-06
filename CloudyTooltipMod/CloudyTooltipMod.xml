@@ -245,6 +245,12 @@
 					<Anchor point="TOPLEFT" relativeTo="$parent_TargetOfTarget" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
+
+			<CheckButton name="$parent_LinkIcon" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_TradeGoodsInfo" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
 		</Frames>
 
 		<Scripts>
