@@ -34,6 +34,8 @@ local function CTipModDB_Init()
 	-- Change tooltip style --
 	CTipBackdrop = GameTooltip:GetBackdrop()
 	CTipBackdrop.insets = {left = 2, right = 2, top = 2, bottom = 2}
+	CTipBackdrop.edgeFile = 'Interface\\Tooltips\\UI-Tooltip-Border'
+	CTipEdgeSize = CTipBackdrop.edgeSize
 	GameTooltipStatusBar:SetHeight(5)
 end
 
@@ -401,7 +403,11 @@ local function CTipMod_Handler()
 	if CTipModDB['HideBorder'] then
 		CTipBackdrop.edgeSize = 0.01
 	else
-		CTipBackdrop.edgeSize = 12
+		if CTipEdgeSize > 12 then
+			CTipBackdrop.edgeSize = 12
+		else
+			CTipBackdrop.edgeSize = CTipEdgeSize
+		end
 	end
 	GameTooltip:SetBackdrop(CTipBackdrop)
 
