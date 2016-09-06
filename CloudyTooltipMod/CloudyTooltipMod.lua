@@ -116,24 +116,27 @@ end
 local function CTipMod_Hooks()
 	-- Tooltip Anchor --
 	hooksecurefunc('GameTooltip_SetDefaultAnchor', function(self, parent)
-		if (not CTipModDB['MouseAnchor']) then return end
-
-		local frame = GetMouseFocus()
-		if (frame == WorldFrame) then
-			self:SetOwner(parent, 'ANCHOR_CURSOR')
+		if CTipModDB['MouseAnchor'] then
+			if (GetMouseFocus() == WorldFrame) then
+				self:SetOwner(parent, 'ANCHOR_CURSOR')
+			end
 		end
 	end)
 
 	-- Tooltip Color --
 	GameTooltip:HookScript('OnUpdate', function(self)
+		local color = nil
 		local name, unit = self:GetUnit()
-
 		if (not name) and (not unit) then
-			local _, link = self:GetItem()
-			local color = link and strmatch(link, '(|c%x+)')
+			if self:GetSpell() then
+				color = '|cff71d5ff'
+			else
+				local _, link = self:GetItem()
+				color = link and strmatch(link, '(|c%x+)')
+			end
 			ColorTooltip(self, color)
 		else
-			local color = unit and GetUnitColor(unit)
+			color = unit and GetUnitColor(unit)
 			if color then
 				ColorTooltip(self, color)
 			end
@@ -146,7 +149,7 @@ local function CTipMod_Hooks()
 		ColorTooltip(ItemRefTooltip, color)
 
 		if CTipModDB['LinkIcon'] and _G['CTMIcon'] then
-			local icon
+			local icon = nil
 			local source, id = strmatch(str, '(%w+):(%d+)')
 			if (source == 'item') then
 				icon = GetItemIcon(id)
