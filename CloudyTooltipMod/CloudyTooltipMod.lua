@@ -203,12 +203,12 @@ local function CTipMod_Hooks()
 		local _, unit = self:GetUnit()
 		if (not unit) then return end
 
-		--	Analyzing --
+		-- Analyzing --
 		local nameLine, guildLine, detailLine, lootLine
 
 		for i = 1, self:NumLines() do
-			line = _G[self:GetName() .. 'TextLeft' .. i]
-			text = line:GetText()
+			local line = _G[self:GetName() .. 'TextLeft' .. i]
+			local text = line:GetText()
 
 			if text then
 				if (i == 1) then
@@ -220,6 +220,10 @@ local function CTipMod_Hooks()
 					detailLine = line
 				elseif strfind(text, LOOT .. ':') then
 					lootLine = line
+				elseif strfind(text, TARGET .. ':') then
+					line:Hide()
+				elseif (text == PVP) then
+					line:Hide()
 				end
 			end
 		end
@@ -404,6 +408,17 @@ local function CTipMod_Hooks()
 			self:AddLine(defaultColor .. TARGET .. ': ' .. targetColor .. targetName)
 		end
 
+		-- Cleanup Tooltip --
+		for i = 1, self:NumLines() do
+			local line = _G[self:GetName() .. 'TextLeft' .. i]
+			local text = _G[self:GetName() .. 'TextRight' .. i]
+			local nextline = _G[self:GetName() .. 'TextLeft' .. i + 1]
+
+			if nextline and line and not line:IsShown() then
+				if text then text:Hide() end
+				nextline:SetPoint(line:GetPoint())
+			end
+		end
 		self:Show()
 	end
 	GameTooltip:HookScript('OnTooltipSetUnit', OnTooltipSetUnit)
