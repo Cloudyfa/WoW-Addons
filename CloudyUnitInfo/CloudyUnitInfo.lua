@@ -309,11 +309,13 @@ hooksecurefunc('PaperDollFrame_SetArmor', function(_, unit)
 		ilvl = equip .. ' / ' .. total
 	end
 
-	PaperDollFrame_SetItemLevel(CharacterStatsPane.ItemLevelFrame, unit)
-	CharacterStatsPane.ItemLevelCategory:Show()
-	CharacterStatsPane.ItemLevelFrame:Show()
+	if not CharacterStatsPane.ItemLevelFrame:IsShown() then
+		PaperDollFrame_SetItemLevel(CharacterStatsPane.ItemLevelFrame, unit)
+		CharacterStatsPane.ItemLevelCategory:Show()
+		CharacterStatsPane.ItemLevelFrame:Show()
+		CharacterStatsPane.AttributesCategory:SetPoint('TOP', CharacterStatsPane.ItemLevelFrame, 'BOTTOM', 0, -2)
+	end
 	CharacterStatsPane.ItemLevelFrame.Value:SetText(ilvl)
-	CharacterStatsPane.AttributesCategory:SetPoint('TOP', CharacterStatsPane.ItemLevelFrame, 'BOTTOM', 0, -2)
 end)
 
 
