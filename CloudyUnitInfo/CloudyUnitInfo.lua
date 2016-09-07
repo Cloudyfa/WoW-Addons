@@ -29,7 +29,7 @@ local function SetUnitInfo(gear, spec)
 
 	local _, unit = GameTooltip:GetUnit()
 	if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
-	if UnitLevel(unit) <= 10 or (spec == UNKNOWN) then
+	if UnitLevel(unit) < 10 or (spec == UNKNOWN) then
 		spec = STAT_AVERAGE_ITEM_LEVEL
 	end
 
@@ -43,9 +43,13 @@ local function SetUnitInfo(gear, spec)
 		end
 	end
 
-	local infoString = prefixColor .. spec .. ': ' .. detailColor .. gear
-	if (spec == CONTINUED) then
-		infoString = CONTINUED
+	local infoString = CONTINUED
+	if spec and (spec ~= CONTINUED) then
+		if gear then
+			infoString = prefixColor .. spec .. ': ' .. detailColor .. gear
+		else
+			infoString = prefixColor .. SPECIALIZATION .. ': ' .. detailColor .. spec
+		end
 	end
 
 	if infoLine then
