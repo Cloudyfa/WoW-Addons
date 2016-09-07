@@ -6,7 +6,7 @@
 
 
 --- Variables ---
-local currentUNIT, currentGUID, scanTip
+local currentUNIT, currentGUID
 local GearDB, SpecDB, ItemDB = {}, {}, {}
 
 local nextInspectRequest = 0
@@ -14,9 +14,6 @@ lastInspectRequest = 0
 
 local prefixColor = '|cffffeeaa'
 local detailColor = '|cffffffff'
-
-local gearPrefix = STAT_AVERAGE_ITEM_LEVEL .. ': '
-local specPrefix = SPECIALIZATION .. ': '
 local lvlPattern = gsub(ITEM_LEVEL, '%%d', '(%%d+)')
 
 
@@ -32,35 +29,29 @@ local function SetUnitInfo(gear, spec)
 
 	local _, unit = GameTooltip:GetUnit()
 	if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
+	if UnitLevel(unit) <= 10 or (spec == UNKNOWN) then
+		spec = STAT_AVERAGE_ITEM_LEVEL
+	end
 
-	local gearLine, specLine
+	local infoLine
 	for i = 2, GameTooltip:NumLines() do
 		local line = _G['GameTooltipTextLeft' .. i]
-		local text = line:GetText()
+		local text = line and line:GetText()
 
-		if text and strfind(text, gearPrefix) then
-			gearLine = line
-		elseif text and strfind(text, specPrefix) then
-			specLine = line
+		if (text == CONTINUED) or strfind(text, spec, 1, true) then
+			infoLine = line
 		end
 	end
 
-	if gear then
-		gear = prefixColor .. gearPrefix .. detailColor .. gear
-		if gearLine then
-			gearLine:SetText(gear)
-		else
-			GameTooltip:AddLine(gear)
-		end
+	local infoString = prefixColor .. spec .. ': ' .. detailColor .. gear
+	if (spec == CONTINUED) then
+		infoString = CONTINUED
 	end
 
-	if spec and UnitLevel(unit) > 10 then
-		spec = prefixColor .. specPrefix .. detailColor .. spec
-		if specLine then
-			specLine:SetText(spec)
-		else
-			GameTooltip:AddLine(spec)
-		end
+	if infoLine then
+		infoLine:SetText(infoString)
+	else
+		GameTooltip:AddLine(infoString)
 	end
 
 	GameTooltip:Show()
@@ -121,6 +112,7 @@ end
 local function scanItemLevel(link)
 	if ItemDB[link] then return ItemDB[link] end
 
+	local scanTip = _G['CUnitScan']
 	if not scanTip then
 		scanTip = CreateFrame('GameTooltip', 'CUnitScan', nil, 'GameTooltipTemplate')
  		scanTip:SetOwner(UIParent, 'ANCHOR_NONE')
@@ -235,19 +227,17 @@ local function UnitSpec(unit)
 	local specName
 	if (unit == 'player') then
 		local specIndex = GetSpecialization()
-
 		if specIndex then
 			specName = select(2, GetSpecializationInfo(specIndex))
 		else
-			specName = NONE
+			specName = UNKNOWN
 		end
 	else
 		local specID = GetInspectSpecialization(unit)
-
 		if specID and (specID > 0) then
 			specName = select(2, GetSpecializationInfoByID(specID))
 		elseif (specID == 0) then
-			specName = NONE
+			specName = UNKNOWN
 		end
 	end
 
