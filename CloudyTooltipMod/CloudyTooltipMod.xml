@@ -207,11 +207,36 @@
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_UnitStatus" relativePoint="BOTTOMLEFT" />
 				</Anchors>
+				<Scripts>
+					<OnUpdate>
+						if self:GetChecked() then
+							CTipModUI_RealmLabel:Enable()
+							CTipModUI_RealmLabel:SetAlpha(1.0)
+						else
+							CTipModUI_RealmLabel:Disable()
+							CTipModUI_RealmLabel:SetAlpha(0.5)
+						end
+					</OnUpdate>
+				</Scripts>
+			</CheckButton>
+
+			<CheckButton name="$parent_RealmLabel" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_UnitRealm" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="10" y="4"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
 			</CheckButton>
 
 			<CheckButton name="$parent_GuildRank" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_UnitRealm" relativePoint="BOTTOMLEFT" />
+					<Anchor point="TOPLEFT" relativeTo="$parent_RealmLabel" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="-10" y="0"/>
+						</Offset>
+					</Anchor>
 				</Anchors>
 			</CheckButton>
 

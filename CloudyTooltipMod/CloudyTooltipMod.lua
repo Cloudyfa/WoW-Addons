@@ -25,6 +25,7 @@ local function CTipModDB_Init()
 		CTipModDB['UnitGender'] = 1
 		CTipModDB['UnitStatus'] = nil
 		CTipModDB['UnitRealm'] = nil
+		CTipModDB['RealmLabel'] = 1
 		CTipModDB['GuildRank'] = nil
 
 		CTipModDB['TargetOfTarget'] = 1
@@ -255,15 +256,15 @@ local function CTipMod_Hooks()
 				end
 			end
 
-			if unitRealm and (unitRealm ~= '') then
-				if CTipModDB['UnitRealm'] then
-					nameLine:SetText(unitColor .. unitName .. ' (' .. unitRealm .. ')')
-				else
+			if CTipModDB['UnitRealm'] and unitRealm and (unitRealm ~= '') then
+				if CTipModDB['RealmLabel'] then
 					if (unitRelation == LE_REALM_RELATION_VIRTUAL) then
 						nameLine:SetText(unitColor .. unitName .. INTERACTIVE_SERVER_LABEL)
 					else
 						nameLine:SetText(unitColor .. unitName .. FOREIGN_SERVER_LABEL)
 					end
+				else
+					nameLine:SetText(unitColor .. unitName .. ' (' .. unitRealm .. ')')
 				end
 			else
 				nameLine:SetText(unitColor .. unitName)
@@ -526,6 +527,7 @@ function CTipModUI_Load()
 	CTipModUI_UnitGender:SetChecked(CTipModDB['UnitGender'])
 	CTipModUI_UnitStatus:SetChecked(CTipModDB['UnitStatus'])
 	CTipModUI_UnitRealm:SetChecked(CTipModDB['UnitRealm'])
+	CTipModUI_RealmLabel:SetChecked(CTipModDB['RealmLabel'])
 	CTipModUI_GuildRank:SetChecked(CTipModDB['GuildRank'])
 
 	CTipModUI_TargetOfTarget:SetChecked(CTipModDB['TargetOfTarget'])
@@ -550,6 +552,7 @@ function CTipModUI_Save()
 	CTipModDB['UnitGender'] = CTipModUI_UnitGender:GetChecked()
 	CTipModDB['UnitStatus'] = CTipModUI_UnitStatus:GetChecked()
 	CTipModDB['UnitRealm'] = CTipModUI_UnitRealm:GetChecked()
+	CTipModDB['RealmLabel'] = CTipModUI_RealmLabel:GetChecked()
 	CTipModDB['GuildRank'] = CTipModUI_GuildRank:GetChecked()
 
 	CTipModDB['TargetOfTarget'] = CTipModUI_TargetOfTarget:GetChecked()
@@ -587,6 +590,7 @@ function CTipModUI_OnLoad(self)
 	CTipModUI_UnitGenderText:SetText('Player Gender')
 	CTipModUI_UnitStatusText:SetText('Player Status')
 	CTipModUI_UnitRealmText:SetText('Player Realm')
+	CTipModUI_RealmLabelText:SetText('Use realm label')
 	CTipModUI_GuildRankText:SetText('Guild Rank')
 
 	CTipModUI_TargetOfTargetText:SetText('Target of Target')
