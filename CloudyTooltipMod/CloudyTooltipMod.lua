@@ -418,7 +418,7 @@ local function CTipMod_Hooks()
 		if faction then
 			if not self.icon then
 				self.icon = self:CreateTexture(nil, 'ARTWORK')
-				self.icon:SetPoint('TOPRIGHT', 10, 8)
+				self.icon:SetPoint('TOPRIGHT', 10, 7)
 				self.icon:SetSize(32, 32)
 			end
 			if (faction == FACTION_ALLIANCE) then
@@ -427,11 +427,6 @@ local function CTipMod_Hooks()
 				self.icon:SetTexture('Interface\\Timer\\Horde-Logo')
 			end
 			self.icon:Show()
-		else
-			if self.icon and self.icon:IsShown() then
-				self.icon:SetTexture(nil)
-				self.icon:Hide()
-			end
 		end
 
 		-- Cleanup Tooltip --
@@ -445,9 +440,16 @@ local function CTipMod_Hooks()
 				nextline:SetPoint(line:GetPoint())
 			end
 		end
-		self:Show()
 	end
 	GameTooltip:HookScript('OnTooltipSetUnit', OnTooltipSetUnit)
+
+	-- Clear Texture --
+	GameTooltip:HookScript('OnHide', function(self)
+		if self.icon and self.icon:IsShown() then
+			self.icon:SetTexture(nil)
+			self.icon:Hide()
+		end
+	end)
 end
 
 
