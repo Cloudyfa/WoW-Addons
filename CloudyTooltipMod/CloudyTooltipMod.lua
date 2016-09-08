@@ -18,6 +18,7 @@ local function CTipModDB_Init()
 		CTipModDB['ClassColor'] = 1
 		CTipModDB['HideHealth'] = nil
 		CTipModDB['HideBorder'] = nil
+		CTipModDB['HidePVP'] = nil
 
 		CTipModDB['TipScale'] = 1
 
@@ -118,6 +119,10 @@ end
 local function CTipMod_Hooks()
 	-- Tooltip Anchor --
 	hooksecurefunc('GameTooltip_SetDefaultAnchor', function(self, parent)
+		if CTipModDB['HidePVP'] and UnitAffectingCombat('player') then
+			return self:Hide()
+		end
+
 		if CTipModDB['MouseAnchor'] then
 			if (GetMouseFocus() == WorldFrame) then
 				self:SetOwner(parent, 'ANCHOR_CURSOR')
@@ -520,6 +525,7 @@ function CTipModUI_Load()
 	CTipModUI_ClassColor:SetChecked(CTipModDB['ClassColor'])
 	CTipModUI_HideHealth:SetChecked(CTipModDB['HideHealth'])
 	CTipModUI_HideBorder:SetChecked(CTipModDB['HideBorder'])
+	CTipModUI_HidePVP:SetChecked(CTipModDB['HidePVP'])
 
 	CTipModUI_TipScale:SetValue(CTipModDB['TipScale'] or 1)
 
@@ -545,6 +551,7 @@ function CTipModUI_Save()
 	CTipModDB['ClassColor'] = CTipModUI_ClassColor:GetChecked()
 	CTipModDB['HideHealth'] = CTipModUI_HideHealth:GetChecked()
 	CTipModDB['HideBorder'] = CTipModUI_HideBorder:GetChecked()
+	CTipModDB['HidePVP'] = CTipModUI_HidePVP:GetChecked()
 
 	CTipModDB['TipScale'] = CTipModUI_TipScale:GetValue() or 1
 
@@ -585,6 +592,7 @@ function CTipModUI_OnLoad(self)
 	CTipModUI_ClassColorText:SetText('Class color priority')
 	CTipModUI_HideHealthText:SetText('Hide Health Bar')
 	CTipModUI_HideBorderText:SetText('Hide Tooltip Border')
+	CTipModUI_HidePVPText:SetText('Hide in Combat')
 
 	CTipModUI_UnitTitleText:SetText('Player Title')
 	CTipModUI_UnitGenderText:SetText('Player Gender')

@@ -137,6 +137,12 @@
 				</Anchors>
 			</CheckButton>
 
+			<CheckButton name="$parent_HidePVP" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_HideBorder" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
 			<Frame>
 				<Layers>
 					<Layer level="ARTWORK">
@@ -145,7 +151,7 @@
 								<AbsDimension x="0" y="24"/>
 							</Size>
 							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="$parent_HideBorder" relativePoint="BOTTOMLEFT">
+								<Anchor point="TOPLEFT" relativeTo="$parent_HidePVP" relativePoint="BOTTOMLEFT">
 									<Offset>
 										<AbsDimension x="0" y="-8"/>
 									</Offset>
