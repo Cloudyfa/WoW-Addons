@@ -83,14 +83,19 @@ end
 	end
 
 	-- Update Quest Title --
-	local function updateQuestTitle(quest, block, title)
-		local oldHeight = block:GetHeight()
-		local width = block:GetWidth()
-		block:SetText(title)
-		block:SetWidth(width + 18)
-
-		local newHeight = block:GetHeight()
-		quest:SetHeight(quest:GetHeight() + newHeight - oldHeight)
+	local function updateQuestTitle(button, title, tracker)
+		local header = tracker and button.HeaderText or button.Text
+		local oldHeight = header:GetHeight()
+		header:SetText(title)
+		if tracker then
+			if not button.lineWidth then
+				header:SetWidth(255)
+			end
+		else
+			header:SetWidth(200)
+		end
+		local newHeight = header:GetHeight()
+		button:SetHeight(button:GetHeight() + newHeight - oldHeight)
 	end
 
 	-- Update Quest Color --
@@ -155,7 +160,7 @@ local function CTweaks_Hooks()
 				if ( memberOnQuest > 0 ) then
 					title = '[' .. memberOnQuest .. '] ' .. title
 				end
-				updateQuestTitle(button, button.Text, title)
+				updateQuestTitle(button, title)
 
 				if button.Check:IsShown() then
 					button.Check:SetPoint('LEFT', button.Text, button.Text:GetWrappedWidth() + 2, 0)
@@ -180,21 +185,28 @@ local function CTweaks_Hooks()
 	end)
 
 	-- QuestTracker --
-	hooksecurefunc(QUEST_TRACKER_MODULE, 'SetBlockHeader', function(_, block, title, index)
+	hooksecurefunc(QUEST_TRACKER_MODULE, 'Update', function(self)
 		if CTweaksDB['HideTracker'] then return end
 		if (not CTweaksDB['QuestLevel']) and (not CTweaksDB['QuestColor']) then return end
 
-		local _, level, _, _, _, _ , freq = GetQuestLogTitle(index)
-		if CTweaksDB['QuestLevel'] and level then
-			updateQuestTitle(block, block.HeaderText, '[' .. level .. '] ' .. title)
-		end
+		for i = 1, GetNumQuestWatches() do
+			local id, title, index = GetQuestWatchInfo(i)
+			local block = id and self:GetExistingBlock(id)
+			if not block then return end
 
-		if CTweaksDB['QuestColor'] then
-			local color = updateQuestColor(index, level, freq)
-			block.HeaderText:SetTextColor(color.r * 0.75, color.g * 0.75, color.b * 0.75)
-		else
-			local color = OBJECTIVE_TRACKER_COLOR['Header']
-			block.HeaderText:SetTextColor(color.r, color.g, color.b)
+			local _, level, _, _, _, _ , freq = GetQuestLogTitle(index)
+			if CTweaksDB['QuestLevel'] and level then
+				title = '[' .. level .. '] ' .. title
+				updateQuestTitle(block, title, true)
+			end
+
+			if CTweaksDB['QuestColor'] then
+				local color = updateQuestColor(id, level, freq)
+				block.HeaderText:SetTextColor(color.r * 0.75, color.g * 0.75, color.b * 0.75)
+			else
+				local color = OBJECTIVE_TRACKER_COLOR['Header']
+				block.HeaderText:SetTextColor(color.r, color.g, color.b)
+			end
 		end
 	end)
 
@@ -318,6 +330,7 @@ local function CTweaks_Handler()
 	else
 		ObjectiveTrackerFrame:Show()
 	end
+	SortQuestWatches()
 
 	if CTweaksDB['QuestAccept'] then
 		CTweaks:RegisterEvent('QUEST_ACCEPT_CONFIRM')
@@ -334,8 +347,6 @@ local function CTweaks_Handler()
 		CTweaks:UnregisterEvent('QUEST_PROGRESS')
 		CTweaks:UnregisterEvent('QUEST_COMPLETE')
 	end
-
-	SortQuestWatches()
 
 	if CTweaksDB['AutoSell'] or CTweaksDB['AutoRepair'] then
 		CTweaks:RegisterEvent('MERCHANT_SHOW')
