@@ -124,8 +124,8 @@ end
 	end
 
 	-- Update Quest Color --
-	local function updateQuestColor(index, level, freq)
-		local _, tag = GetQuestTagInfo(index)
+	local function updateQuestColor(id, level, freq)
+		local _, tag = GetQuestTagInfo(id)
 		local color = GetQuestDifficultyColor(level)
 
 		if (tag == ITEM_QUALITY5_DESC) then
@@ -133,7 +133,6 @@ end
 		elseif (freq == LE_QUEST_FREQUENCY_DAILY) then
 			color = {r = 0.1, g = 0.6, b = 1.0}
 		end
-
 		return color
 	end
 
@@ -147,24 +146,20 @@ end
 	end
 
 	-- Tabard Buttons --
-	local tabardButton1 = CreateFrame('Button', 'tabardButton1', DressUpFrame, 'UIPanelButtonTemplate')
-	tabardButton1Text:SetText(TABARDSLOT)
-	tabardButton1:SetSize(80, 22)
-	tabardButton1:SetPoint('RIGHT', 'DressUpFrameResetButton', 'LEFT')
-	tabardButton1:SetFrameStrata('MEDIUM')
-
-	tabardButton1:SetScript('OnClick', function()
+	local tabard1 = CreateFrame('Button', nil, DressUpFrame, 'UIPanelButtonTemplate')
+	tabard1.Text:SetText(TABARDSLOT)
+	tabard1:SetSize(80, 22)
+	tabard1:SetPoint('RIGHT', DressUpFrameResetButton, 'LEFT')
+	tabard1:SetScript('OnClick', function()
 		DressUpModel:UndressSlot(19)
 		PlaySound('gsTitleOptionOK')
 	end)
 
-	local tabardButton2 = CreateFrame('Button', 'tabardButton2', SideDressUpFrame, 'UIPanelButtonTemplate')
-	tabardButton2Text:SetText(TABARDSLOT)
-	tabardButton2:SetSize(80, 22)
-	tabardButton2:SetPoint('TOP', 'SideDressUpModelResetButton', 'BOTTOM')
-	tabardButton2:SetFrameStrata('MEDIUM')
-
-	tabardButton2:SetScript('OnClick', function()
+	local tabard2 = CreateFrame('Button', nil, SideDressUpFrame, 'UIPanelButtonTemplate')
+	tabard2.Text:SetText(TABARDSLOT)
+	tabard2:SetSize(80, 22)
+	tabard2:SetPoint('TOP', SideDressUpModelResetButton, 'BOTTOM')
+	tabard2:SetScript('OnClick', function()
 		SideDressUpModel:UndressSlot(19)
 		PlaySound('gsTitleOptionOK')
 	end)
@@ -203,15 +198,12 @@ local function CTweaks_Hooks()
 	hooksecurefunc('QuestInfo_Display', function(self)
 		if (not CTweaksDB['QuestLevel']) then return end
 
-		for _, button in pairs(self.elements) do
-			if (button == QuestInfo_ShowTitle) then
+		for i = 1, #self.elements, 3 do
+			if (self.elements[i] == QuestInfo_ShowTitle) then
 				if QuestInfoFrame.questLog then
 					local index = GetQuestLogSelection()
 					local title, level = GetQuestLogTitle(index)
-					local width = QuestInfoTitleHeader:GetWidth()
-
 					QuestInfoTitleHeader:SetText('[' .. level .. '] ' .. title)
-					QuestInfoTitleHeader:SetWidth(width + 15)
 				end
 			end
 		end
@@ -237,41 +229,31 @@ local function CTweaks_Hooks()
 	end)
 
 	-- QuestHighlight --
-	local function HookQuestTracker(func)
-		hooksecurefunc(func, function(self)
-			if CTweaksDB['QuestColor'] then
-				local block = self:GetParent()
-				if block and block.id then
-					local index
-					for i = 1, GetNumQuestWatches() do
-						local id, _, questindex = GetQuestWatchInfo(i)
-						if id and (id == block.id) then index = questindex break end
-					end
-					if not index then return end
+	local function HookQuestTracker(self)
+		if CTweaksDB['QuestColor'] then
+			local block = self:GetParent()
+			if block and block.id then
+				local index = GetQuestLogIndexByID(block.id)
+				local _, level, _, _, _, _ , freq = GetQuestLogTitle(index)
+				local color = updateQuestColor(block.id, level, freq)
 
-					local _, level, _, _, _, _ , freq = GetQuestLogTitle(index)
-					local color = updateQuestColor(index, level, freq)
-
-					if block.isHighlighted then
-						block.HeaderText:SetTextColor(color.r * 1.1, color.g * 1.1, color.b * 1.1)
-					else
-						block.HeaderText:SetTextColor(color.r * 0.75, color.g * 0.75, color.b * 0.75)
-					end
+				if block.isHighlighted then
+					block.HeaderText:SetTextColor(color.r * 1.1, color.g * 1.1, color.b * 1.1)
+				else
+					block.HeaderText:SetTextColor(color.r * 0.75, color.g * 0.75, color.b * 0.75)
 				end
 			end
-		end)
+		end
 	end
-	HookQuestTracker('ObjectiveTrackerBlockHeader_OnEnter')
-	HookQuestTracker('ObjectiveTrackerBlockHeader_OnLeave')
+	hooksecurefunc('ObjectiveTrackerBlockHeader_OnEnter', HookQuestTracker)
+	hooksecurefunc('ObjectiveTrackerBlockHeader_OnLeave', HookQuestTracker)
 
 	-- QuestLink --
 	hooksecurefunc('ChatFrame_OnHyperlinkShow', function(_, _, link)
-		if CTweaksDB['QuestLevel'] and ItemRefTooltip:IsShown() then
-			local level = strmatch(link, 'quest:%d+:(\-?%d+)')
-			if level then
-				local title = ItemRefTooltipTextLeft1:GetText()
+		if CTweaksDB['QuestLevel'] then
+			local level, title = strmatch(link, 'quest:%d+:(\-?%d+)|h%[(.+)%]|h|r')
+			if level and title then
 				if (level == '-1') then level = UnitLevel('player') end
-
 				ItemRefTooltipTextLeft1:SetText('[' .. level .. '] ' .. title)
 				ItemRefTooltip:Show()
 			end
@@ -280,11 +262,11 @@ local function CTweaks_Hooks()
 
 	-- QuestPOI --
 	local function HookQuestPOI(_, index)
-		if (not CTweaksDB['QuestLevel']) then return end
-
-		local title, level = GetQuestLogTitle(index)
-		WorldMapTooltipTextLeft1:SetText('[' .. level .. '] ' .. title)
-		WorldMapTooltip:Show()
+		if CTweaksDB['QuestLevel'] then
+			local title, level = GetQuestLogTitle(index)
+			WorldMapTooltipTextLeft1:SetText('[' .. level .. '] ' .. title)
+			WorldMapTooltip:Show()
+		end
 	end
 	hooksecurefunc('WorldMapQuestPOI_SetTooltip', HookQuestPOI)
 	hooksecurefunc('WorldMapQuestPOI_AppendTooltip', HookQuestPOI)
@@ -426,11 +408,11 @@ local function CTweaks_Handler()
 	end
 
 	if CTweaksDB['DressUpButton'] then
-		tabardButton1:Show()
-		tabardButton2:Show()
+		tabard1:Show()
+		tabard2:Show()
 	else
-		tabardButton1:Hide()
-		tabardButton2:Hide()
+		tabard1:Hide()
+		tabard2:Hide()
 	end
 
 	if CTweaksDB['MapFade'] then
