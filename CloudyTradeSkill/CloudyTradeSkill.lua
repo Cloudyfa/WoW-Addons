@@ -338,9 +338,9 @@ end)
 
 
 --- Refresh TSFrame ---
-TradeSkillFrame:HookScript('OnSizeChanged', function()
+TradeSkillFrame:HookScript('OnSizeChanged', function(self)
 	if not InCombatLockdown() then
-		CTradeSkillDB['Size'] = (TradeSkillFrame:GetHeight() - 96) / 16
+		CTradeSkillDB['Size'] = (self:GetHeight() - 96) / 16
 		updateSize()
 	end
 end)
@@ -360,9 +360,9 @@ end)
 
 --- Required Level Display ---
 TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
-	for i = 1, #TradeSkillFrame.RecipeList.buttons do
+	for i = 1, #self.buttons do
 		if CTradeSkillDB and CTradeSkillDB['Level'] == true then
-			local button = TradeSkillFrame.RecipeList.buttons[i]
+			local button = self.buttons[i]
 			local lvlFrame = _G['CTSLevel_' .. i] or CreateFrame('Frame', 'CTSLevel_' .. i, button)
 			if not lvlFrame.Text then
 				lvlFrame.Text = lvlFrame:CreateFontString(nil, 'BACKGROUND', 'GameFontNormalSmall')
@@ -397,7 +397,7 @@ end)
 TradeSkillFrame.RankFrame:SetWidth(500)
 TradeSkillFrame.SearchBox:SetWidth(240)
 hooksecurefunc('ChatEdit_InsertLink', function(link)
-	if link and TradeSkillFrame and TradeSkillFrame:IsShown() then
+	if link and TradeSkillFrame:IsShown() then
 		local activeWindow = ChatEdit_GetActiveWindow()
 		if activeWindow then return end
 
@@ -412,7 +412,7 @@ end)
 
 --- Fix StackSplit ---
 hooksecurefunc('ContainerFrameItemButton_OnModifiedClick', function(self, button)
-	if TradeSkillFrame and TradeSkillFrame:IsShown() then
+	if TradeSkillFrame:IsShown() then
 		if (button == 'LeftButton') then
 			StackSplitFrame:Hide()
 		end
