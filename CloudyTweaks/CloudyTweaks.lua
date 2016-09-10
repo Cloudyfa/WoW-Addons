@@ -68,48 +68,18 @@ end
 		return false
 	end
 
-	-- Scan Gossip Quests --
-	local function scanGossip()
-		local ListQuests = {}
+	-- Update Gossip Button --
+	local function updateGossip(index, data, step)
+		for i = 1, #data, step do
+			local button = _G['GossipTitleButton' .. index]
+			local title, level = data[i], data[i + 1]
+			if level == -1 then level = UnitLevel('player') end
 
-		for i = 1, GetNumGossipActiveQuests() do
-			local quest = {}
-			quest.title, quest.level = select(6 * (i - 1) + 1, GetGossipActiveQuests())
-
-			table.insert(ListQuests, quest)
+			button:SetText('[' .. level .. '] ' .. title)
+			GossipResize(button)
+			index = index + 1
 		end
-
-		for i = 1, GetNumGossipAvailableQuests() do
-			local quest = {}
-			quest.title, quest.level = select(7 * (i - 1) + 1, GetGossipAvailableQuests())
-
-			table.insert(ListQuests, quest)
-		end
-
-		return ListQuests
-	end
-
-	-- Scan Greeting Quests --
-	local function scanGreeting()
-		local ListQuests = {}
-
-		for i = 1, GetNumActiveQuests() do
-			local quest = {}
-			quest.title = GetActiveTitle(i)
-			quest.level = GetActiveLevel(i)
-
-			table.insert(ListQuests, quest)
-		end
-
-		for i = 1, GetNumAvailableQuests() do
-			local quest = {}
-			quest.title = GetAvailableTitle(i)
-			quest.level = GetAvailableLevel(i)
-
-			table.insert(ListQuests, quest)
-		end
-
-		return ListQuests
+		return index
 	end
 
 	-- Update Quest Title --
@@ -272,35 +242,37 @@ local function CTweaks_Hooks()
 	hooksecurefunc('WorldMapQuestPOI_AppendTooltip', HookQuestPOI)
 
 	-- GossipFrame --
-	GossipFrame:HookScript('OnUpdate', function()
-		if (not CTweaksDB['QuestLevel']) or (not GossipFrame:IsShown()) then return end
+	hooksecurefunc('GossipFrameUpdate', function()
+		if (not CTweaksDB['QuestLevel']) then return end
 
-		local GossipQuests = scanGossip()
-		for _, quest in pairs(GossipQuests) do
-			if (not quest.level) or (not quest.title) then return end
-			if (quest.level == -1) then quest.level = UnitLevel('player') end
+		local avaiableQuests = {GetGossipAvailableQuests()}
+		local index = updateGossip(1, avaiableQuests, 7)
 
-			for i = 1, GossipFrame.buttonIndex do
-				local button = _G['GossipTitleButton' .. i]
-				if button:IsShown() and button:GetText() and strfind(button:GetText(), quest.title, 1, true) then
-					button:SetText('[' .. quest.level .. '] ' .. quest.title)
-					GossipResize(button)
-					break
-				end
-			end
-		end
+		if #avaiableQuests > 1 then index = index + 1 end
+
+		local activeQuests = {GetGossipActiveQuests()}
+		updateGossip(index, activeQuests, 6)
 	end)
 
 	-- GreetingPanel --
-	QuestFrameGreetingPanel:HookScript('OnUpdate', function()
-		if (not CTweaksDB['QuestLevel']) or (not QuestFrameGreetingPanel:IsShown()) then return end
+	hooksecurefunc('QuestFrameGreetingPanel_OnShow', function()
+		if (not CTweaksDB['QuestLevel']) then return end
 
-		local GreetingQuests = scanGreeting()
-		for index, quest in pairs(GreetingQuests) do
-			if (quest.level == -1) then quest.level = UnitLevel('player') end
+		local numActiveQuests = GetNumActiveQuests()
+		local numAvailableQuests = GetNumAvailableQuests()
+		for i = 1, numActiveQuests + numAvailableQuests do
+			local button = _G['QuestTitleButton' .. i]
 
-			local button = _G['QuestTitleButton' .. index]
-			button:SetText('[' .. quest.level .. '] ' .. quest.title)
+			local title, level
+			if i <= numActiveQuests then
+				title = GetActiveTitle(i)
+				level = GetActiveLevel(i)
+			else
+				title = GetAvailableTitle(i)
+				level = GetAvailableLevel(i)
+			end
+
+			button:SetText('[' .. level .. '] ' .. title)
 			button:SetHeight(button:GetTextHeight() + 2)
 		end
 	end)
