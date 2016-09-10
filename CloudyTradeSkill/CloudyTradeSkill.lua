@@ -405,10 +405,12 @@ hooksecurefunc('ChatEdit_InsertLink', function(link)
 		local activeWindow = ChatEdit_GetActiveWindow()
 		if activeWindow then return end
 
-		local text = strmatch(link, '|h%[(.+)%]|h|r')
-		if text then
-			text = strmatch(text, ':%s(.+)') or text
-			TradeSkillFrame.SearchBox:SetText(text:lower())
+		if strfind(link, 'item:', 1, true) or strfind(link, 'enchant:', 1, true) then
+			local text = strmatch(link, '|h%[(.+)%]|h|r')
+			if text then
+				text = strmatch(text, ':%s(.+)') or text
+				TradeSkillFrame.SearchBox:SetText(text:lower())
+			end
 		end
 	end
 end)
