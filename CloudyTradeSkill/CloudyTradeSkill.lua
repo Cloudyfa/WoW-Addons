@@ -399,6 +399,32 @@ TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 end)
 
 
+--- Collapse Recipes ---
+hooksecurefunc(TradeSkillFrame.RecipeList, 'OnHeaderButtonClicked', function(self, _, info, button)
+	if (button ~= 'RightButton') then return end
+
+	local collapsed = self:IsCategoryCollapsed(info.categoryID)
+	local subCat = C_TradeSkillUI.GetSubCategories(info.categoryID)
+	if subCat then
+		collapsed = not self:IsCategoryCollapsed(subCat)
+	end
+
+	local allCategories = {C_TradeSkillUI.GetCategories()}
+	for _, catId in pairs(allCategories) do
+		local subCategories = {C_TradeSkillUI.GetSubCategories(catId)}
+		if #subCategories == 0 then
+			self.collapsedCategories[catId] = collapsed
+		else
+			self.collapsedCategories[catId] = false
+			for _, subId in pairs(subCategories) do
+				self.collapsedCategories[subId] = collapsed
+			end
+		end
+	end
+	self:Refresh()
+end)
+
+
 --- Fix SearchBox ---
 hooksecurefunc('ChatEdit_InsertLink', function(link)
 	if link and TradeSkillFrame:IsShown() then
