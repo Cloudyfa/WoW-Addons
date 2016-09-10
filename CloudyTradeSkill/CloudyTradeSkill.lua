@@ -59,9 +59,10 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 	--- Check Current Tab ---
 	local function isCurrentTab(self)
 		if self.tooltip and IsCurrentSpell(self.tooltip) then
-			CTradeSkillDB['Panel'] = C_TradeSkillUI.GetTradeSkillLine()
-			restoreFilters()
-
+			if TradeSkillFrame:IsShown() and (self.isSub == 0) then
+				CTradeSkillDB['Panel'] = C_TradeSkillUI.GetTradeSkillLine()
+				restoreFilters()
+			end
 			self:SetChecked(true)
 			self:RegisterForClicks(nil)
 		else
