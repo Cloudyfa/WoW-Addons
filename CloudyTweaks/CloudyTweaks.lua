@@ -162,8 +162,11 @@ local function CTweaks_Hooks()
 				end
 				updateQuestTitle(button, title)
 
-				if button.Check:IsShown() then
+				if IsQuestWatched(button.questLogIndex) then
 					button.Check:SetPoint('LEFT', button.Text, button.Text:GetWrappedWidth() + 2, 0)
+					button.Check:Show()
+				else
+					button.Check:Hide()
 				end
 			end
 		end
