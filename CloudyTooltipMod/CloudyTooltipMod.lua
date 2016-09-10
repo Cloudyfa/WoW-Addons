@@ -450,8 +450,8 @@ local function CTipMod_Hooks()
 	GameTooltip:HookScript('OnTooltipSetUnit', OnTooltipSetUnit)
 
 	-- Clear Texture --
-	GameTooltip:HookScript('OnHide', function(self)
-		if self.icon and self.icon:IsShown() then
+	GameTooltip:HookScript('OnTooltipCleared', function(self)
+		if self.icon then
 			self.icon:SetTexture(nil)
 			self.icon:Hide()
 		end
