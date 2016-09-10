@@ -35,7 +35,6 @@ end
 --- Create Frame ---
 local f = CreateFrame('Frame', 'CloudyTradeSkill')
 f:RegisterEvent('PLAYER_LOGIN')
-f:RegisterEvent('TRADE_SKILL_SHOW')
 f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
@@ -621,8 +620,6 @@ f:SetScript('OnEvent', function(self, event, ...)
 		TradeSkillFrame:SetAlpha(0.4)
 	elseif (event == 'PLAYER_STOPPED_MOVING') then
 		TradeSkillFrame:SetAlpha(1.0)
-	elseif (event == 'TRADE_SKILL_SHOW') then
-		restoreFilters()
 	elseif (event == 'TRADE_SKILL_LIST_UPDATE') then
 		saveFilters()
 	elseif (event == 'TRADE_SKILL_DATA_SOURCE_CHANGED') then
