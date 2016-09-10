@@ -278,7 +278,7 @@ resizeBar:SetAllPoints(TradeSkillFrameBottomBorder)
 resizeBar:SetScript('OnMouseDown', function(_, button)
 	if (button == 'LeftButton') and not InCombatLockdown() then
 		TradeSkillFrame:SetResizable(true)
-		TradeSkillFrame:SetMinResize(670, 470)
+		TradeSkillFrame:SetMinResize(670, 495)
 		TradeSkillFrame:SetMaxResize(670, TradeSkillFrame:GetTop() - 40)
 		TradeSkillFrame:StartSizing('BOTTOM')
 	end
@@ -358,6 +358,12 @@ hooksecurefunc('HybridScrollFrame_Update', function(self, ...)
 end)
 
 
+--- Other Adjustment ---
+TradeSkillFrame.RankFrame:SetWidth(500)
+TradeSkillFrame.SearchBox:SetWidth(240)
+MainMenuBarOverlayFrame:SetFrameStrata('MEDIUM')
+
+
 --- Required Level Display ---
 TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 	for i = 1, #self.buttons do
@@ -394,8 +400,6 @@ end)
 
 
 --- Fix SearchBox ---
-TradeSkillFrame.RankFrame:SetWidth(500)
-TradeSkillFrame.SearchBox:SetWidth(240)
 hooksecurefunc('ChatEdit_InsertLink', function(link)
 	if link and TradeSkillFrame:IsShown() then
 		local activeWindow = ChatEdit_GetActiveWindow()
