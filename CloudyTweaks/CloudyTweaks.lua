@@ -428,8 +428,12 @@ local function CTweaks_Handler()
 
 	if CTweaksDB['CamDistance'] then
 		SetCVar('cameraDistanceMaxFactor', '2.6')
+		InterfaceOptionsCameraPanelMaxDistanceSlider:Disable()
 	else
-		SetCVar('cameraDistanceMaxFactor', '1.9')
+		if tonumber(GetCVar('cameraDistanceMaxFactor')) > 2 then
+			SetCVar('cameraDistanceMaxFactor', '1.9')
+		end
+		InterfaceOptionsCameraPanelMaxDistanceSlider:Enable()
 	end
 end
 
@@ -453,6 +457,7 @@ function CTweaks_OnEvent(self, event, ...)
 	elseif (event == 'PLAYER_ENTERING_WORLD') then
 		if CTweaksDB['CamDistance'] then
 			SetCVar('cameraDistanceMaxFactor', '2.6')
+			InterfaceOptionsCameraPanelMaxDistanceSlider:Disable()
 		end
 
 	elseif (event == 'CONFIRM_LOOT_ROLL') or (event == 'CONFIRM_DISENCHANT_ROLL') then
