@@ -496,6 +496,22 @@ local function injectButtons()
 end
 
 
+--- Create Warning Dialog ---
+StaticPopupDialogs['CTRADESKILL_WARNING'] = {
+	text = UNLOCK_FRAME .. ' ' .. REQUIRES_RELOAD:lower() .. '!\n',
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	OnAccept = function()
+		CTradeSkillDB['Unlock'] = not CTradeSkillDB['Unlock']
+		ReloadUI()
+	end,
+	timeout = 0,
+	exclusive = 1,
+	hideOnEscape = 1,
+	preferredIndex = 3,
+}
+
+
 --- Create Option Menu ---
 local function createOptions()
 	--- Dropdown Menu ---
@@ -523,8 +539,7 @@ local function createOptions()
 
 			info.text = UNLOCK_FRAME
 			info.func = function()
-				CTradeSkillDB['Unlock'] = not CTradeSkillDB['Unlock']
-				ReloadUI()
+				StaticPopup_Show('CTRADESKILL_WARNING')
 			end
 			info.checked = CTradeSkillDB['Unlock']
 			UIDropDownMenu_AddButton(info, level)
