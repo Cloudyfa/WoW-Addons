@@ -505,6 +505,9 @@ StaticPopupDialogs['CTRADESKILL_WARNING'] = {
 		CTradeSkillDB['Unlock'] = not CTradeSkillDB['Unlock']
 		ReloadUI()
 	end,
+	OnCancel = function()
+		_G['CTSOption']:Enable()
+	end,
 	timeout = 0,
 	exclusive = 1,
 	hideOnEscape = 1,
@@ -527,20 +530,22 @@ local function createOptions()
 			info.disabled = false
 			info.isNotRadio = true
 			info.notCheckable = false
-			info.keepShownOnClick = true
 
 			info.text = 'UI ' .. ACTION_SPELL_AURA_REMOVED_BUFF
 			info.func = function()
 				CTradeSkillDB['Fade'] = not CTradeSkillDB['Fade']
 				fadeState()
 			end
+			info.keepShownOnClick = true
 			info.checked = CTradeSkillDB['Fade']
 			UIDropDownMenu_AddButton(info, level)
 
 			info.text = UNLOCK_FRAME
 			info.func = function()
+				_G['CTSOption']:Disable()
 				StaticPopup_Show('CTRADESKILL_WARNING')
 			end
+			info.keepShownOnClick = false
 			info.checked = CTradeSkillDB['Unlock']
 			UIDropDownMenu_AddButton(info, level)
 
@@ -549,6 +554,7 @@ local function createOptions()
 				CTradeSkillDB['Level'] = not CTradeSkillDB['Level']
 				TradeSkillFrame.RecipeList:Refresh()
 			end
+			info.keepShownOnClick = true
 			info.checked = CTradeSkillDB['Level']
 			UIDropDownMenu_AddButton(info, level)
 
