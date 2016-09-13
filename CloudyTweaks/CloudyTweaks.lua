@@ -21,7 +21,6 @@ local function CTweaksDB_Init()
 
 		CTweaksDB['QuestLevel'] = 1
 		CTweaksDB['QuestColor'] = 1
-		CTweaksDB['HideTracker'] = nil
 		CTweaksDB['QuestAccept'] = 1
 		CTweaksDB['QuestTurnin'] = 1
 
@@ -189,7 +188,6 @@ local function CTweaks_Hooks()
 
 	-- QuestTracker --
 	hooksecurefunc(QUEST_TRACKER_MODULE, 'Update', function(self)
-		if CTweaksDB['HideTracker'] then return end
 		if (not CTweaksDB['QuestLevel']) and (not CTweaksDB['QuestColor']) then return end
 
 		for i = 1, GetNumQuestWatches() do
@@ -327,13 +325,6 @@ local function CTweaks_Handler()
 	else
 		CTweaks:UnregisterEvent('PLAYER_DEAD')
 	end
-
-	if CTweaksDB['HideTracker'] then
-		ObjectiveTrackerFrame:Hide()
-	else
-		ObjectiveTrackerFrame:Show()
-	end
-	SortQuestWatches()
 
 	if CTweaksDB['QuestAccept'] then
 		CTweaks:RegisterEvent('QUEST_ACCEPT_CONFIRM')
@@ -633,7 +624,6 @@ function CTweaksUI_Load()
 
 	CTweaksUI_QuestLevel:SetChecked(CTweaksDB['QuestLevel'])
 	CTweaksUI_QuestColor:SetChecked(CTweaksDB['QuestColor'])
-	CTweaksUI_HideTracker:SetChecked(CTweaksDB['HideTracker'])
 	CTweaksUI_QuestAccept:SetChecked(CTweaksDB['QuestAccept'])
 	CTweaksUI_QuestTurnin:SetChecked(CTweaksDB['QuestTurnin'])
 
@@ -668,7 +658,6 @@ function CTweaksUI_Save()
 
 	CTweaksDB['QuestLevel'] = CTweaksUI_QuestLevel:GetChecked()
 	CTweaksDB['QuestColor'] = CTweaksUI_QuestColor:GetChecked()
-	CTweaksDB['HideTracker'] = CTweaksUI_HideTracker:GetChecked()
 	CTweaksDB['QuestAccept'] = CTweaksUI_QuestAccept:GetChecked()
 	CTweaksDB['QuestTurnin'] = CTweaksUI_QuestTurnin:GetChecked()
 
@@ -718,7 +707,6 @@ function CTweaksUI_OnLoad(self)
 
 	CTweaksUI_QuestLevelText:SetText('Show quest level')
 	CTweaksUI_QuestColorText:SetText('Colorize quest tracker')
-	CTweaksUI_HideTrackerText:SetText('Hide quest tracker')
 	CTweaksUI_QuestAcceptText:SetText('Auto accept quest')
 	CTweaksUI_QuestTurninText:SetText('Auto turn-in quest')
 

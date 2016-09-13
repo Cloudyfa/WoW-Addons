@@ -161,15 +161,9 @@
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_HideTracker" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_QuestColor" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
 			<CheckButton name="$parent_QuestAccept" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_HideTracker" relativePoint="BOTTOMLEFT" />
+					<Anchor point="TOPLEFT" relativeTo="$parent_QuestColor" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
