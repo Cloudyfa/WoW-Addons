@@ -36,10 +36,11 @@ local function SetUnitInfo(gear, spec)
 	local infoLine
 	for i = 2, GameTooltip:NumLines() do
 		local line = _G['GameTooltipTextLeft' .. i]
-		local text = line and line:GetText()
+		local text = line and line:GetText() or ''
 
 		if (text == CONTINUED) or strfind(text, spec .. ': ', 1, true) or strfind(text, SPECIALIZATION .. ': ', 1, true) then
 			infoLine = line
+			break
 		end
 	end
 
