@@ -101,7 +101,7 @@ end
 
 	-- Color Tooltip --
 	local function ColorTooltip(tooltip, color)
-		local r, g, b = 0.7, 0.7, 0.7
+		local r, g, b = 0.65, 0.65, 0.65
 		if CTipModDB['TipColor'] then
 			if color and (strlen(color) == 10) then
 				r = tonumber(strsub(color, 5, 6), 16) / 255
