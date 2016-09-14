@@ -25,12 +25,14 @@ f:RegisterEvent('INSPECT_READY')
 
 --- Set Unit Info ---
 local function SetUnitInfo(gear, spec)
-	if (not gear) and (not spec) then return end
+	if (not gear) then return end
 
 	local _, unit = GameTooltip:GetUnit()
 	if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
-	if UnitLevel(unit) < 10 or (spec == UNKNOWN) then
+	if UnitLevel(unit) < 10 then
 		spec = STAT_AVERAGE_ITEM_LEVEL
+	elseif (not spec) then
+		spec = CONTINUED
 	end
 
 	local infoLine
@@ -38,19 +40,15 @@ local function SetUnitInfo(gear, spec)
 		local line = _G['GameTooltipTextLeft' .. i]
 		local text = line and line:GetText() or ''
 
-		if (text == CONTINUED) or strfind(text, spec .. ': ', 1, true) or strfind(text, SPECIALIZATION .. ': ', 1, true) then
+		if (text == CONTINUED) or strfind(text, spec .. ': ', 1, true) then
 			infoLine = line
 			break
 		end
 	end
 
 	local infoString = CONTINUED
-	if spec and (spec ~= CONTINUED) then
-		if gear then
-			infoString = prefixColor .. spec .. ': ' .. detailColor .. gear
-		else
-			infoString = prefixColor .. SPECIALIZATION .. ': ' .. detailColor .. spec
-		end
+	if (spec ~= CONTINUED) then
+		infoString = prefixColor .. spec .. ': ' .. detailColor .. gear
 	end
 
 	if infoLine then
@@ -58,7 +56,6 @@ local function SetUnitInfo(gear, spec)
 	else
 		GameTooltip:AddLine(infoString)
 	end
-
 	GameTooltip:Show()
 end
 
@@ -234,15 +231,11 @@ local function UnitSpec(unit)
 		local specIndex = GetSpecialization()
 		if specIndex then
 			specName = select(2, GetSpecializationInfo(specIndex))
-		else
-			specName = UNKNOWN
 		end
 	else
 		local specID = GetInspectSpecialization(unit)
 		if specID and (specID > 0) then
 			specName = select(2, GetSpecializationInfoByID(specID))
-		elseif (specID == 0) then
-			specName = UNKNOWN
 		end
 	end
 
@@ -258,7 +251,7 @@ local function ScanUnit(unit, forced)
 		cachedGear = UnitGear('player')
 		cachedSpec = UnitSpec('player')
 
-		SetUnitInfo(cachedGear or CONTINUED, cachedSpec or CONTINUED)
+		SetUnitInfo(cachedGear, cachedSpec)
 	else
 		if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
 
@@ -266,7 +259,7 @@ local function ScanUnit(unit, forced)
 		cachedSpec = SpecDB[currentGUID]
 
 		if cachedGear or forced then
-			SetUnitInfo(cachedGear or CONTINUED, cachedSpec)
+			SetUnitInfo(cachedGear, cachedSpec)
 		end
 
 		if not (IsShiftKeyDown() or forced) then
@@ -278,7 +271,7 @@ local function ScanUnit(unit, forced)
 		if UnitIsDeadOrGhost('player') or UnitOnTaxi('player') then return end
 		if InspectFrame and InspectFrame:IsShown() then return end
 
-		SetUnitInfo(CONTINUED, cachedSpec or CONTINUED)
+		SetUnitInfo(CONTINUED, cachedSpec)
 
 		local timeSinceLastInspect = GetTime() - lastInspectRequest
 		if (timeSinceLastInspect >= 1.5) then
