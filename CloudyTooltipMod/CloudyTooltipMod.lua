@@ -180,6 +180,9 @@ local function CTipMod_Hooks()
 	hooksecurefunc('GameTooltip_ShowCompareItem', function(self)
 		if self and self.shoppingTooltips then
 			for _, tooltip in pairs(self.shoppingTooltips) do
+				tooltip:SetBackdrop(CTipBackdrop)
+				tooltip:SetScale(CTipModDB['TipScale'])
+
 				local _, link = tooltip:GetItem()
 				local color = link and strmatch(link, '(|c%x+)')
 				ColorTooltip(tooltip, color)
@@ -493,6 +496,7 @@ local function CTipMod_Handler()
 		end
 	end
 	GameTooltip:SetBackdrop(CTipBackdrop)
+	ItemRefTooltip:SetBackdrop(CTipBackdrop)
 
 	GameTooltip:SetScale(CTipModDB['TipScale'])
 	ItemRefTooltip:SetScale(CTipModDB['TipScale'])
