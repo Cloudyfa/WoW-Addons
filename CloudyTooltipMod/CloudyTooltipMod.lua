@@ -427,13 +427,20 @@ local function CTipMod_Hooks()
 		if faction then
 			if not self.icon then
 				self.icon = self:CreateTexture(nil, 'ARTWORK')
-				self.icon:SetPoint('TOPRIGHT', 10, 7)
 				self.icon:SetSize(32, 32)
 			end
 			if (faction == FACTION_ALLIANCE) then
 				self.icon:SetTexture('Interface\\Timer\\Alliance-Logo')
 			elseif (faction == FACTION_HORDE) then
 				self.icon:SetTexture('Interface\\Timer\\Horde-Logo')
+			end
+
+			if CTipModDB['HideBorder'] then
+				self.icon:SetPoint('TOPRIGHT', 3, -1)
+				self.icon:SetAlpha(0.65)
+			else
+				self.icon:SetPoint('TOPRIGHT', 10, 7)
+				self.icon:SetAlpha(0.95)
 			end
 			self.icon:Show()
 		end
