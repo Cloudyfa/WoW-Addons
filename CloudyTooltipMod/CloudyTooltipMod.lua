@@ -14,10 +14,10 @@ local function CTipModDB_Init()
 		-- Default configuration --
 		CTipModDB['MouseAnchor'] = 1
 
-		CTipModDB['TipColor'] = 1
+		CTipModDB['TipColor'] = nil
 		CTipModDB['ClassColor'] = 1
 		CTipModDB['HideHealth'] = nil
-		CTipModDB['HideBorder'] = nil
+		CTipModDB['HideBorder'] = 1
 		CTipModDB['HidePVP'] = nil
 
 		CTipModDB['TipScale'] = 1
@@ -31,7 +31,7 @@ local function CTipModDB_Init()
 
 		CTipModDB['TargetOfTarget'] = 1
 		CTipModDB['TradeGoodsInfo'] = 1
-		CTipModDB['FactionIcon'] = nil
+		CTipModDB['FactionIcon'] = 1
 		CTipModDB['LinkIcon'] = 1
 	end
 
