@@ -1,7 +1,7 @@
 ## Interface: 70000
 ## Title: Cloudy Tooltip Mod
 ## Notes: Modify the default tooltip.
-## Version: 2.3
+## Version: 2.4
 ## Author: Cloudyfa
 ## SavedVariables: CTipModDB
 
