@@ -98,36 +98,17 @@
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentStyle" relativePoint="BOTTOMLEFT" />
 				</Anchors>
-				<Scripts>
-					<OnUpdate>
-						if self:GetChecked() then
-							CTipModUI_ClassColor:Enable()
-							CTipModUI_ClassColor:SetAlpha(1.0)
-						else
-							CTipModUI_ClassColor:Disable()
-							CTipModUI_ClassColor:SetAlpha(0.5)
-						end
-					</OnUpdate>
-				</Scripts>
 			</CheckButton>
 
-			<CheckButton name="$parent_ClassColor" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+			<CheckButton name="$parent_ClassColor" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_TipColor" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="10" y="4"/>
-						</Offset>
-					</Anchor>
+					<Anchor point="TOPLEFT" relativeTo="$parent_TipColor" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
 			<CheckButton name="$parent_HideHealth" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_ClassColor" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="-10" y="0"/>
-						</Offset>
-					</Anchor>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ClassColor" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 

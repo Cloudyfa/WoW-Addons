@@ -63,7 +63,7 @@ end
 		if UnitIsDeadOrGhost(unit) or (not UnitIsConnected(unit)) then
 			color = '|cff888888'
 		elseif UnitIsPlayer(unit) or UnitPlayerControlled(unit) then
-			if CTipModDB['TipColor'] and CTipModDB['ClassColor'] then
+			if CTipModDB['ClassColor'] then
 				if UnitIsPlayer(unit) then
 					color = GetClassColor(unit)
 				elseif not UnitIsPVP(unit) then
@@ -321,7 +321,7 @@ local function CTipMod_Hooks()
 				local unitRace = UnitRace(unit)
 				local classColor, className = GetClassColor(unit)
 
-				if CTipModDB['TipColor'] and CTipModDB['ClassColor'] then
+				if CTipModDB['ClassColor'] then
 					className = ''
 				end
 
