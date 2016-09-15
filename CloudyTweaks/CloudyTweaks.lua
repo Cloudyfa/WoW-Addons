@@ -19,24 +19,25 @@ local function CTweaksDB_Init()
 		CTweaksDB['AcceptResurrect'] = 1
 		CTweaksDB['AutoRelease'] = nil
 
-		CTweaksDB['QuestLevel'] = 1
-		CTweaksDB['QuestColor'] = 1
-		CTweaksDB['QuestAccept'] = 1
-		CTweaksDB['QuestTurnin'] = 1
-
 		CTweaksDB['AutoSell'] = 1
 		CTweaksDB['AutoRepair'] = 1
 		CTweaksDB['SelfRepair'] = nil
+		CTweaksDB['SkipGossip'] = nil
+
+		CTweaksDB['ChatFade'] = nil
+		CTweaksDB['ChatArrow'] = 1
 
 		CTweaksDB['MinimapScroll'] = 1
 		CTweaksDB['HideMapButton'] = 1
 		CTweaksDB['DayNight'] = 1
 
-		CTweaksDB['SkipGossip'] = 1
+		CTweaksDB['QuestLevel'] = 1
+		CTweaksDB['QuestColor'] = 1
+		CTweaksDB['QuestAccept'] = nil
+		CTweaksDB['QuestTurnin'] = 1
+
+		CTweaksDB['MapFade'] = nil
 		CTweaksDB['DressUpButton'] = 1
-		CTweaksDB['MapFade'] = 1
-		CTweaksDB['ChatFade'] = nil
-		CTweaksDB['ChatArrow'] = 1
 		CTweaksDB['EliteFrame'] = 1
 		CTweaksDB['HideGryphons'] = nil
 		CTweaksDB['CamDistance'] = nil
@@ -325,26 +326,30 @@ local function CTweaks_Handler()
 		CTweaks:UnregisterEvent('PLAYER_DEAD')
 	end
 
-	if CTweaksDB['QuestAccept'] then
-		CTweaks:RegisterEvent('QUEST_ACCEPT_CONFIRM')
-		CTweaks:RegisterEvent('QUEST_DETAIL')
-	else
-		CTweaks:UnregisterEvent('QUEST_ACCEPT_CONFIRM')
-		CTweaks:UnregisterEvent('QUEST_DETAIL')
-	end
-
-	if CTweaksDB['QuestTurnin'] then
-		CTweaks:RegisterEvent('QUEST_PROGRESS')
-		CTweaks:RegisterEvent('QUEST_COMPLETE')
-	else
-		CTweaks:UnregisterEvent('QUEST_PROGRESS')
-		CTweaks:UnregisterEvent('QUEST_COMPLETE')
-	end
-
 	if CTweaksDB['AutoSell'] or CTweaksDB['AutoRepair'] then
 		CTweaks:RegisterEvent('MERCHANT_SHOW')
 	else
 		CTweaks:UnregisterEvent('MERCHANT_SHOW')
+	end
+
+	if CTweaksDB['SkipGossip'] then
+		CTweaks:RegisterEvent('GOSSIP_SHOW')
+	else
+		CTweaks:UnregisterEvent('GOSSIP_SHOW')
+	end
+
+	for i = 1, NUM_CHAT_WINDOWS do
+		if CTweaksDB['ChatFade'] then
+			_G['ChatFrame' .. i]:SetFading(true)
+		else
+			_G['ChatFrame' .. i]:SetFading(false)
+		end
+
+		if CTweaksDB['ChatArrow'] then
+			_G['ChatFrame' .. i .. 'EditBox']:SetAltArrowKeyMode(false)
+		else
+			_G['ChatFrame' .. i .. 'EditBox']:SetAltArrowKeyMode(true)
+		end
 	end
 
 	if CTweaksDB['MinimapScroll'] then
@@ -375,10 +380,28 @@ local function CTweaks_Handler()
 		GameTimeTexture:Hide()
 	end
 
-	if CTweaksDB['SkipGossip'] then
-		CTweaks:RegisterEvent('GOSSIP_SHOW')
+	if CTweaksDB['QuestAccept'] then
+		CTweaks:RegisterEvent('QUEST_ACCEPT_CONFIRM')
+		CTweaks:RegisterEvent('QUEST_DETAIL')
 	else
-		CTweaks:UnregisterEvent('GOSSIP_SHOW')
+		CTweaks:UnregisterEvent('QUEST_ACCEPT_CONFIRM')
+		CTweaks:UnregisterEvent('QUEST_DETAIL')
+	end
+
+	if CTweaksDB['QuestTurnin'] then
+		CTweaks:RegisterEvent('QUEST_PROGRESS')
+		CTweaks:RegisterEvent('QUEST_COMPLETE')
+	else
+		CTweaks:UnregisterEvent('QUEST_PROGRESS')
+		CTweaks:UnregisterEvent('QUEST_COMPLETE')
+	end
+
+	ObjectiveTracker_Update(OBJECTIVE_TRACKER_UPDATE_QUEST)
+
+	if CTweaksDB['MapFade'] then
+		SetCVar('mapFade', '1')
+	else
+		SetCVar('mapFade', '0')
 	end
 
 	if CTweaksDB['DressUpButton'] then
@@ -387,26 +410,6 @@ local function CTweaks_Handler()
 	else
 		tabard1:Hide()
 		tabard2:Hide()
-	end
-
-	if CTweaksDB['MapFade'] then
-		SetCVar('mapFade', '1')
-	else
-		SetCVar('mapFade', '0')
-	end
-
-	for i = 1, NUM_CHAT_WINDOWS do
-		if CTweaksDB['ChatFade'] then
-			_G['ChatFrame' .. i]:SetFading(true)
-		else
-			_G['ChatFrame' .. i]:SetFading(false)
-		end
-
-		if CTweaksDB['ChatArrow'] then
-			_G['ChatFrame' .. i .. 'EditBox']:SetAltArrowKeyMode(false)
-		else
-			_G['ChatFrame' .. i .. 'EditBox']:SetAltArrowKeyMode(true)
-		end
 	end
 
 	if CTweaksDB['EliteFrame'] then
@@ -624,24 +627,25 @@ function CTweaksUI_Load()
 	CTweaksUI_AcceptResurrect:SetChecked(CTweaksDB['AcceptResurrect'])
 	CTweaksUI_AutoRelease:SetChecked(CTweaksDB['AutoRelease'])
 
-	CTweaksUI_QuestLevel:SetChecked(CTweaksDB['QuestLevel'])
-	CTweaksUI_QuestColor:SetChecked(CTweaksDB['QuestColor'])
-	CTweaksUI_QuestAccept:SetChecked(CTweaksDB['QuestAccept'])
-	CTweaksUI_QuestTurnin:SetChecked(CTweaksDB['QuestTurnin'])
-
 	CTweaksUI_AutoSell:SetChecked(CTweaksDB['AutoSell'])
 	CTweaksUI_AutoRepair:SetChecked(CTweaksDB['AutoRepair'])
 	CTweaksUI_SelfRepair:SetChecked(CTweaksDB['SelfRepair'])
+	CTweaksUI_SkipGossip:SetChecked(CTweaksDB['SkipGossip'])
+
+	CTweaksUI_ChatFade:SetChecked(CTweaksDB['ChatFade'])
+	CTweaksUI_ChatArrow:SetChecked(CTweaksDB['ChatArrow'])
 
 	CTweaksUI_MinimapScroll:SetChecked(CTweaksDB['MinimapScroll'])
 	CTweaksUI_HideMapButton:SetChecked(CTweaksDB['HideMapButton'])
 	CTweaksUI_DayNight:SetChecked(CTweaksDB['DayNight'])
 
-	CTweaksUI_SkipGossip:SetChecked(CTweaksDB['SkipGossip'])
-	CTweaksUI_DressUpButton:SetChecked(CTweaksDB['DressUpButton'])
+	CTweaksUI_QuestLevel:SetChecked(CTweaksDB['QuestLevel'])
+	CTweaksUI_QuestColor:SetChecked(CTweaksDB['QuestColor'])
+	CTweaksUI_QuestAccept:SetChecked(CTweaksDB['QuestAccept'])
+	CTweaksUI_QuestTurnin:SetChecked(CTweaksDB['QuestTurnin'])
+
 	CTweaksUI_MapFade:SetChecked(CTweaksDB['MapFade'])
-	CTweaksUI_ChatFade:SetChecked(CTweaksDB['ChatFade'])
-	CTweaksUI_ChatArrow:SetChecked(CTweaksDB['ChatArrow'])
+	CTweaksUI_DressUpButton:SetChecked(CTweaksDB['DressUpButton'])
 	CTweaksUI_EliteFrame:SetChecked(CTweaksDB['EliteFrame'])
 	CTweaksUI_HideGryphons:SetChecked(CTweaksDB['HideGryphons'])
 	CTweaksUI_CamDistance:SetChecked(CTweaksDB['CamDistance'])
@@ -657,24 +661,25 @@ function CTweaksUI_Save()
 	CTweaksDB['AcceptResurrect'] = CTweaksUI_AcceptResurrect:GetChecked()
 	CTweaksDB['AutoRelease'] = CTweaksUI_AutoRelease:GetChecked()
 
-	CTweaksDB['QuestLevel'] = CTweaksUI_QuestLevel:GetChecked()
-	CTweaksDB['QuestColor'] = CTweaksUI_QuestColor:GetChecked()
-	CTweaksDB['QuestAccept'] = CTweaksUI_QuestAccept:GetChecked()
-	CTweaksDB['QuestTurnin'] = CTweaksUI_QuestTurnin:GetChecked()
-
 	CTweaksDB['AutoSell'] = CTweaksUI_AutoSell:GetChecked()
 	CTweaksDB['AutoRepair'] = CTweaksUI_AutoRepair:GetChecked()
 	CTweaksDB['SelfRepair'] = CTweaksUI_SelfRepair:GetChecked()
+	CTweaksDB['SkipGossip'] = CTweaksUI_SkipGossip:GetChecked()
+
+	CTweaksDB['ChatFade'] = CTweaksUI_ChatFade:GetChecked()
+	CTweaksDB['ChatArrow'] = CTweaksUI_ChatArrow:GetChecked()
 
 	CTweaksDB['MinimapScroll'] = CTweaksUI_MinimapScroll:GetChecked()
 	CTweaksDB['HideMapButton'] = CTweaksUI_HideMapButton:GetChecked()
 	CTweaksDB['DayNight'] = CTweaksUI_DayNight:GetChecked()
 
-	CTweaksDB['SkipGossip'] = CTweaksUI_SkipGossip:GetChecked()
-	CTweaksDB['DressUpButton'] = CTweaksUI_DressUpButton:GetChecked()
+	CTweaksDB['QuestLevel'] = CTweaksUI_QuestLevel:GetChecked()
+	CTweaksDB['QuestColor'] = CTweaksUI_QuestColor:GetChecked()
+	CTweaksDB['QuestAccept'] = CTweaksUI_QuestAccept:GetChecked()
+	CTweaksDB['QuestTurnin'] = CTweaksUI_QuestTurnin:GetChecked()
+
 	CTweaksDB['MapFade'] = CTweaksUI_MapFade:GetChecked()
-	CTweaksDB['ChatFade'] = CTweaksUI_ChatFade:GetChecked()
-	CTweaksDB['ChatArrow'] = CTweaksUI_ChatArrow:GetChecked()
+	CTweaksDB['DressUpButton'] = CTweaksUI_DressUpButton:GetChecked()
 	CTweaksDB['EliteFrame'] = CTweaksUI_EliteFrame:GetChecked()
 	CTweaksDB['HideGryphons'] = CTweaksUI_HideGryphons:GetChecked()
 	CTweaksDB['CamDistance'] = CTweaksUI_CamDistance:GetChecked()
@@ -705,24 +710,25 @@ function CTweaksUI_OnLoad(self)
 	CTweaksUI_AcceptResurrectText:SetText('Auto accept resurrection')
 	CTweaksUI_AutoReleaseText:SetText('Auto release in BGs')
 
+	CTweaksUI_AutoSellText:SetText('Auto sell junk')
+	CTweaksUI_AutoRepairText:SetText('Auto repair all items')
+	CTweaksUI_SelfRepairText:SetText('Use own money only')
+	CTweaksUI_SkipGossipText:SetText('Skip useless gossip')
+
+	CTweaksUI_ChatFadeText:SetText('Enable chat fading')
+	CTweaksUI_ChatArrowText:SetText('Enable chat arrow keys')
+
+	CTweaksUI_MinimapScrollText:SetText('Enable minimap scroll')
+	CTweaksUI_HideMapButtonText:SetText('Hide worldmap button')
+	CTweaksUI_DayNightText:SetText('Day/Night indicator')
+
 	CTweaksUI_QuestLevelText:SetText('Show quest level')
 	CTweaksUI_QuestColorText:SetText('Colorize quest tracker')
 	CTweaksUI_QuestAcceptText:SetText('Auto accept quest')
 	CTweaksUI_QuestTurninText:SetText('Auto turn-in quest')
 
-	CTweaksUI_AutoSellText:SetText('Auto sell junk')
-	CTweaksUI_AutoRepairText:SetText('Auto repair all items')
-	CTweaksUI_SelfRepairText:SetText('Use own money only')
-
-	CTweaksUI_MinimapScrollText:SetText('Enable minimap scroll')
-	CTweaksUI_HideMapButtonText:SetText('Hide world map button')
-	CTweaksUI_DayNightText:SetText('Day/Night indicator')
-
-	CTweaksUI_SkipGossipText:SetText('Skip useless gossip')
+	CTweaksUI_MapFadeText:SetText('Enable map fading')
 	CTweaksUI_DressUpButtonText:SetText('Show dress-up buttons')
-	CTweaksUI_MapFadeText:SetText('Enable worldmap fading effect')
-	CTweaksUI_ChatFadeText:SetText('Enable chat fading effect')
-	CTweaksUI_ChatArrowText:SetText('Enable chat arrow keys')
 	CTweaksUI_EliteFrameText:SetText('Player elite frame')
 	CTweaksUI_HideGryphonsText:SetText('Hide gryphons')
 	CTweaksUI_CamDistanceText:SetText('Increase camera distance')

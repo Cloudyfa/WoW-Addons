@@ -90,7 +90,7 @@
 			<Frame>
 				<Layers>
 					<Layer level="ARTWORK">
-						<FontString name="$parentMinimap" text="MINIMAP_LABEL" inherits="GameFontNormal">
+						<FontString name="$parentCombat" text="COMBAT" inherits="GameFontNormal">
 							<Size>
 								<AbsDimension x="0" y="24"/>
 							</Size>
@@ -98,86 +98,6 @@
 								<Anchor point="TOPLEFT" relativeTo="$parent_AcceptSummon" relativePoint="BOTTOMLEFT">
 									<Offset>
 										<AbsDimension x="0" y="-8"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-			</Frame>
-
-			<CheckButton name="$parent_MinimapScroll" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMinimap" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
-			<CheckButton name="$parent_HideMapButton" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_MinimapScroll" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
-			<CheckButton name="$parent_DayNight" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_HideMapButton" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
-			<Frame>
-				<Layers>
-					<Layer level="ARTWORK">
-						<FontString name="$parentQuest" text="QUESTS_LABEL" inherits="GameFontNormal">
-							<Size>
-								<AbsDimension x="0" y="24"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="$parent_DayNight" relativePoint="BOTTOMLEFT">
-									<Offset>
-										<AbsDimension x="0" y="-8"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-			</Frame>
-
-			<CheckButton name="$parent_QuestLevel" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentQuest" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
-			<CheckButton name="$parent_QuestColor" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_QuestLevel" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
-			<CheckButton name="$parent_QuestAccept" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_QuestColor" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
-			<CheckButton name="$parent_QuestTurnin" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_QuestAccept" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
-			<Frame>
-				<Layers>
-					<Layer level="ARTWORK">
-						<FontString name="$parentCombat" text="COMBAT" inherits="GameFontNormal">
-							<Size>
-								<AbsDimension x="0" y="24"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="$parentSubText" relativePoint="BOTTOMLEFT">
-									<Offset>
-										<AbsDimension x="300" y="-8"/>
 									</Offset>
 								</Anchor>
 							</Anchors>
@@ -250,17 +170,27 @@
 				</Anchors>
 			</CheckButton>
 
+			<CheckButton name="$parent_SkipGossip" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_SelfRepair" relativePoint="BOTTOMLEFT">
+						<Offset>
+							<AbsDimension x="-10" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+			</CheckButton>
+
 			<Frame>
 				<Layers>
 					<Layer level="ARTWORK">
-						<FontString name="$parentMisc" text="MISCELLANEOUS" inherits="GameFontNormal">
+						<FontString name="$parentChat" text="CHAT" inherits="GameFontNormal">
 							<Size>
 								<AbsDimension x="0" y="24"/>
 							</Size>
 							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="$parent_SelfRepair" relativePoint="BOTTOMLEFT">
+								<Anchor point="TOPLEFT" relativeTo="$parent_SkipGossip" relativePoint="BOTTOMLEFT">
 									<Offset>
-										<AbsDimension x="-10" y="-4"/>
+										<AbsDimension x="0" y="-8"/>
 									</Offset>
 								</Anchor>
 							</Anchors>
@@ -269,27 +199,9 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_SkipGossip" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMisc" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
-			<CheckButton name="$parent_DressUpButton" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_SkipGossip" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
-			<CheckButton name="$parent_MapFade" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_DressUpButton" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
 			<CheckButton name="$parent_ChatFade" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_MapFade" relativePoint="BOTTOMLEFT" />
+					<Anchor point="TOPLEFT" relativeTo="$parentChat" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
@@ -299,9 +211,120 @@
 				</Anchors>
 			</CheckButton>
 
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentMinimap" text="MINIMAP_LABEL" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parentSubText" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="300" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_MinimapScroll" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentMinimap" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_HideMapButton" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_MinimapScroll" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_DayNight" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_HideMapButton" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentQuest" text="QUESTS_LABEL" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parent_DayNight" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_QuestLevel" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentQuest" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_QuestColor" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_QuestLevel" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_QuestAccept" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_QuestColor" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_QuestTurnin" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_QuestAccept" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentMisc" text="MISCELLANEOUS" inherits="GameFontNormal">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeTo="$parent_QuestTurnin" relativePoint="BOTTOMLEFT">
+									<Offset>
+										<AbsDimension x="0" y="-8"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+
+			<CheckButton name="$parent_MapFade" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentMisc" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_DressUpButton" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_MapFade" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
 			<CheckButton name="$parent_EliteFrame" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_ChatArrow" relativePoint="BOTTOMLEFT" />
+					<Anchor point="TOPLEFT" relativeTo="$parent_DressUpButton" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
