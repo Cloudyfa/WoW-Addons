@@ -38,6 +38,7 @@ local function CTweaksDB_Init()
 		CTweaksDB['QuestTurnin'] = 1
 
 		CTweaksDB['MapFade'] = nil
+		CTweaksDB['MapCoords'] = 1
 		CTweaksDB['DressUpButton'] = 1
 		CTweaksDB['EliteFrame'] = 1
 		CTweaksDB['HideGryphons'] = nil
@@ -120,6 +121,50 @@ end
 			Minimap_ZoomOut()
 		end
 	end
+
+	-- Update Map Coords --
+	local function updateCoords(self)
+		local cX, cY = GetCursorPosition()
+		local scale = WorldMapDetailFrame:GetEffectiveScale()
+
+		local left = WorldMapDetailFrame:GetLeft()
+		local top = WorldMapDetailFrame:GetTop()
+		local width = WorldMapDetailFrame:GetWidth()
+		local height = WorldMapDetailFrame:GetHeight()
+
+		cX = (cX/scale - left) / width * 100
+		cY = (top - cY/scale) / height * 100
+		local cPos = format('%.1f, %.1f', cX, cY)
+		if cX < 0 or cX > 100 or cY < 0 or cY > 100 then
+			cPos = NOT_APPLICABLE
+		end
+
+		local pX, pY = GetPlayerMapPosition('player')
+		local pPos = format('%.1f, %.1f', pX * 100, pY * 100)
+		if pX == 0 and pY == 0 then
+			pPos = NOT_APPLICABLE
+		end
+
+		self.cursor:SetText(gsub(HARDWARE_CURSOR, HARDWARE, '') .. ': ' .. cPos)
+		self.player:SetText(' ' .. PLAYER .. ' : ' .. pPos)
+	end
+
+	-- Map Coords Frame --
+	local mCoords = CreateFrame('Frame', nil, WorldMapFrame.UIElementsFrame)
+	mCoords:SetPoint('BOTTOMLEFT', WorldMapFrame.UIElementsFrame)
+	mCoords:SetSize(136, 36)
+
+	mCoords.bg = mCoords:CreateTexture()
+	mCoords.bg:SetAllPoints(mCoords)
+	mCoords.bg:SetColorTexture(0, 0, 0, 0.35)
+
+	mCoords.cursor = mCoords:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
+	mCoords.cursor:SetPoint('TOPLEFT', 10, -4)
+	mCoords.cursor:SetJustifyH('LEFT')
+
+	mCoords.player = mCoords:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
+	mCoords.player:SetPoint('BOTTOMLEFT', 10, 4)
+	mCoords.player:SetJustifyH('LEFT')
 
 	-- Tabard Buttons --
 	local tabard1 = CreateFrame('Button', nil, DressUpFrame, 'UIPanelButtonTemplate')
@@ -414,6 +459,14 @@ local function CTweaks_Handler()
 		SetCVar('mapFade', '0')
 	end
 
+	if CTweaksDB['MapCoords'] then
+		mCoords:SetScript('OnUpdate', updateCoords)
+		mCoords:Show()
+	else
+		mCoords:SetScript('OnUpdate', nil)
+		mCoords:Hide()
+	end
+
 	if CTweaksDB['DressUpButton'] then
 		tabard1:Show()
 		tabard2:Show()
@@ -662,6 +715,7 @@ function CTweaksUI_Load()
 	CTweaksUI_QuestTurnin:SetChecked(CTweaksDB['QuestTurnin'])
 
 	CTweaksUI_MapFade:SetChecked(CTweaksDB['MapFade'])
+	CTweaksUI_MapCoords:SetChecked(CTweaksDB['MapCoords'])
 	CTweaksUI_DressUpButton:SetChecked(CTweaksDB['DressUpButton'])
 	CTweaksUI_EliteFrame:SetChecked(CTweaksDB['EliteFrame'])
 	CTweaksUI_HideGryphons:SetChecked(CTweaksDB['HideGryphons'])
@@ -698,6 +752,7 @@ function CTweaksUI_Save()
 	CTweaksDB['QuestTurnin'] = CTweaksUI_QuestTurnin:GetChecked()
 
 	CTweaksDB['MapFade'] = CTweaksUI_MapFade:GetChecked()
+	CTweaksDB['MapCoords'] = CTweaksUI_MapCoords:GetChecked()
 	CTweaksDB['DressUpButton'] = CTweaksUI_DressUpButton:GetChecked()
 	CTweaksDB['EliteFrame'] = CTweaksUI_EliteFrame:GetChecked()
 	CTweaksDB['HideGryphons'] = CTweaksUI_HideGryphons:GetChecked()
@@ -749,6 +804,7 @@ function CTweaksUI_OnLoad(self)
 	CTweaksUI_QuestTurninText:SetText('Auto turn-in quest')
 
 	CTweaksUI_MapFadeText:SetText('Enable map fading')
+	CTweaksUI_MapCoordsText:SetText('Show map coords')
 	CTweaksUI_DressUpButtonText:SetText('Show dress-up buttons')
 	CTweaksUI_EliteFrameText:SetText('Player elite frame')
 	CTweaksUI_HideGryphonsText:SetText('Hide gryphons')
