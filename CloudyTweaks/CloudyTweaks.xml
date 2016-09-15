@@ -345,6 +345,12 @@
 					<Anchor point="TOPLEFT" relativeTo="$parent_HideGryphons" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
+
+			<CheckButton name="$parent_RemoveGlow" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_CamDistance" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
 		</Frames>
 
 		<Scripts>

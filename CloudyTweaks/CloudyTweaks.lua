@@ -42,6 +42,7 @@ local function CTweaksDB_Init()
 		CTweaksDB['EliteFrame'] = 1
 		CTweaksDB['HideGryphons'] = nil
 		CTweaksDB['CamDistance'] = nil
+		CTweaksDB['RemoveGlow'] = 1
 	end
 end
 
@@ -444,6 +445,12 @@ local function CTweaks_Handler()
 		end
 		InterfaceOptionsCameraPanelMaxDistanceSlider:Enable()
 	end
+
+	if CTweaksDB['RemoveGlow'] then
+		SetCVar('ffxGlow', '0')
+	else
+		SetCVar('ffxGlow', '1')
+	end
 end
 
 
@@ -659,6 +666,7 @@ function CTweaksUI_Load()
 	CTweaksUI_EliteFrame:SetChecked(CTweaksDB['EliteFrame'])
 	CTweaksUI_HideGryphons:SetChecked(CTweaksDB['HideGryphons'])
 	CTweaksUI_CamDistance:SetChecked(CTweaksDB['CamDistance'])
+	CTweaksUI_RemoveGlow:SetChecked(CTweaksDB['RemoveGlow'])
 end
 
 
@@ -694,6 +702,7 @@ function CTweaksUI_Save()
 	CTweaksDB['EliteFrame'] = CTweaksUI_EliteFrame:GetChecked()
 	CTweaksDB['HideGryphons'] = CTweaksUI_HideGryphons:GetChecked()
 	CTweaksDB['CamDistance'] = CTweaksUI_CamDistance:GetChecked()
+	CTweaksDB['RemoveGlow'] = CTweaksUI_RemoveGlow:GetChecked()
 end
 
 
@@ -744,4 +753,5 @@ function CTweaksUI_OnLoad(self)
 	CTweaksUI_EliteFrameText:SetText('Player elite frame')
 	CTweaksUI_HideGryphonsText:SetText('Hide gryphons')
 	CTweaksUI_CamDistanceText:SetText('Increase camera distance')
+	CTweaksUI_RemoveGlowText:SetText('Remove glowing effect')
 end
