@@ -106,21 +106,15 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_MinimapWheel" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_MinimapScroll" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMinimap" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_HideZoomButton" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_MinimapWheel" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
 			<CheckButton name="$parent_HideMapButton" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_HideZoomButton" relativePoint="BOTTOMLEFT" />
+					<Anchor point="TOPLEFT" relativeTo="$parent_MinimapScroll" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 

@@ -28,8 +28,7 @@ local function CTweaksDB_Init()
 		CTweaksDB['AutoRepair'] = 1
 		CTweaksDB['SelfRepair'] = nil
 
-		CTweaksDB['MinimapWheel'] = 1
-		CTweaksDB['HideZoomButton'] = nil
+		CTweaksDB['MinimapScroll'] = 1
 		CTweaksDB['HideMapButton'] = 1
 		CTweaksDB['DayNight'] = 1
 
@@ -348,18 +347,16 @@ local function CTweaks_Handler()
 		CTweaks:UnregisterEvent('MERCHANT_SHOW')
 	end
 
-	if CTweaksDB['MinimapWheel'] then
+	if CTweaksDB['MinimapScroll'] then
 		Minimap:EnableMouseWheel(true)
 		Minimap:SetScript('OnMouseWheel', minimapScroll)
-	else
-		Minimap:EnableMouseWheel(false)
-		Minimap:SetScript('OnMouseWheel', nil)
-	end
 
-	if CTweaksDB['HideZoomButton'] then
 		MinimapZoomIn:Hide()
 		MinimapZoomOut:Hide()
 	else
+		Minimap:EnableMouseWheel(false)
+		Minimap:SetScript('OnMouseWheel', nil)
+
 		MinimapZoomIn:Show()
 		MinimapZoomOut:Show()
 	end
@@ -636,8 +633,7 @@ function CTweaksUI_Load()
 	CTweaksUI_AutoRepair:SetChecked(CTweaksDB['AutoRepair'])
 	CTweaksUI_SelfRepair:SetChecked(CTweaksDB['SelfRepair'])
 
-	CTweaksUI_MinimapWheel:SetChecked(CTweaksDB['MinimapWheel'])
-	CTweaksUI_HideZoomButton:SetChecked(CTweaksDB['HideZoomButton'])
+	CTweaksUI_MinimapScroll:SetChecked(CTweaksDB['MinimapScroll'])
 	CTweaksUI_HideMapButton:SetChecked(CTweaksDB['HideMapButton'])
 	CTweaksUI_DayNight:SetChecked(CTweaksDB['DayNight'])
 
@@ -670,8 +666,7 @@ function CTweaksUI_Save()
 	CTweaksDB['AutoRepair'] = CTweaksUI_AutoRepair:GetChecked()
 	CTweaksDB['SelfRepair'] = CTweaksUI_SelfRepair:GetChecked()
 
-	CTweaksDB['MinimapWheel'] = CTweaksUI_MinimapWheel:GetChecked()
-	CTweaksDB['HideZoomButton'] = CTweaksUI_HideZoomButton:GetChecked()
+	CTweaksDB['MinimapScroll'] = CTweaksUI_MinimapScroll:GetChecked()
 	CTweaksDB['HideMapButton'] = CTweaksUI_HideMapButton:GetChecked()
 	CTweaksDB['DayNight'] = CTweaksUI_DayNight:GetChecked()
 
@@ -719,8 +714,7 @@ function CTweaksUI_OnLoad(self)
 	CTweaksUI_AutoRepairText:SetText('Auto repair all items')
 	CTweaksUI_SelfRepairText:SetText('Use own money only')
 
-	CTweaksUI_MinimapWheelText:SetText('Enable mouse wheel')
-	CTweaksUI_HideZoomButtonText:SetText('Hide zoom buttons')
+	CTweaksUI_MinimapScrollText:SetText('Enable minimap scroll')
 	CTweaksUI_HideMapButtonText:SetText('Hide world map button')
 	CTweaksUI_DayNightText:SetText('Day/Night indicator')
 
