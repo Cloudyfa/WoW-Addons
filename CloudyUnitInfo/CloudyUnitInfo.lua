@@ -247,15 +247,18 @@ local function ScanUnit(unit, forced)
 	local cachedGear, cachedSpec
 
 	if UnitIsUnit(unit, 'player') then
-		cachedGear = UnitGear('player')
 		cachedSpec = UnitSpec('player')
+		SpecDB[currentGUID] = cachedSpec
+
+		cachedGear = UnitGear('player')
+		GearDB[currentGUID] = cachedGear
 
 		SetUnitInfo(cachedGear, cachedSpec)
 	else
 		if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
 
-		cachedGear = GearDB[currentGUID]
 		cachedSpec = SpecDB[currentGUID]
+		cachedGear = GearDB[currentGUID]
 
 		if cachedGear or forced then
 			SetUnitInfo(cachedGear, cachedSpec)
@@ -317,11 +320,11 @@ f:SetScript('OnEvent', function(self, event, ...)
 		local guid = ...
 		if (guid ~= currentGUID) then return end
 
-		local gear = UnitGear(currentUNIT)
-		GearDB[currentGUID] = gear
-
 		local spec = UnitSpec(currentUNIT)
 		SpecDB[currentGUID] = spec
+
+		local gear = UnitGear(currentUNIT)
+		GearDB[currentGUID] = gear
 
 		if (not gear) or (not spec) then
 			ScanUnit(currentUNIT, true)
