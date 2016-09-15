@@ -374,10 +374,15 @@ local function CTweaks_Handler()
 		CTweaks:UnregisterEvent('PLAYER_DEAD')
 	end
 
-	if CTweaksDB['TabTarget'] then
-		SetCVar('TargetNearestUseOld', '1')
+	if GetCVar('TargetNearestUseOld') then
+		if CTweaksDB['TabTarget'] then
+			SetCVar('TargetNearestUseOld', '1')
+		else
+			SetCVar('TargetNearestUseOld', '0')
+		end
 	else
-		SetCVar('TargetNearestUseOld', '0')
+		CTweaksUI_TabTarget:Disable()
+		CTweaksUI_TabTarget:SetAlpha(0.5)
 	end
 
 	if CTweaksDB['AutoSell'] or CTweaksDB['AutoRepair'] then
@@ -458,7 +463,7 @@ local function CTweaks_Handler()
 		CTweaks:UnregisterEvent('QUEST_COMPLETE')
 	end
 
-	ObjectiveTracker_Update(OBJECTIVE_TRACKER_UPDATE_QUEST)
+	SortQuestWatches()
 
 	if CTweaksDB['MapFade'] then
 		SetCVar('mapFade', '1')
@@ -496,14 +501,19 @@ local function CTweaks_Handler()
 		MainMenuBarRightEndCap:Show()
 	end
 
-	if CTweaksDB['CamDistance'] then
-		SetCVar('cameraDistanceMaxFactor', '2.6')
-		InterfaceOptionsCameraPanelMaxDistanceSlider:Disable()
-	else
-		if tonumber(GetCVar('cameraDistanceMaxFactor')) > 2 then
-			SetCVar('cameraDistanceMaxFactor', '1.9')
+	if GetCVar('cameraDistanceMaxFactor') then
+		if CTweaksDB['CamDistance'] then
+			SetCVar('cameraDistanceMaxFactor', '2.6')
+			InterfaceOptionsCameraPanelMaxDistanceSlider:Disable()
+		else
+			if tonumber(GetCVar('cameraDistanceMaxFactor')) > 2 then
+				SetCVar('cameraDistanceMaxFactor', '1.9')
+			end
+			InterfaceOptionsCameraPanelMaxDistanceSlider:Enable()
 		end
-		InterfaceOptionsCameraPanelMaxDistanceSlider:Enable()
+	else
+		CTweaksUI_CamDistance:Disable()
+		CTweaksUI_CamDistance:SetAlpha(0.5)
 	end
 
 	if CTweaksDB['RemoveGlow'] then
@@ -531,7 +541,7 @@ function CTweaks_OnEvent(self, event, ...)
 		CTweaks_Handler()
 
 	elseif (event == 'PLAYER_ENTERING_WORLD') then
-		if CTweaksDB['CamDistance'] then
+		if CTweaksDB['CamDistance'] and GetCVar('cameraDistanceMaxFactor') then
 			SetCVar('cameraDistanceMaxFactor', '2.6')
 			InterfaceOptionsCameraPanelMaxDistanceSlider:Disable()
 		end
