@@ -18,6 +18,7 @@ local function CTweaksDB_Init()
 
 		CTweaksDB['AcceptResurrect'] = 1
 		CTweaksDB['AutoRelease'] = nil
+		CTweaksDB['TabTarget'] = 1
 
 		CTweaksDB['AutoSell'] = 1
 		CTweaksDB['AutoRepair'] = 1
@@ -373,6 +374,12 @@ local function CTweaks_Handler()
 		CTweaks:UnregisterEvent('PLAYER_DEAD')
 	end
 
+	if CTweaksDB['TabTarget'] then
+		SetCVar('TargetNearestUseOld', '1')
+	else
+		SetCVar('TargetNearestUseOld', '0')
+	end
+
 	if CTweaksDB['AutoSell'] or CTweaksDB['AutoRepair'] then
 		CTweaks:RegisterEvent('MERCHANT_SHOW')
 	else
@@ -695,6 +702,7 @@ function CTweaksUI_Load()
 
 	CTweaksUI_AcceptResurrect:SetChecked(CTweaksDB['AcceptResurrect'])
 	CTweaksUI_AutoRelease:SetChecked(CTweaksDB['AutoRelease'])
+	CTweaksUI_TabTarget:SetChecked(CTweaksDB['TabTarget'])
 
 	CTweaksUI_AutoSell:SetChecked(CTweaksDB['AutoSell'])
 	CTweaksUI_AutoRepair:SetChecked(CTweaksDB['AutoRepair'])
@@ -732,6 +740,7 @@ function CTweaksUI_Save()
 
 	CTweaksDB['AcceptResurrect'] = CTweaksUI_AcceptResurrect:GetChecked()
 	CTweaksDB['AutoRelease'] = CTweaksUI_AutoRelease:GetChecked()
+	CTweaksDB['TabTarget'] = CTweaksUI_TabTarget:GetChecked()
 
 	CTweaksDB['AutoSell'] = CTweaksUI_AutoSell:GetChecked()
 	CTweaksDB['AutoRepair'] = CTweaksUI_AutoRepair:GetChecked()
@@ -784,6 +793,7 @@ function CTweaksUI_OnLoad(self)
 
 	CTweaksUI_AcceptResurrectText:SetText('Auto accept resurrection')
 	CTweaksUI_AutoReleaseText:SetText('Auto release in BGs')
+	CTweaksUI_TabTargetText:SetText('Use legacy Tab targeting')
 
 	CTweaksUI_AutoSellText:SetText('Auto sell junk')
 	CTweaksUI_AutoRepairText:SetText('Auto repair all items')
