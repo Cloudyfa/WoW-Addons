@@ -26,6 +26,7 @@ local function CTweaksDB_Init()
 
 		CTweaksDB['ChatFade'] = nil
 		CTweaksDB['ChatArrow'] = 1
+		CTweaksDB['ChatScroll'] = 1
 
 		CTweaksDB['MinimapScroll'] = 1
 		CTweaksDB['HideMapButton'] = 1
@@ -350,6 +351,14 @@ local function CTweaks_Handler()
 		else
 			_G['ChatFrame' .. i .. 'EditBox']:SetAltArrowKeyMode(true)
 		end
+
+		if CTweaksDB['ChatScroll'] then
+			_G['ChatFrame' .. i]:EnableMouseWheel(true)
+			_G['ChatFrame' .. i]:SetScript('OnMouseWheel', FloatingChatFrame_OnMouseScroll)
+		else
+			_G['ChatFrame' .. i]:EnableMouseWheel(false)
+			_G['ChatFrame' .. i]:SetScript('OnMouseWheel', nil)
+		end
 	end
 
 	if CTweaksDB['MinimapScroll'] then
@@ -634,6 +643,7 @@ function CTweaksUI_Load()
 
 	CTweaksUI_ChatFade:SetChecked(CTweaksDB['ChatFade'])
 	CTweaksUI_ChatArrow:SetChecked(CTweaksDB['ChatArrow'])
+	CTweaksUI_ChatScroll:SetChecked(CTweaksDB['ChatScroll'])
 
 	CTweaksUI_MinimapScroll:SetChecked(CTweaksDB['MinimapScroll'])
 	CTweaksUI_HideMapButton:SetChecked(CTweaksDB['HideMapButton'])
@@ -668,6 +678,7 @@ function CTweaksUI_Save()
 
 	CTweaksDB['ChatFade'] = CTweaksUI_ChatFade:GetChecked()
 	CTweaksDB['ChatArrow'] = CTweaksUI_ChatArrow:GetChecked()
+	CTweaksDB['ChatScroll'] = CTweaksUI_ChatScroll:GetChecked()
 
 	CTweaksDB['MinimapScroll'] = CTweaksUI_MinimapScroll:GetChecked()
 	CTweaksDB['HideMapButton'] = CTweaksUI_HideMapButton:GetChecked()
@@ -717,6 +728,7 @@ function CTweaksUI_OnLoad(self)
 
 	CTweaksUI_ChatFadeText:SetText('Enable chat fading')
 	CTweaksUI_ChatArrowText:SetText('Enable chat arrow keys')
+	CTweaksUI_ChatScrollText:SetText('Enable chat scroll')
 
 	CTweaksUI_MinimapScrollText:SetText('Enable minimap scroll')
 	CTweaksUI_HideMapButtonText:SetText('Hide worldmap button')

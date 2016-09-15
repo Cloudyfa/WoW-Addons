@@ -211,6 +211,12 @@
 				</Anchors>
 			</CheckButton>
 
+			<CheckButton name="$parent_ChatScroll" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_ChatArrow" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
 			<Frame>
 				<Layers>
 					<Layer level="ARTWORK">
