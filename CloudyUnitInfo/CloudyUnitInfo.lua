@@ -69,10 +69,9 @@ local BOAItems = {
 
 --- BOA Item Level ---
 local function BOALevel(level, id)
-	if (level > 100) then level = 100 end
 	if (level > 97) then
 		if BOAItems[id] then
-			level = 715
+			level = 815 - (110 - level) * 10
 		else
 			level = 605 - (100 - level) * 5
 		end
