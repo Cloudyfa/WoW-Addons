@@ -142,7 +142,7 @@ local function UnitGear(unit)
 	local class = select(2, UnitClass(unit))
 
 	local boa, pvp = 0, 0
-	local flvl, fslot = 0, 0
+	local wlvl, wslot = 0, 0
 	local ilvl, total, delay = 0, 0, nil
 
 	for i = 1, 17 do
@@ -173,29 +173,37 @@ local function UnitGear(unit)
 						end
 
 						if (i == 16) then
-							if (class == 'WARRIOR') then
-								flvl = level
-								fslot = slot
+							if (quality == 6) or (SpecDB[currentGUID] == FURY) then
+								wlvl = level
+								wslot = slot
 							end
 							if (slot == 'INVTYPE_2HWEAPON') or (slot == 'INVTYPE_RANGED') or ((slot == 'INVTYPE_RANGEDRIGHT') and (class == 'HUNTER')) then
 								level = level * 2
 							end
 						end
 
-						if (i == 17) and (class == 'WARRIOR') then
-							if (fslot ~= 'INVTYPE_2HWEAPON') and (slot == 'INVTYPE_2HWEAPON') then
-								if (level > flvl) then
-									level = level * 2 - flvl
-								end
-							elseif (fslot == 'INVTYPE_2HWEAPON') then
-								if (level > flvl) then
-									if (slot == 'INVTYPE_2HWEAPON') then
-										level = level * 2 - flvl * 2
-									else
-										level = level - flvl
+						if (i == 17) then
+							if (SpecDB[currentGUID] == FURY) then
+								if (wslot ~= 'INVTYPE_2HWEAPON') and (slot == 'INVTYPE_2HWEAPON') then
+									if (level > wlvl) then
+										level = level * 2 - wlvl
 									end
+								elseif (wslot == 'INVTYPE_2HWEAPON') then
+									if (level > wlvl) then
+										if (slot == 'INVTYPE_2HWEAPON') then
+											level = level * 2 - wlvl * 2
+										else
+											level = level - wlvl
+										end
+									else
+										level = 0
+									end
+								end
+							elseif (quality == 6) and wlvl then
+								if level > wlvl then
+									level = level * 2 - wlvl
 								else
-									level = 0
+									level = wlvl
 								end
 							end
 						end
