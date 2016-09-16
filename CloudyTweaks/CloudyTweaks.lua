@@ -46,6 +46,16 @@ local function CTweaksDB_Init()
 		CTweaksDB['CamDistance'] = nil
 		CTweaksDB['RemoveGlow'] = 1
 	end
+
+	-- Check if features are useable --
+	if not GetCVar('TargetNearestUseOld') then
+		CTweaksUI_TabTarget:Disable()
+		CTweaksUI_TabTarget:SetAlpha(0.5)
+	end
+	if not GetCVar('cameraDistanceMaxFactor') then
+		CTweaksUI_CamDistance:Disable()
+		CTweaksUI_CamDistance:SetAlpha(0.5)
+	end
 end
 
 
@@ -374,15 +384,12 @@ local function CTweaks_Handler()
 		CTweaks:UnregisterEvent('PLAYER_DEAD')
 	end
 
-	if GetCVar('TargetNearestUseOld') then
+	if CTweaksUI_TabTarget:IsEnabled() then
 		if CTweaksDB['TabTarget'] then
 			SetCVar('TargetNearestUseOld', '1')
 		else
 			SetCVar('TargetNearestUseOld', '0')
 		end
-	else
-		CTweaksUI_TabTarget:Disable()
-		CTweaksUI_TabTarget:SetAlpha(0.5)
 	end
 
 	if CTweaksDB['AutoSell'] or CTweaksDB['AutoRepair'] then
@@ -501,9 +508,10 @@ local function CTweaks_Handler()
 		MainMenuBarRightEndCap:Show()
 	end
 
-	if GetCVar('cameraDistanceMaxFactor') then
+	if CTweaksUI_CamDistance:IsEnabled() then
 		if CTweaksDB['CamDistance'] then
 			SetCVar('cameraDistanceMaxFactor', '2.6')
+			CameraPanelOptions.cameraDistanceMaxFactor.maxValue = 2.6
 			InterfaceOptionsCameraPanelMaxDistanceSlider:Disable()
 		else
 			if tonumber(GetCVar('cameraDistanceMaxFactor')) > 2 then
@@ -511,9 +519,6 @@ local function CTweaks_Handler()
 			end
 			InterfaceOptionsCameraPanelMaxDistanceSlider:Enable()
 		end
-	else
-		CTweaksUI_CamDistance:Disable()
-		CTweaksUI_CamDistance:SetAlpha(0.5)
 	end
 
 	if CTweaksDB['RemoveGlow'] then
@@ -527,7 +532,6 @@ end
 --- CTweaks Loaded ---
 function CTweaks_OnLoad(self)
 	self:RegisterEvent('PLAYER_LOGIN')
-	self:RegisterEvent('PLAYER_ENTERING_WORLD')
 end
 
 
@@ -539,12 +543,6 @@ function CTweaks_OnEvent(self, event, ...)
 
 		CTweaks_Hooks()
 		CTweaks_Handler()
-
-	elseif (event == 'PLAYER_ENTERING_WORLD') then
-		if CTweaksDB['CamDistance'] and GetCVar('cameraDistanceMaxFactor') then
-			SetCVar('cameraDistanceMaxFactor', '2.6')
-			InterfaceOptionsCameraPanelMaxDistanceSlider:Disable()
-		end
 
 	elseif (event == 'CONFIRM_LOOT_ROLL') or (event == 'CONFIRM_DISENCHANT_ROLL') then
 		local id, roll = ...
