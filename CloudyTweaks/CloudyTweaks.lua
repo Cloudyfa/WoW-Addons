@@ -516,6 +516,7 @@ local function CTweaks_Handler()
 		else
 			if tonumber(GetCVar('cameraDistanceMaxFactor')) > 2 then
 				SetCVar('cameraDistanceMaxFactor', '1.9')
+				InterfaceOptionsCameraPanelMaxDistanceSlider:SetMinMaxValues(1, 1.9)
 			end
 			InterfaceOptionsCameraPanelMaxDistanceSlider:Enable()
 		end
