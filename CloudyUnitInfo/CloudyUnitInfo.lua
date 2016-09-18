@@ -113,12 +113,8 @@ end
 local function scanItemLevel(link)
 	if ItemDB[link] then return ItemDB[link] end
 
-	local scanTip = _G['CUnitScan']
-	if not scanTip then
-		scanTip = CreateFrame('GameTooltip', 'CUnitScan', nil, 'GameTooltipTemplate')
- 		scanTip:SetOwner(UIParent, 'ANCHOR_NONE')
-	end
-	scanTip:ClearLines()
+	local scanTip = _G['CUnitScan'] or CreateFrame('GameTooltip', 'CUnitScan', nil, 'GameTooltipTemplate')
+	scanTip:SetOwner(UIParent, 'ANCHOR_NONE')
  	scanTip:SetHyperlink(link)
 
 	for i = 2, scanTip:NumLines() do
@@ -169,11 +165,11 @@ local function UnitGear(unit)
 								pvp = pvp + 1
 							end
 
-							level = scanItemLevel(itemLink) or level
+							level = not delay and scanItemLevel(itemLink) or level
 						end
 
 						if (i == 16) then
-							if (quality == 6) or (SpecDB[currentGUID] == FURY) then
+							if (SpecDB[currentGUID] == FURY) or (quality == 6) then
 								wlvl = level
 								wslot = slot
 							end
