@@ -107,8 +107,8 @@ end
 
 
 --- Scan Item Level ---
-local function scanItemLevel(link)
-	if ItemDB[link] then return ItemDB[link] end
+local function scanItemLevel(link, forced)
+	if (not forced) and ItemDB[link] then return ItemDB[link] end
 
 	local scanTip = _G['CUnitScan'] or CreateFrame('GameTooltip', 'CUnitScan', nil, 'GameTooltipTemplate')
 	scanTip:SetOwner(UIParent, 'ANCHOR_NONE')
@@ -164,6 +164,10 @@ local function UnitGear(unit)
 							level = not delay and scanItemLevel(link) or level
 						end
 
+						if (quality == 6) and (i == 16 or i == 17) then
+							level = scanItemLevel(link, true)
+						end
+
 						if (i == 16) then
 							if (SpecDB[currentGUID] == FURY) or (quality == 6) then
 								wlvl = level
@@ -213,10 +217,7 @@ local function UnitGear(unit)
 
 		if (boa > 0) then ilvl = ilvl .. '  |cffe6cc80' .. boa .. ' BOA' end
 		if (pvp > 0) then ilvl = ilvl .. '  |cffa335ee' .. pvp .. ' PVP' end
-	else
-		ilvl = nil
 	end
-
 	return ilvl
 end
 
