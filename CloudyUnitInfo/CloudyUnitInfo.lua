@@ -9,9 +9,6 @@
 local currentUNIT, currentGUID
 local GearDB, SpecDB, ItemDB = {}, {}, {}
 
-local nextInspectRequest = 0
-lastInspectRequest = 0
-
 local prefixColor = '|cffffeeaa'
 local detailColor = '|cffffffff'
 local lvlPattern = gsub(ITEM_LEVEL, '%%d', '(%%d+)')
@@ -279,11 +276,11 @@ local function ScanUnit(unit, forced)
 
 		SetUnitInfo(CONTINUED, cachedSpec)
 
-		local timeSinceLastInspect = GetTime() - lastInspectRequest
-		if (timeSinceLastInspect >= 1.5) then
-			nextInspectRequest = 0
+		local lastRequest = GetTime() - (f.lastUpdate or 0)
+		if (lastRequest >= 1.5) then
+			f.nextUpdate = 0
 		else
-			nextInspectRequest = 1.5 - timeSinceLastInspect
+			f.nextUpdate = 1.5 - lastRequest
 		end
 		f:Show()
 	end
@@ -339,13 +336,14 @@ f:SetScript('OnEvent', function(self, event, ...)
 end)
 
 f:SetScript('OnUpdate', function(self, elapsed)
-	nextInspectRequest = nextInspectRequest - elapsed
-	if (nextInspectRequest > 0) then return end
+	self.nextUpdate = (self.nextUpdate or 0) - elapsed
+	if (self.nextUpdate > 0) then return end
 
 	self:Hide()
+	ClearInspectPlayer()
 
 	if currentUNIT and (UnitGUID(currentUNIT) == currentGUID) then
-		lastInspectRequest = GetTime()
+		self.lastUpdate = GetTime()
 		NotifyInspect(currentUNIT)
 	end
 end)
