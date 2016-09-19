@@ -74,7 +74,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 	local function addTab(id, index, isSub)
 		local name, icon, tabType
 		if (id == 134020) then
-			name, icon = select(2, C_ToyBox.GetToyInfo(134020))
+			name, icon = select(2, C_ToyBox.GetToyInfo(id))
 			tabType = 'toy'
 		else
 			name, _, icon = GetSpellInfo(id)
@@ -186,7 +186,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 			tinsert(subTabs, 1804) --PickLock
 		end
 
-		if C_ToyBox.IsToyUsable(134020) then
+		if PlayerHasToy(134020) and C_ToyBox.IsToyUsable(134020) then
 			tinsert(subTabs, 134020) --ChefHat
 		end
 		if GetItemCount(87216) ~= 0 then
