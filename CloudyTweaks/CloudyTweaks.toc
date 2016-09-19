@@ -1,7 +1,7 @@
 ## Interface: 70000
 ## Title: Cloudy Tweaks
 ## Notes: A collection of useful tweaks.
-## Version: 2.0
+## Version: 2.1
 ## Author: Cloudyfa
 ## SavedVariables: CTweaksDB
 
