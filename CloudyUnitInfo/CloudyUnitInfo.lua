@@ -128,8 +128,12 @@ end
 
 
 --- Unit Gear Info ---
+local hasArtifact, reScanning = 0, 0
 local function UnitGear(unit)
-	if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
+	if (not unit) or (UnitGUID(unit) ~= currentGUID) then
+		hasArtifact, reScanning = 0, 0
+		return
+	end
 
 	local ulvl = UnitLevel(unit)
 	local class = select(2, UnitClass(unit))
@@ -166,6 +170,11 @@ local function UnitGear(unit)
 
 						if (quality == 6) and (i == 16 or i == 17) then
 							level = scanItemLevel(link, true)
+							if (not delay) and (reScanning == 0) then
+								hasArtifact = 1
+							else
+								hasArtifact = 0
+							end
 						end
 
 						if (i == 16) then
@@ -212,7 +221,17 @@ local function UnitGear(unit)
 	end
 
 	if (not delay) then
-		ilvl = total / 16
+		if (unit == 'player') and (GetAverageItemLevel() > 0) then
+			ilvl = select(2, GetAverageItemLevel())
+		else
+			if (hasArtifact == 1) then
+				reScanning = 1
+				return nil
+			else
+				reScanning = 0
+				ilvl = total / 16
+			end
+		end
 		if (ilvl > 0) then ilvl = string.format('%.1f', ilvl) end
 
 		if (boa > 0) then ilvl = ilvl .. '  |cffe6cc80' .. boa .. ' BOA' end
@@ -249,12 +268,9 @@ local function ScanUnit(unit, forced)
 
 	if UnitIsUnit(unit, 'player') then
 		cachedSpec = UnitSpec('player')
-		SpecDB[currentGUID] = cachedSpec
-
 		cachedGear = UnitGear('player')
-		GearDB[currentGUID] = cachedGear
 
-		SetUnitInfo(cachedGear, cachedSpec)
+		SetUnitInfo(cachedGear or CONTINUED, cachedSpec)
 	else
 		if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
 
