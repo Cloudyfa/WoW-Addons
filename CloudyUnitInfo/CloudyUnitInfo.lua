@@ -136,33 +136,32 @@ local function UnitGear(unit)
 
 	local boa, pvp = 0, 0
 	local wlvl, wslot = 0, 0
-	local ilvl, total, delay = 0, 0, nil
+	local ilvl, total, delay = nil, 0, nil
 
 	for i = 1, 17 do
 		if (i ~= 4) then
-			local itemTexture = GetInventoryItemTexture(unit, i)
+			local id = GetInventoryItemID(unit, i)
 
-			if itemTexture then
-				local itemLink = GetInventoryItemLink(unit, i)
+			if id then
+				local link = GetInventoryItemLink(unit, i)
 
-				if (not itemLink) then
+				if (not link) then
 					delay = true
 				else
-					local _, _, quality, level, _, _, _, _, slot = GetItemInfo(itemLink)
+					local _, _, quality, level, _, _, _, _, slot = GetItemInfo(link)
 
 					if (not quality) or (not level) then
 						delay = true
 					else
 						if (quality == 7) then
 							boa = boa + 1
-							local id = strmatch(itemLink, 'item:(%d+)')
 							level = BOALevel(ulvl, id)
 						else
-							if IsPVPItem(itemLink) then
+							if IsPVPItem(link) then
 								pvp = pvp + 1
 							end
 
-							level = not delay and scanItemLevel(itemLink) or level
+							level = not delay and scanItemLevel(link) or level
 						end
 
 						if (i == 16) then
