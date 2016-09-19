@@ -15,8 +15,8 @@ local function InitDB()
 	if (not CTradeSkillDB) then
 		CTradeSkillDB = {}
 		CTradeSkillDB['Size'] = 30
-		CTradeSkillDB['Fade'] = true
 		CTradeSkillDB['Unlock'] = false
+		CTradeSkillDB['Fade'] = false
 		CTradeSkillDB['Level'] = true
 	end
 	if not CTradeSkillDB['Tabs'] then CTradeSkillDB['Tabs'] = {} end
@@ -505,12 +505,14 @@ StaticPopupDialogs['CTRADESKILL_WARNING'] = {
 		CTradeSkillDB['Unlock'] = not CTradeSkillDB['Unlock']
 		ReloadUI()
 	end,
-	OnCancel = function()
+	OnShow = function()
+		_G['CTSOption']:Disable()
+	end,
+	OnHide = function()
 		_G['CTSOption']:Enable()
 	end,
 	timeout = 0,
 	exclusive = 1,
-	hideOnEscape = 1,
 	preferredIndex = 3,
 }
 
@@ -531,6 +533,13 @@ local function createOptions()
 			info.isNotRadio = true
 			info.notCheckable = false
 
+			info.text = UNLOCK_FRAME
+			info.func = function()
+				StaticPopup_Show('CTRADESKILL_WARNING')
+			end
+			info.checked = CTradeSkillDB['Unlock']
+			UIDropDownMenu_AddButton(info, level)
+
 			info.text = 'UI ' .. ACTION_SPELL_AURA_REMOVED_BUFF
 			info.func = function()
 				CTradeSkillDB['Fade'] = not CTradeSkillDB['Fade']
@@ -538,15 +547,6 @@ local function createOptions()
 			end
 			info.keepShownOnClick = true
 			info.checked = CTradeSkillDB['Fade']
-			UIDropDownMenu_AddButton(info, level)
-
-			info.text = UNLOCK_FRAME
-			info.func = function()
-				_G['CTSOption']:Disable()
-				StaticPopup_Show('CTRADESKILL_WARNING')
-			end
-			info.keepShownOnClick = false
-			info.checked = CTradeSkillDB['Unlock']
 			UIDropDownMenu_AddButton(info, level)
 
 			info.text = STAT_AVERAGE_ITEM_LEVEL
