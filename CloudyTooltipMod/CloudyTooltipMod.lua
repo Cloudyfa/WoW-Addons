@@ -509,9 +509,11 @@ local function CTipMod_Hooks()
 			end
 
 			if CTipModDB['HideBorder'] then
+				nameLine:SetWidth(nameLine:GetWidth() + 15)
 				self.icon:SetPoint('TOPRIGHT', 3, -1)
 				self.icon:SetAlpha(0.65)
 			else
+				nameLine:SetWidth(nameLine:GetWidth() + 7)
 				self.icon:SetPoint('TOPRIGHT', 10, 7)
 				self.icon:SetAlpha(0.95)
 			end
