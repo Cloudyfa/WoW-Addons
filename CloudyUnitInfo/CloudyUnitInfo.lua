@@ -128,6 +128,7 @@ end
 
 
 --- Unit Gear Info ---
+local furySpec = GetSpecializationNameForSpecID(72)
 local hasArtifact, reScanning = 0, 0
 local function UnitGear(unit)
 	if (not unit) or (UnitGUID(unit) ~= currentGUID) then
@@ -178,7 +179,7 @@ local function UnitGear(unit)
 						end
 
 						if (i == 16) then
-							if (SpecDB[currentGUID] == FURY) or (quality == 6) then
+							if (SpecDB[currentGUID] == furySpec) or (quality == 6) then
 								wlvl = level
 								wslot = slot
 							end
@@ -188,7 +189,7 @@ local function UnitGear(unit)
 						end
 
 						if (i == 17) then
-							if (SpecDB[currentGUID] == FURY) then
+							if (SpecDB[currentGUID] == furySpec) then
 								if (wslot ~= 'INVTYPE_2HWEAPON') and (slot == 'INVTYPE_2HWEAPON') then
 									if (level > wlvl) then
 										level = level * 2 - wlvl
@@ -254,7 +255,7 @@ local function UnitSpec(unit)
 	else
 		local specID = GetInspectSpecialization(unit)
 		if specID and (specID > 0) then
-			specName = select(2, GetSpecializationInfoByID(specID))
+			specName = GetSpecializationNameForSpecID(specID)
 		end
 	end
 
