@@ -281,19 +281,22 @@ local function CTipMod_Hooks()
 
 		-- Guild Mod --
 		if guildLine then
+			local guildString
 			if UnitIsPlayer(unit) then
 				local guildName, guildRank = GetGuildInfo(unit)
-				if not guildName then return end
-
-				if CTipModDB['GuildRank'] and guildRank then
-					guildLine:SetText(unitColor .. '<' .. guildName .. '> |cff888888' .. guildRank)
+				if guildName then
+					if CTipModDB['GuildRank'] and guildRank then
+						guildString = '<' .. guildName .. '> |cff888888' .. guildRank
+					else
+						guildString = '<' .. guildName .. '>'
+					end
 				else
-					guildLine:SetText(unitColor .. '<' .. guildName .. '>')
+					guildString = '<' .. gsub(guildLine:GetText(), '-.+', '') .. '>'
 				end
 			else
-				local text = gsub(guildLine:GetText(), '-.+\'s', '\'s')
-				guildLine:SetText(unitColor .. '<' .. text .. '>')
+				guildString = '<' .. gsub(guildLine:GetText(), '-.+\'s', '\'s') .. '>'
 			end
+			guildLine:SetText(unitColor .. guildString)
 		end
 
 		-- Detail Mod --
@@ -373,27 +376,27 @@ local function CTipMod_Hooks()
 		-- Loot Mod --
 		if lootLine then
 			local ownerName = strmatch(lootLine:GetText(), '%s([^%-]+)')
-			if (not ownerName) or (ownerName == '') then return end
+			if ownerName and (ownerName ~= '') then
+				local ownerColor = '|cffffffff'
+				if (UnitName('player') == ownerName) then
+					ownerColor = GetClassColor('player')
+				else
+					local groupType = 'party'
+					if UnitInRaid('player') then
+						groupType = 'raid'
+					end
 
-			local ownerColor = '|cffffffff'
-			if (UnitName('player') == ownerName) then
-				ownerColor = GetClassColor('player')
-			else
-				local groupType = 'party'
-				if UnitInRaid('player') then
-					groupType = 'raid'
-				end
-
-				for i = 1, GetNumGroupMembers() - 1 do
-					local owner = groupType .. i
-					if (UnitName(owner) == ownerName) then
-						ownerColor = GetClassColor(owner)
-						break
+					for i = 1, GetNumGroupMembers() - 1 do
+						local owner = groupType .. i
+						if (UnitName(owner) == ownerName) then
+							ownerColor = GetClassColor(owner)
+							break
+						end
 					end
 				end
-			end
 
-			lootLine:SetText(defaultColor .. LOOT .. ': ' .. ownerColor .. ownerName)
+				lootLine:SetText(defaultColor .. LOOT .. ': ' .. ownerColor .. ownerName)
+			end
 		end
 
 		-- Target of Target --
