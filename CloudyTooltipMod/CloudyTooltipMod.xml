@@ -143,7 +143,7 @@
 				</Layers>
 			</Frame>
 
-			<Slider name="$parent_TipScale" inherits="OptionsSliderTemplate" minValue="0.75" maxValue="1.25" defaultValue="1.0" valueStep="0.05">
+			<Slider name="$parent_TipScale" inherits="OptionsSliderTemplate" minValue="0.5" maxValue="1.5" defaultValue="1.0" valueStep="0.05">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentScale" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -151,6 +151,16 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self.Low:Hide()
+						self.High:ClearAllPoints()
+						self.High:SetPoint("LEFT", self, "RIGHT", 3, 2)
+					</OnLoad>
+					<OnValueChanged>
+						self.High:SetFormattedText(PERCENTAGE_STRING, math.floor(value * 100))
+					</OnValueChanged>
+				</Scripts>
 			</Slider>
 
 			<Frame>
