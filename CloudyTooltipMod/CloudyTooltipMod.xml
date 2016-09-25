@@ -97,6 +97,9 @@
 							CTipModUI_AnchorFrame:Enable()
 						else
 							CTipModUI_AnchorFrame:Disable()
+							if _G["CTipAnchor"]:IsShown() then
+								_G["CTipAnchor"]:Hide()
+							end
 						end
 					</OnClick>
 				</Scripts>
@@ -141,7 +144,6 @@
 				</Scripts>
 			</Button>
 
-			
 			<Frame>
 				<Layers>
 					<Layer level="ARTWORK">
