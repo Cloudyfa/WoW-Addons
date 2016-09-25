@@ -3,6 +3,6 @@
 ## Notes: Modify the default tooltip.
 ## Version: 2.4
 ## Author: Cloudyfa
-## SavedVariables: CTipModDB
+## SavedVariables: CTipModDB, CTipModPOS
 
 CloudyTooltipMod.xml

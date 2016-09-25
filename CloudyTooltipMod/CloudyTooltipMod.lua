@@ -13,6 +13,7 @@ local function CTipModDB_Init()
 
 		-- Default configuration --
 		CTipModDB['MouseAnchor'] = 1
+		CTipModDB['OffsetAnchor'] = nil
 
 		CTipModDB['TipColor'] = nil
 		CTipModDB['ClassColor'] = 1
@@ -34,6 +35,7 @@ local function CTipModDB_Init()
 		CTipModDB['FactionIcon'] = 1
 		CTipModDB['LinkIcon'] = 1
 	end
+	if (not CTipModPOS) then CTipModPOS = {} end
 
 	-- Change tooltip style --
 	CTipBackdrop = GameTooltip:GetBackdrop()
@@ -114,6 +116,63 @@ end
 		tooltip:SetBackdropColor(r * 0.2, g * 0.2, b * 0.2)
 	end
 
+	-- Get Anchor Position --
+	local function getPosition(self)
+		local point, _, relative, xOffset, yOffset = self:GetPoint()
+		local anchor = point
+		if point == 'LEFT' then
+			anchor = yOffset > 0 and 'TOPLEFT' or 'BOTTOMLEFT'
+		elseif point == 'RIGHT' then
+			anchor = yOffset > 0 and 'TOPRIGHT' or 'BOTTOMRIGHT'
+		elseif point == 'TOP' then
+			anchor = xOffset < 0 and 'TOPLEFT' or 'TOPRIGHT'
+		elseif point == 'BOTTOM' then
+			anchor = xOffset < 0 and 'BOTTOMLEFT' or 'BOTTOMRIGHT'
+		elseif point == 'CENTER' then
+			if yOffset > 0 then
+				anchor = xOffset < 0 and 'TOPLEFT' or 'TOPRIGHT'
+			else
+				anchor = xOffset < 0 and 'BOTTOMLEFT' or 'BOTTOMRIGHT'
+			end
+		end
+		return point, relative, xOffset, yOffset, anchor
+	end
+
+	-- Set Anchor Position --
+	local function setPosition(self)
+		if CTipModPOS and (#CTipModPOS ~= 0) then
+			self:SetPoint(CTipModPOS[1], UIParent, CTipModPOS[2], CTipModPOS[3], CTipModPOS[4])
+		else
+			self:SetPoint('BOTTOMRIGHT')
+		end
+	end
+
+	-- Tooltip Anchor Frame --
+	local TipAnchor = CreateFrame('Frame', 'CTipAnchor', UIParent)
+	TipAnchor:SetFrameStrata('TOOLTIP')
+	TipAnchor:SetClampedToScreen(true)
+	TipAnchor:SetSize(170, 70)
+	TipAnchor:EnableMouse(0)
+	TipAnchor:Hide()
+
+	TipAnchor.bg = TipAnchor:CreateTexture()
+	TipAnchor.bg:SetAllPoints(TipAnchor)
+	TipAnchor.bg:SetColorTexture(0.2, 0.4, 0.6, 0.5)
+
+	TipAnchor.text = TipAnchor:CreateFontString(nil, 'ARTWORK', 'GameFontHighlightLarge')
+	TipAnchor.text:SetPoint('CENTER')
+	TipAnchor.text:SetText('CTipMod')
+
+	TipAnchor:SetScript('OnMouseDown', function(self)
+		self:SetMovable(true)
+		self:StartMoving()
+	end)
+	TipAnchor:SetScript('OnMouseUp', function(self)
+		self:StopMovingOrSizing()
+		self:SetMovable(false)
+		CTipModPOS = {getPosition(self)}
+	end)
+
 
 --- Hook Functions ---
 local function CTipMod_Hooks()
@@ -126,6 +185,17 @@ local function CTipMod_Hooks()
 		if CTipModDB['MouseAnchor'] then
 			if (GetMouseFocus() == WorldFrame) then
 				self:SetOwner(parent, 'ANCHOR_CURSOR')
+			end
+		elseif CTipModDB['OffsetAnchor'] then
+			self:ClearAllPoints()
+			if CTipModPOS and (#CTipModPOS ~= 0) then
+				if strfind(CTipModPOS[5], 'BOTTOM', 1, true) then
+					self:SetPoint(CTipModPOS[5], TipAnchor, CTipModPOS[5], 0, 8)
+				else
+					self:SetPoint(CTipModPOS[5], TipAnchor, CTipModPOS[5])
+				end
+			else
+				self:SetPoint('BOTTOMRIGHT', 0, 8)
 			end
 		end
 	end)
@@ -527,6 +597,8 @@ function CTipMod_OnEvent(self, event, ...)
 
 		CTipMod_Hooks()
 		CTipMod_Handler()
+
+		setPosition(TipAnchor)
 	end
 end
 
@@ -534,6 +606,7 @@ end
 --- Load Configuration ---
 function CTipModUI_Load()
 	CTipModUI_MouseAnchor:SetChecked(CTipModDB['MouseAnchor'])
+	CTipModUI_OffsetAnchor:SetChecked(CTipModDB['OffsetAnchor'])
 
 	CTipModUI_TipColor:SetChecked(CTipModDB['TipColor'])
 	CTipModUI_ClassColor:SetChecked(CTipModDB['ClassColor'])
@@ -560,6 +633,7 @@ end
 --- Save Configuration ---
 function CTipModUI_Save()
 	CTipModDB['MouseAnchor'] = CTipModUI_MouseAnchor:GetChecked()
+	CTipModDB['OffsetAnchor'] = CTipModUI_OffsetAnchor:GetChecked()
 
 	CTipModDB['TipColor'] = CTipModUI_TipColor:GetChecked()
 	CTipModDB['ClassColor'] = CTipModUI_ClassColor:GetChecked()
@@ -601,6 +675,7 @@ function CTipModUI_OnLoad(self)
 	CTipModUISubText:SetText(self.note)
 
 	CTipModUI_MouseAnchorText:SetText('Anchor to Mouse')
+	CTipModUI_OffsetAnchorText:SetText('Anchor to Offsets')
 
 	CTipModUI_TipColorText:SetText('Colorize Tooltip')
 	CTipModUI_ClassColorText:SetText('Class color priority')

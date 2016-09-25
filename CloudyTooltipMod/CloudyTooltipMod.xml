@@ -73,8 +73,75 @@
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentAnchor" relativePoint="BOTTOMLEFT" />
 				</Anchors>
+				<Scripts>
+					<OnClick>
+						if self:GetChecked() then
+							CTipModUI_OffsetAnchor:SetChecked(false)
+							CTipModUI_AnchorFrame:Disable()
+							if _G["CTipAnchor"]:IsShown() then
+								_G["CTipAnchor"]:Hide()
+							end
+						end
+					</OnClick>
+				</Scripts>
 			</CheckButton>
 
+			<CheckButton name="$parent_OffsetAnchor" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_MouseAnchor" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						if self:GetChecked() then
+							CTipModUI_MouseAnchor:SetChecked(false)
+							CTipModUI_AnchorFrame:Enable()
+						else
+							CTipModUI_AnchorFrame:Disable()
+						end
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+
+			<Button name="$parent_AnchorFrame">
+				<Size>
+					<AbsDimension x="20" y="20"/>
+				</Size>
+				<Anchors>
+					<Anchor point="LEFT" relativeTo="$parent_OffsetAnchor" relativePoint="RIGHT">
+						<Offset>
+							<AbsDimension x="115" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<NormalTexture file="Interface\WorldMap\Gear_64.png" alpha="0.7">
+					<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+				</NormalTexture>
+				<DisabledTexture file="Interface\WorldMap\Gear_64.png" alpha="0.4">
+					<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+				</DisabledTexture>
+				<HighlightTexture file="Interface\WorldMap\Gear_64.png">
+					<TexCoords left="0" right="0.5" top="0" bottom="0.5"/>
+				</HighlightTexture>
+				<Scripts>
+					<OnShow>
+						if not CTipModUI_OffsetAnchor:GetChecked() then
+							self:Disable()
+						end
+					</OnShow>
+					<OnHide>
+						_G["CTipAnchor"]:Hide()
+					</OnHide>
+					<OnClick>
+						if _G["CTipAnchor"]:IsShown() then
+							_G["CTipAnchor"]:Hide()
+						else
+							_G["CTipAnchor"]:Show()
+						end
+					</OnClick>
+				</Scripts>
+			</Button>
+
+			
 			<Frame>
 				<Layers>
 					<Layer level="ARTWORK">
@@ -83,7 +150,7 @@
 								<AbsDimension x="0" y="24"/>
 							</Size>
 							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="$parent_MouseAnchor" relativePoint="BOTTOMLEFT">
+								<Anchor point="TOPLEFT" relativeTo="$parent_OffsetAnchor" relativePoint="BOTTOMLEFT">
 									<Offset>
 										<AbsDimension x="0" y="-8"/>
 									</Offset>
@@ -205,7 +272,7 @@
 					<Anchor point="TOPLEFT" relativeTo="$parent_UnitStatus" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 				<Scripts>
-					<OnUpdate>
+					<OnClick>
 						if self:GetChecked() then
 							CTipModUI_RealmLabel:Enable()
 							CTipModUI_RealmLabel:SetAlpha(1.0)
@@ -213,7 +280,7 @@
 							CTipModUI_RealmLabel:Disable()
 							CTipModUI_RealmLabel:SetAlpha(0.5)
 						end
-					</OnUpdate>
+					</OnClick>
 				</Scripts>
 			</CheckButton>
 
@@ -225,6 +292,14 @@
 						</Offset>
 					</Anchor>
 				</Anchors>
+				<Scripts>
+					<OnShow>
+						if not CTipModUI_UnitRealm:GetChecked() then
+							self:Disable()
+							self:SetAlpha(0.5)
+						end
+					</OnShow>
+				</Scripts>
 			</CheckButton>
 
 			<CheckButton name="$parent_GuildRank" inherits="InterfaceOptionsCheckButtonTemplate">
