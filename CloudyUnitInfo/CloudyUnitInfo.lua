@@ -17,7 +17,6 @@ local lvlPattern = gsub(ITEM_LEVEL, '%%d', '(%%d+)')
 --- Create Frame ---
 local f = CreateFrame('Frame', 'CloudyUnitInfo')
 f:RegisterEvent('UNIT_INVENTORY_CHANGED')
-f:RegisterEvent('INSPECT_READY')
 
 
 --- Set Unit Info ---
@@ -336,19 +335,20 @@ f:SetScript('OnEvent', function(self, event, ...)
 		end
 	elseif (event == 'INSPECT_READY') then
 		local guid = ...
-		if (guid ~= currentGUID) then return end
+		if (guid == currentGUID) then
+			local spec = UnitSpec(currentUNIT)
+			SpecDB[guid] = spec
 
-		local spec = UnitSpec(currentUNIT)
-		SpecDB[currentGUID] = spec
+			local gear = UnitGear(currentUNIT)
+			GearDB[guid] = gear
 
-		local gear = UnitGear(currentUNIT)
-		GearDB[currentGUID] = gear
-
-		if (not gear) or (not spec) then
-			ScanUnit(currentUNIT, true)
-		else
-			SetUnitInfo(gear, spec)
+			if (not gear) or (not spec) then
+				ScanUnit(currentUNIT, true)
+			else
+				SetUnitInfo(gear, spec)
+			end
 		end
+		self:UnregisterEvent('INSPECT_READY')
 	end
 end)
 
@@ -361,6 +361,7 @@ f:SetScript('OnUpdate', function(self, elapsed)
 
 	if currentUNIT and (UnitGUID(currentUNIT) == currentGUID) then
 		self.lastUpdate = GetTime()
+		self:RegisterEvent('INSPECT_READY')
 		NotifyInspect(currentUNIT)
 	end
 end)
