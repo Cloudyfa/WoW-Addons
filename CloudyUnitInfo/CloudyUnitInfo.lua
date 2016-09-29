@@ -163,7 +163,7 @@ local function UnitGear(unit)
 									break
 								end
 							end
-							level = scanItemLevel(link, true) or level
+							level = not delay and scanItemLevel(link, true) or level
 						elseif (quality == 7) then
 							level = BOALevel(ulvl, id)
 							boa = boa + 1
