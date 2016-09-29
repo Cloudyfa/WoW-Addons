@@ -12,6 +12,7 @@ local GearDB, SpecDB, ItemDB = {}, {}, {}
 local prefixColor = '|cffffeeaa'
 local detailColor = '|cffffffff'
 local lvlPattern = gsub(ITEM_LEVEL, '%%d', '(%%d+)')
+local furySpec = GetSpecializationNameForSpecID(72)
 
 
 --- Create Frame ---
@@ -127,13 +128,8 @@ end
 
 
 --- Unit Gear Info ---
-local furySpec = GetSpecializationNameForSpecID(72)
-local hasArtifact, reScanning = 0, 0
 local function UnitGear(unit)
-	if (not unit) or (UnitGUID(unit) ~= currentGUID) then
-		hasArtifact, reScanning = 0, 0
-		return
-	end
+	if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
 
 	local ulvl = UnitLevel(unit)
 	local class = select(2, UnitClass(unit))
@@ -157,23 +153,24 @@ local function UnitGear(unit)
 					if (not quality) or (not level) then
 						delay = true
 					else
-						if (quality == 7) then
-							boa = boa + 1
+						if (quality == 6) and (i == 16 or i == 17) then
+							local relics = {select(4, strsplit(':', link))}
+							for i = 1, 3 do
+								local relicID = relics[i] ~= '' and relics[i]
+								local relicLink = select(2, GetItemGem(link, i))
+								if relicID and not relicLink then
+									delay = true
+									break
+								end
+							end
+							level = scanItemLevel(link, true)
+						elseif (quality == 7) then
 							level = BOALevel(ulvl, id)
+							boa = boa + 1
 						else
+							level = scanItemLevel(link)
 							if IsPVPItem(link) then
 								pvp = pvp + 1
-							end
-
-							level = not delay and scanItemLevel(link) or level
-						end
-
-						if (quality == 6) and (i == 16 or i == 17) then
-							level = scanItemLevel(link, true)
-							if (not delay) and (reScanning == 0) then
-								hasArtifact = 1
-							else
-								hasArtifact = 0
 							end
 						end
 
@@ -224,13 +221,7 @@ local function UnitGear(unit)
 		if (unit == 'player') and (GetAverageItemLevel() > 0) then
 			ilvl = select(2, GetAverageItemLevel())
 		else
-			if (hasArtifact == 1) then
-				reScanning = 1
-				return nil
-			else
-				reScanning = 0
-				ilvl = total / 16
-			end
+			ilvl = total / 16
 		end
 		if (ilvl > 0) then ilvl = string.format('%.1f', ilvl) end
 
