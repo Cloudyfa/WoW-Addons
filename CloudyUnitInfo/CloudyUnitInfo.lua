@@ -295,7 +295,8 @@ end
 
 
 --- Character Info Sheet ---
-hooksecurefunc('PaperDollFrame_SetArmor', function(_, unit)
+MIN_PLAYER_LEVEL_FOR_ITEM_LEVEL_DISPLAY = 1
+hooksecurefunc('PaperDollFrame_SetItemLevel', function(frame, unit)
 	if (unit ~= 'player') then return end
 
 	local total, equip = GetAverageItemLevel()
@@ -306,14 +307,7 @@ hooksecurefunc('PaperDollFrame_SetArmor', function(_, unit)
 	if (equip ~= total) then
 		ilvl = equip .. ' / ' .. total
 	end
-
-	if not CharacterStatsPane.ItemLevelFrame:IsShown() then
-		PaperDollFrame_SetItemLevel(CharacterStatsPane.ItemLevelFrame, unit)
-		CharacterStatsPane.ItemLevelCategory:Show()
-		CharacterStatsPane.ItemLevelFrame:Show()
-		CharacterStatsPane.AttributesCategory:SetPoint('TOP', CharacterStatsPane.ItemLevelFrame, 'BOTTOM', 0, -2)
-	end
-	CharacterStatsPane.ItemLevelFrame.Value:SetText(ilvl)
+	frame.Value:SetText(ilvl)
 end)
 
 
