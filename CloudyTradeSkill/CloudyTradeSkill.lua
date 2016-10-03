@@ -338,7 +338,7 @@ end)
 
 --- Refresh TSFrame ---
 TradeSkillFrame:HookScript('OnSizeChanged', function(self)
-	if not InCombatLockdown() then
+	if self:IsShown() and not InCombatLockdown() then
 		CTradeSkillDB['Size'] = (self:GetHeight() - 96) / 16
 		updateSize()
 	end
