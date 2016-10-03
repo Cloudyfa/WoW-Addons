@@ -461,7 +461,7 @@ end
 
 
 --- Druid Unshapeshift ---
-local function injectButtons()
+local function injectDruidButtons()
 	local _, class = UnitClass('player')
 	if (class ~= 'DRUID') then return end
 
@@ -493,6 +493,45 @@ local function injectButtons()
 	end
 	injectMacro(TradeSkillFrame.DetailsFrame.CreateButton, CREATE_PROFESSION)
 	injectMacro(TradeSkillFrame.DetailsFrame.CreateAllButton, CREATE_ALL)
+end
+
+
+--- Enchanting Vellum ---
+local function injectVellumButton()
+	local vellum = CreateFrame('Button', nil, TradeSkillFrame, 'MagicButtonTemplate')
+	if (skinUI == 'Aurora') then
+		loadedUI.Reskin(vellum)
+	elseif (skinUI == 'ElvUI') then
+		loadedUI:HandleButton(vellum, true)
+	end
+
+	vellum:SetSize(90, 22)
+	vellum:SetPoint('RIGHT', TradeSkillFrame.DetailsFrame.CreateButton, 'LEFT')
+	vellum:SetScript('OnClick', function()
+		C_TradeSkillUI.CraftRecipe(TradeSkillFrame.DetailsFrame.selectedRecipeID)
+		UseItemByName(38682)
+	end)
+
+	hooksecurefunc(TradeSkillFrame.DetailsFrame, 'RefreshButtons', function(self)
+		if C_TradeSkillUI.GetTradeSkillLine() ~= 333 or not self.createVerbOverride then
+			vellum:Hide()
+		else
+			local recipeInfo = self.selectedRecipeID and C_TradeSkillUI.GetRecipeInfo(self.selectedRecipeID)
+			if recipeInfo then
+				local numScrolls = min(recipeInfo.numAvailable, GetItemCount(38682))
+				if numScrolls > 0 then
+					vellum:SetText(CREATE_PROFESSION .. ' [' .. numScrolls .. ']')
+					vellum:Enable()
+				else
+					vellum:SetText(CREATE_PROFESSION)
+					vellum:Disable()
+				end
+				vellum:Show()
+			else
+				vellum:Hide()
+			end
+		end
+	end)
 end
 
 
@@ -635,7 +674,8 @@ f:SetScript('OnEvent', function(self, event, ...)
 		updatePosition()
 		updateTabs(true)
 		createOptions()
-		injectButtons()
+		injectDruidButtons()
+		injectVellumButton()
 		fadeState()
 	elseif (event == 'PLAYER_STARTED_MOVING') then
 		TradeSkillFrame:SetAlpha(0.4)
