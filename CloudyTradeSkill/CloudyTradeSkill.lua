@@ -647,7 +647,7 @@ local function createOptions()
 	UIDropDownMenu_Initialize(CTSDropdown, CTSDropdown_Init, 'MENU')
 
 	--- Option Button ---
-	local button = CreateFrame('Button', 'CTSOption', TradeSkillFrame.FilterButton, 'UIMenuButtonStretchTemplate')
+	local button = CreateFrame('Button', 'CTSOption', TradeSkillFrame, 'UIMenuButtonStretchTemplate')
 	button:SetScript('OnClick', function(self) ToggleDropDownMenu(1, nil, CTSDropdown, self, 2, -6) end)
 	button:SetPoint('RIGHT', TradeSkillFrame.FilterButton, 'LEFT', -8, 0)
 	button:SetText(GAMEOPTIONS_MENU)
