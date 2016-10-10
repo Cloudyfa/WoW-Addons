@@ -346,13 +346,11 @@ end)
 
 
 --- Refresh RecipeList ---
-hooksecurefunc('HybridScrollFrame_Update', function(self, ...)
-	if (self == TradeSkillFrame.RecipeList) then
-		if self.FilterBar:IsVisible() then
-			self:SetHeight(CTradeSkillDB['Size'] * 16 - 11) --389
-		else
-			self:SetHeight(CTradeSkillDB['Size'] * 16 + 5) --405
-		end
+hooksecurefunc(TradeSkillFrame.RecipeList, 'UpdateFilterBar', function(self)
+	if self.FilterBar:IsVisible() then
+		self:SetHeight(CTradeSkillDB['Size'] * 16 - 11) --389
+	else
+		self:SetHeight(CTradeSkillDB['Size'] * 16 + 5) --405
 	end
 end)
 
