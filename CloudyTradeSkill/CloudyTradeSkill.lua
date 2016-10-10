@@ -370,10 +370,9 @@ TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 	for i = 1, #self.buttons do
 		if CTradeSkillDB and CTradeSkillDB['Level'] == true then
 			local button = self.buttons[i]
-			local lvlFrame = _G['CTSLevel_' .. i] or CreateFrame('Frame', 'CTSLevel_' .. i, button)
-			if not lvlFrame.Text then
-				lvlFrame.Text = lvlFrame:CreateFontString(nil, 'BACKGROUND', 'GameFontNormalSmall')
-				lvlFrame.Text:SetPoint('RIGHT', button.Text, 'LEFT', 1, 0)
+			if not button.CTSLevel then
+				button.CTSLevel = button:CreateFontString(nil, 'BACKGROUND', 'GameFontNormalSmall')
+				button.CTSLevel:SetPoint('RIGHT', button.Text, 'LEFT', 1, 0)
 			end
 
 			if button.tradeSkillInfo and not button.isHeader then
@@ -381,19 +380,17 @@ TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 				local item = C_TradeSkillUI.GetRecipeItemLink(recipe)
 				local quality, _, level = select(3, GetItemInfo(item))
 				if quality and level and level > 1 then
-					lvlFrame.Text:SetText(level)
-					lvlFrame.Text:SetTextColor(GetItemQualityColor(quality))
+					button.CTSLevel:SetText(level)
+					button.CTSLevel:SetTextColor(GetItemQualityColor(quality))
 				else
-					lvlFrame.Text:SetText('')
+					button.CTSLevel:SetText('')
 				end
 			else
-				if lvlFrame.Text then
-					lvlFrame.Text:SetText('')
-				end
+				button.CTSLevel:SetText('')
 			end
 		else
-			if _G['CTSLevel_' .. i] then
-				_G['CTSLevel_' .. i].Text:SetText('')
+			if button.CTSLevel then
+				button.CTSLevel:SetText('')
 			end
 		end
 	end
