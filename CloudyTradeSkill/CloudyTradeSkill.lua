@@ -249,8 +249,12 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 			TradeSkillFrame.RecipeList:SetHeight(CTradeSkillDB['Size'] * 16 + 5) --405
 		end
 
-		if forced and #TradeSkillFrame.RecipeList.buttons < floor(CTradeSkillDB['Size'], 0.5) + 2 then
-			HybridScrollFrame_CreateButtons(TradeSkillFrame.RecipeList, 'TradeSkillRowButtonTemplate', 0, 0)
+		if forced then
+			if #TradeSkillFrame.RecipeList.buttons < floor(CTradeSkillDB['Size'], 0.5) + 2 then
+				local range = TradeSkillFrame.RecipeList.scrollBar:GetValue()
+				HybridScrollFrame_CreateButtons(TradeSkillFrame.RecipeList, 'TradeSkillRowButtonTemplate', 0, 0)
+				TradeSkillFrame.RecipeList.scrollBar:SetValue(range)
+			end
 			TradeSkillFrame.RecipeList:Refresh()
 		end
 	end
