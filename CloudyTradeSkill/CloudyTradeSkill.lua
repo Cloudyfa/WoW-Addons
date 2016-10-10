@@ -18,6 +18,7 @@ local function InitDB()
 		CTradeSkillDB['Unlock'] = false
 		CTradeSkillDB['Fade'] = false
 		CTradeSkillDB['Level'] = true
+		CTradeSkillDB['Tooltip'] = false
 	end
 	if not CTradeSkillDB['Tabs'] then CTradeSkillDB['Tabs'] = {} end
 
@@ -340,6 +341,12 @@ hooksecurefunc('ToggleGameMenu', function()
 end)
 
 
+--- Other Adjustment ---
+TradeSkillFrame.RankFrame:SetWidth(500)
+TradeSkillFrame.SearchBox:SetWidth(240)
+MainMenuBarOverlayFrame:SetFrameStrata('MEDIUM')
+
+
 --- Refresh TSFrame ---
 TradeSkillFrame:HookScript('OnSizeChanged', function(self)
 	if self:IsShown() and not InCombatLockdown() then
@@ -359,19 +366,34 @@ hooksecurefunc(TradeSkillFrame.RecipeList, 'UpdateFilterBar', function(self)
 end)
 
 
---- Other Adjustment ---
-TradeSkillFrame.RankFrame:SetWidth(500)
-TradeSkillFrame.SearchBox:SetWidth(240)
-MainMenuBarOverlayFrame:SetFrameStrata('MEDIUM')
-
-
---- Required Level Display ---
+--- Refresh RecipeButton ---
 TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 	for i = 1, #self.buttons do
+		local button = self.buttons[i]
+
+		--- Button Tooltip ---
+		if not button.CTSTip then
+			button:HookScript('OnEnter', function(self)
+				if CTradeSkillDB and CTradeSkillDB['Tooltip'] then
+					if self.tradeSkillInfo and not self.isHeader then
+						local link = C_TradeSkillUI.GetRecipeLink(self.tradeSkillInfo.recipeID)
+						GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+						GameTooltip:SetHyperlink(link)
+					end
+				end
+			end)
+			button:HookScript('OnLeave', function()
+				if CTradeSkillDB and CTradeSkillDB['Tooltip'] then
+					GameTooltip:Hide()
+				end
+			end)
+			button.CTSTip = true
+		end
+		
+		--- Required Level ---
 		if CTradeSkillDB and CTradeSkillDB['Level'] == true then
-			local button = self.buttons[i]
 			if not button.CTSLevel then
-				button.CTSLevel = button:CreateFontString(nil, 'BACKGROUND', 'GameFontNormalSmall')
+				button.CTSLevel = button:CreateFontString(nil, 'ARTWORK', 'GameFontNormalSmall')
 				button.CTSLevel:SetPoint('RIGHT', button.Text, 'LEFT', 1, 0)
 			end
 
@@ -594,6 +616,14 @@ local function createOptions()
 			end
 			info.keepShownOnClick = true
 			info.checked = CTradeSkillDB['Level']
+			UIDropDownMenu_AddButton(info, level)
+
+			info.text = DISPLAY .. ' ' .. INFO
+			info.func = function()
+				CTradeSkillDB['Tooltip'] = not CTradeSkillDB['Tooltip']
+			end
+			info.keepShownOnClick = true
+			info.checked = CTradeSkillDB['Tooltip']
 			UIDropDownMenu_AddButton(info, level)
 
 			info.func = nil
