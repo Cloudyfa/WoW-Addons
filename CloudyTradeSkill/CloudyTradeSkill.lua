@@ -371,6 +371,19 @@ TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 	for i = 1, #self.buttons do
 		local button = self.buttons[i]
 
+		--- Button Draggable ---
+		if not button.CTSDrag then
+			button:RegisterForDrag('LeftButton')
+			button:SetScript('OnDragStart', function(self)
+				if not InCombatLockdown() then
+					if self.tradeSkillInfo and not self.isHeader then
+						PickupSpell(self.tradeSkillInfo.recipeID)
+					end
+				end
+			end)
+			button.CTSDrag = true
+		end
+
 		--- Button Tooltip ---
 		if not button.CTSTip then
 			button:HookScript('OnEnter', function(self)
@@ -389,7 +402,7 @@ TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 			end)
 			button.CTSTip = true
 		end
-		
+
 		--- Required Level ---
 		if CTradeSkillDB and CTradeSkillDB['Level'] == true then
 			if not button.CTSLevel then
