@@ -19,6 +19,7 @@ local function InitDB()
 		CTradeSkillDB['Fade'] = false
 		CTradeSkillDB['Level'] = true
 		CTradeSkillDB['Tooltip'] = false
+		CTradeSkillDB['Drag'] = false
 	end
 	if not CTradeSkillDB['Tabs'] then CTradeSkillDB['Tabs'] = {} end
 
@@ -375,9 +376,11 @@ TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 		if not button.CTSDrag then
 			button:RegisterForDrag('LeftButton')
 			button:SetScript('OnDragStart', function(self)
-				if not InCombatLockdown() then
-					if self.tradeSkillInfo and not self.isHeader then
-						PickupSpell(self.tradeSkillInfo.recipeID)
+				if CTradeSkillDB and CTradeSkillDB['Drag'] then
+					if not InCombatLockdown() then
+						if self.tradeSkillInfo and not self.isHeader then
+							PickupSpell(self.tradeSkillInfo.recipeID)
+						end
 					end
 				end
 			end)
@@ -637,6 +640,14 @@ local function createOptions()
 			end
 			info.keepShownOnClick = true
 			info.checked = CTradeSkillDB['Tooltip']
+			UIDropDownMenu_AddButton(info, level)
+
+			info.text = DRAG_MODEL .. ' ' .. AUCTION_CATEGORY_RECIPES
+			info.func = function()
+				CTradeSkillDB['Drag'] = not CTradeSkillDB['Drag']
+			end
+			info.keepShownOnClick = true
+			info.checked = CTradeSkillDB['Drag']
 			UIDropDownMenu_AddButton(info, level)
 
 			info.func = nil
