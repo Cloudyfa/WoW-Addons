@@ -6,12 +6,8 @@
 
 <Bindings>
 	<Binding name="Cloudy TradeSkill" category="ADDONS">
-		if TradeSkillFrame:IsShown() then
-			C_TradeSkillUI.CloseTradeSkill()
-		else
-			if CTradeSkillDB and CTradeSkillDB['Panel'] then
-				C_TradeSkillUI.OpenTradeSkill(CTradeSkillDB['Panel'])
-			end
+		if CTradeSkillDB and CTradeSkillDB['Panel'] then
+			CastSpellByID(CTradeSkillDB['Panel'])
 		end
 	</Binding>
 </Bindings>

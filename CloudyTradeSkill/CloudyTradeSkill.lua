@@ -61,7 +61,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 	local function isCurrentTab(self)
 		if self.tooltip and IsCurrentSpell(self.tooltip) then
 			if TradeSkillFrame:IsShown() and (self.isSub == 0) then
-				CTradeSkillDB['Panel'] = C_TradeSkillUI.GetTradeSkillLine()
+				CTradeSkillDB['Panel'] = self.id
 				restoreFilters()
 			end
 			self:SetChecked(true)
@@ -198,7 +198,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		local prof1, prof2, arch, fishing, cooking, firstaid = GetProfessions()
 		local profs = {prof1, prof2, cooking, firstaid}
 		for _, prof in pairs(profs) do
-			local num, offset, line, _, _, spec = select(5, GetProfessionInfo(prof))
+			local num, offset, _, _, _, spec = select(5, GetProfessionInfo(prof))
 			if (spec and spec ~= 0) then num = 1 end
 			for i = 1, num do
 				if not IsPassiveSpell(offset + i, BOOKTYPE_PROFESSION) then
@@ -206,7 +206,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 					if (i == 1) then
 						tinsert(mainTabs, id)
 						if init and not CTradeSkillDB['Panel'] then
-							CTradeSkillDB['Panel'] = line
+							CTradeSkillDB['Panel'] = id
 							return
 						end
 					else
