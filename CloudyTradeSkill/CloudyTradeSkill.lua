@@ -44,15 +44,12 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 --- Local Functions ---
 	--- Save Filters ---
 	local function saveFilters()
-		searchTxt = TradeSkillFrame.SearchBox:GetText()
 		filterMats = C_TradeSkillUI.GetOnlyShowMakeableRecipes()
 		filterSkill = C_TradeSkillUI.GetOnlyShowSkillUpRecipes()
 	end
 
 	--- Restore Filters ---
 	local function restoreFilters()
-		TradeSkillFrame.SearchBox:SetText('')
-		TradeSkillFrame.SearchBox:SetText(searchTxt)
 		C_TradeSkillUI.SetOnlyShowMakeableRecipes(filterMats)
 		C_TradeSkillUI.SetOnlyShowSkillUpRecipes(filterSkill)
 	end
@@ -736,9 +733,11 @@ f:SetScript('OnEvent', function(self, event, ...)
 		TradeSkillFrame:SetAlpha(1.0)
 	elseif (event == 'TRADE_SKILL_LIST_UPDATE') then
 		saveFilters()
+		searchTxt = TradeSkillFrame.SearchBox:GetText()
 	elseif (event == 'TRADE_SKILL_DATA_SOURCE_CHANGED') then
 		if not InCombatLockdown() then
 			updateTabs()
 		end
+		TradeSkillFrame.SearchBox:SetText(searchTxt)
 	end
 end)
