@@ -538,7 +538,7 @@ local function injectVellumButton()
 	end)
 
 	hooksecurefunc(TradeSkillFrame.DetailsFrame, 'RefreshButtons', function(self)
-		if C_TradeSkillUI.GetTradeSkillLine() ~= 333 or not self.createVerbOverride then
+		if (C_TradeSkillUI.GetTradeSkillLine() ~= 333) or C_TradeSkillUI.IsTradeSkillLinked() or not self.createVerbOverride then
 			vellum:Hide()
 		else
 			local recipeInfo = self.selectedRecipeID and C_TradeSkillUI.GetRecipeInfo(self.selectedRecipeID)
