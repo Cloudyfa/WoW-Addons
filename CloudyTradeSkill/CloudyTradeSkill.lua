@@ -390,8 +390,10 @@ TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 				if CTradeSkillDB and CTradeSkillDB['Tooltip'] then
 					if self.tradeSkillInfo and not self.isHeader then
 						local link = C_TradeSkillUI.GetRecipeLink(self.tradeSkillInfo.recipeID)
-						GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-						GameTooltip:SetHyperlink(link)
+						if link then
+							GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+							GameTooltip:SetHyperlink(link)
+						end
 					end
 				end
 			end)
@@ -413,12 +415,14 @@ TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 			if button.tradeSkillInfo and not button.isHeader then
 				local recipe = button.tradeSkillInfo.recipeID
 				local item = C_TradeSkillUI.GetRecipeItemLink(recipe)
-				local quality, _, level = select(3, GetItemInfo(item))
-				if quality and level and level > 1 then
-					button.CTSLevel:SetText(level)
-					button.CTSLevel:SetTextColor(GetItemQualityColor(quality))
-				else
-					button.CTSLevel:SetText('')
+				if item then
+					local quality, _, level = select(3, GetItemInfo(item))
+					if quality and level and level > 1 then
+						button.CTSLevel:SetText(level)
+						button.CTSLevel:SetTextColor(GetItemQualityColor(quality))
+					else
+						button.CTSLevel:SetText('')
+					end
 				end
 			else
 				button.CTSLevel:SetText('')
