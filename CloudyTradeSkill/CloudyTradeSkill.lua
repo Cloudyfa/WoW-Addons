@@ -468,7 +468,7 @@ hooksecurefunc('ChatEdit_InsertLink', function(link)
 			local text = strmatch(link, '|h%[(.+)%]|h|r')
 			if text then
 				text = strmatch(text, ':%s(.+)') or text
-				TradeSkillFrame.SearchBox:SetText(text:lower())
+				TradeSkillFrame.SearchBox:SetText(text)
 			end
 		end
 	end
@@ -483,15 +483,6 @@ hooksecurefunc('ContainerFrameItemButton_OnModifiedClick', function(self, button
 		end
 	end
 end)
-
-
---- Fix RecipeLink ---
-local getRecipe = C_TradeSkillUI.GetRecipeLink
-C_TradeSkillUI.GetRecipeLink = function(link)
-	if link and (link ~= '') then
-		return getRecipe(link)
-	end
-end
 
 
 --- Druid Unshapeshift ---
