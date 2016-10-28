@@ -261,6 +261,7 @@ local function CTipMod_Hooks()
 	end)
 
 	-- Modify Item Tooltip --
+	local TradeGoods = select(2, GetItemInfoInstant(2589))
 	local function OnTooltipSetItem(self)
 		if (not CTipModDB['TradeGoodsInfo']) then return end
 
@@ -271,7 +272,7 @@ local function CTipMod_Hooks()
 		if (not id) then return end
 
 		local itemType, subType = select(2, GetItemInfoInstant(id))
-		if strfind(TRADESKILLS, itemType, 1, true) then
+		if (itemType == TradeGoods) then
 			self:AddLine(BAG_FILTER_TRADE_GOODS .. ': |cffaaff77' .. (subType or UNKNOWN))
 		end
 	end
