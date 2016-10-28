@@ -580,9 +580,15 @@ local function CTipMod_Handler()
 	end
 	GameTooltip:SetBackdrop(CTipBackdrop)
 	ItemRefTooltip:SetBackdrop(CTipBackdrop)
+	WorldMapTooltip:SetBackdrop(CTipBackdrop)
 
 	GameTooltip:SetScale(CTipModDB['TipScale'])
 	ItemRefTooltip:SetScale(CTipModDB['TipScale'])
+	WorldMapTooltip:SetScale(CTipModDB['TipScale'])
+
+	ColorTooltip(GameTooltip)
+	ColorTooltip(ItemRefTooltip)
+	ColorTooltip(WorldMapTooltip)
 end
 
 
