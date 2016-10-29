@@ -151,6 +151,8 @@ end
 		end
 
 		local pX, pY = GetPlayerMapPosition('player')
+		pX, pY = pX or 0, pY or 0
+
 		local pPos = format('%.1f, %.1f', pX * 100, pY * 100)
 		if pX == 0 and pY == 0 then
 			pPos = NOT_APPLICABLE
