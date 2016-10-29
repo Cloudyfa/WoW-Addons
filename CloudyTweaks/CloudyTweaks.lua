@@ -52,7 +52,7 @@ local function CTweaksDB_Init()
 		CTweaksUI_TabTarget:Disable()
 		CTweaksUI_TabTarget:SetAlpha(0.5)
 	end
-	if not GetCVar('cameraDistanceMaxFactor') then
+	if not GetCVar('cameraDistanceMaxZoomFactor') then
 		CTweaksUI_CamDistance:Disable()
 		CTweaksUI_CamDistance:SetAlpha(0.5)
 	end
@@ -510,15 +510,9 @@ local function CTweaks_Handler()
 
 	if CTweaksUI_CamDistance:IsEnabled() then
 		if CTweaksDB['CamDistance'] then
-			SetCVar('cameraDistanceMaxFactor', '2.6')
-			CameraPanelOptions.cameraDistanceMaxFactor.maxValue = 2.6
-			InterfaceOptionsCameraPanelMaxDistanceSlider:Disable()
+			SetCVar('cameraDistanceMaxZoomFactor', '2.6')
 		else
-			if tonumber(GetCVar('cameraDistanceMaxFactor')) > 2 then
-				SetCVar('cameraDistanceMaxFactor', '1.9')
-				InterfaceOptionsCameraPanelMaxDistanceSlider:SetMinMaxValues(1, 1.9)
-			end
-			InterfaceOptionsCameraPanelMaxDistanceSlider:Enable()
+			SetCVar('cameraDistanceMaxZoomFactor', '1.9')
 		end
 	end
 
