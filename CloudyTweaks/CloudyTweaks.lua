@@ -135,13 +135,15 @@ end
 
 	-- Update Map Coords --
 	local function updateCoords(self)
-		local cX, cY = GetCursorPosition()
-		local scale = WorldMapDetailFrame:GetEffectiveScale()
+		if (not CTweaksDB['MapCoords']) or (not WorldMapFrame:IsVisible()) then return end
 
-		local left = WorldMapDetailFrame:GetLeft()
-		local top = WorldMapDetailFrame:GetTop()
-		local width = WorldMapDetailFrame:GetWidth()
-		local height = WorldMapDetailFrame:GetHeight()
+		local cX, cY = GetCursorPosition()
+		local scale = WorldMapFrame.ScrollContainer.Child:GetEffectiveScale()
+
+		local left = WorldMapFrame.ScrollContainer.Child:GetLeft()
+		local top = WorldMapFrame.ScrollContainer.Child:GetTop()
+		local width = WorldMapFrame.ScrollContainer.Child:GetWidth()
+		local height = WorldMapFrame.ScrollContainer.Child:GetHeight()
 
 		cX = (cX/scale - left) / width * 100
 		cY = (top - cY/scale) / height * 100
@@ -149,22 +151,22 @@ end
 		if cX < 0 or cX > 100 or cY < 0 or cY > 100 then
 			cPos = NOT_APPLICABLE
 		end
+		self.cursor:SetText(gsub(HARDWARE_CURSOR, HARDWARE, '') .. ': ' .. cPos)
 
-		local pX, pY = GetPlayerMapPosition('player')
+		local mapID = C_Map.GetBestMapForUnit('player')
+		local pX, pY = C_Map.GetPlayerMapPosition(mapID, 'player'):GetXY()
 		pX, pY = pX or 0, pY or 0
 
 		local pPos = format('%.1f, %.1f', pX * 100, pY * 100)
 		if pX == 0 and pY == 0 then
 			pPos = NOT_APPLICABLE
 		end
-
-		self.cursor:SetText(gsub(HARDWARE_CURSOR, HARDWARE, '') .. ': ' .. cPos)
 		self.player:SetText(' ' .. PLAYER .. ' : ' .. pPos)
 	end
 
 	-- Map Coords Frame --
-	local mCoords = CreateFrame('Frame', nil, WorldMapFrame.UIElementsFrame)
-	mCoords:SetPoint('BOTTOMLEFT', WorldMapFrame.UIElementsFrame)
+	local mCoords = CreateFrame('Frame', nil, WorldMapFrame.ScrollContainer)
+	mCoords:SetPoint('BOTTOMLEFT', WorldMapFrame.ScrollContainer)
 	mCoords:SetSize(136, 36)
 
 	mCoords.bg = mCoords:CreateTexture()
