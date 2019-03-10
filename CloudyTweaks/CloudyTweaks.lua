@@ -207,29 +207,40 @@ local function CTweaks_Hooks()
 	hooksecurefunc('QuestLogQuests_Update', function()
 		if (not CTweaksDB['QuestLevel']) then return end
 
-		for _, button in pairs(QuestMapFrame.QuestsFrame.Contents.Titles) do
-			if button and button:IsShown() then
+		for _, button in pairs{QuestMapFrame.QuestsFrame.Contents:GetChildren()} do
+			if button and button.Check then
 				local title, level = GetQuestLogTitle(button.questLogIndex)
-				title = '[' .. level .. '] ' .. title
+				if title and level then
+					title = '[' .. level .. '] ' .. title
 
-				local memberOnQuest = 0
-				for i = 1, GetNumSubgroupMembers() do
-					if IsUnitOnQuestByQuestID(button.questID, 'party'..i) then
-						memberOnQuest = memberOnQuest + 1
+					local memberOnQuest = 0
+					for i = 1, GetNumSubgroupMembers() do
+						if IsUnitOnQuestByQuestID(button.questID, 'party'..i) then
+							memberOnQuest = memberOnQuest + 1
+						end
+					end
+					if ( memberOnQuest > 0 ) then
+						title = '[' .. memberOnQuest .. '] ' .. title
+					end
+					updateQuestTitle(button, title)
+
+					if IsQuestWatched(button.questLogIndex) then
+						button.Check:SetPoint('LEFT', button.Text, button.Text:GetWrappedWidth() + 2, 0)
+						button.Check:Show()
+					else
+						button.Check:Hide()
 					end
 				end
-				if ( memberOnQuest > 0 ) then
-					title = '[' .. memberOnQuest .. '] ' .. title
-				end
-				updateQuestTitle(button, title)
-
-				if IsQuestWatched(button.questLogIndex) then
-					button.Check:SetPoint('LEFT', button.Text, button.Text:GetWrappedWidth() + 2, 0)
-					button.Check:Show()
-				else
-					button.Check:Hide()
-				end
 			end
+		end
+	end)
+
+	-- QuestButton --
+	hooksecurefunc('QuestMapLogTitleButton_OnEnter', function(button)
+		if CTweaksDB['QuestLevel'] then
+			local title, level = GetQuestLogTitle(button.questLogIndex)
+			GameTooltipTextLeft1:SetText('[' .. level .. '] ' .. title)
+			GameTooltip:Show()
 		end
 	end)
 
@@ -239,9 +250,9 @@ local function CTweaks_Hooks()
 
 		for i = 1, #self.elements, 3 do
 			if (self.elements[i] == QuestInfo_ShowTitle) then
-				if QuestInfoFrame.questLog then
-					local index = GetQuestLogSelection()
-					local title, level = GetQuestLogTitle(index)
+				local index = GetQuestLogSelection()
+				local title, level = GetQuestLogTitle(index)
+				if title and level then
 					QuestInfoTitleHeader:SetText('[' .. level .. '] ' .. title)
 				end
 			end
