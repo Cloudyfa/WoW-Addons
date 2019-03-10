@@ -1,6 +1,6 @@
 --[[
 	Cloudy TradeSkill
-	Copyright (c) 2016, Cloudyfa
+	Copyright (c) 2019, Cloudyfa
 	All rights reserved.
 ]]
 
