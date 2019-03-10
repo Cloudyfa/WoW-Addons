@@ -186,7 +186,7 @@ end
 	tabard1:SetPoint('RIGHT', DressUpFrameResetButton, 'LEFT')
 	tabard1:SetScript('OnClick', function()
 		DressUpModel:UndressSlot(19)
-		PlaySound('gsTitleOptionOK')
+		PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)
 	end)
 
 	local tabard2 = CreateFrame('Button', nil, SideDressUpFrame, 'UIPanelButtonTemplate')
@@ -195,7 +195,7 @@ end
 	tabard2:SetPoint('TOP', SideDressUpModelResetButton, 'BOTTOM')
 	tabard2:SetScript('OnClick', function()
 		SideDressUpModel:UndressSlot(19)
-		PlaySound('gsTitleOptionOK')
+		PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)
 	end)
 
 
