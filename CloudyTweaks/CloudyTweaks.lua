@@ -332,10 +332,10 @@ local function CTweaks_Hooks()
 	hooksecurefunc('GossipFrameUpdate', function()
 		if (not CTweaksDB['QuestLevel']) then return end
 
-		local avaiableQuests = {GetGossipAvailableQuests()}
-		local index = updateGossip(1, avaiableQuests, 7)
+		local availableQuests = {GetGossipAvailableQuests()}
+		local index = updateGossip(1, availableQuests, 7)
 
-		if #avaiableQuests > 1 then index = index + 1 end
+		if #availableQuests > 1 then index = index + 1 end
 
 		local activeQuests = {GetGossipActiveQuests()}
 		updateGossip(index, activeQuests, 6)
@@ -348,8 +348,6 @@ local function CTweaks_Hooks()
 		local numActiveQuests = GetNumActiveQuests()
 		local numAvailableQuests = GetNumAvailableQuests()
 		for i = 1, numActiveQuests + numAvailableQuests do
-			local button = _G['QuestTitleButton' .. i]
-
 			local title, level
 			if i <= numActiveQuests then
 				title = GetActiveTitle(i)
@@ -359,8 +357,11 @@ local function CTweaks_Hooks()
 				level = GetAvailableLevel(i)
 			end
 
-			button:SetText('[' .. level .. '] ' .. title)
-			button:SetHeight(button:GetTextHeight() + 2)
+			if title and level then
+				local button = _G['QuestTitleButton' .. i]
+				button:SetText('[' .. level .. '] ' .. title)
+				button:SetHeight(button:GetTextHeight() + 2)
+			end
 		end
 	end)
 end
