@@ -158,7 +158,7 @@ end
 		pX, pY = pX or 0, pY or 0
 
 		local pPos = format('%.1f, %.1f', pX * 100, pY * 100)
-		if pX == 0 and pY == 0 then
+		if (pX == 0 and pY == 0) or not (mapID == WorldMapFrame.mapID) then
 			pPos = NOT_APPLICABLE
 		end
 		self.player:SetText(' ' .. PLAYER .. ' : ' .. pPos)
