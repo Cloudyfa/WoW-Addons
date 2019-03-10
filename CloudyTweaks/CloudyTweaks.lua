@@ -305,9 +305,10 @@ local function CTweaks_Hooks()
 	hooksecurefunc('ObjectiveTrackerBlockHeader_OnLeave', HookQuestTracker)
 
 	-- QuestLink --
-	hooksecurefunc('ChatFrame_OnHyperlinkShow', function(_, _, link)
+	hooksecurefunc('ChatFrame_OnHyperlinkShow', function(_, text, link)
 		if CTweaksDB['QuestLevel'] then
-			local level, title = strmatch(link, 'quest:%d+:(\-?%d+)|h%[(.+)%]|h|r')
+			local level = strmatch(text, 'quest:%d+:(\-?%d+):')
+			local title = strmatch(link, '%[(.+)%]')
 			if level and title then
 				if (level == '-1') then level = UnitLevel('player') end
 				ItemRefTooltipTextLeft1:SetText('[' .. level .. '] ' .. title)
