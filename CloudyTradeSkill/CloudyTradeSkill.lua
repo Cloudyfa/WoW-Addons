@@ -342,7 +342,6 @@ end)
 --- Other Adjustment ---
 TradeSkillFrame.RankFrame:SetWidth(500)
 TradeSkillFrame.SearchBox:SetWidth(240)
-MainMenuBarOverlayFrame:SetFrameStrata('MEDIUM')
 
 
 --- Refresh TSFrame ---
