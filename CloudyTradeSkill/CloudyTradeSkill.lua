@@ -276,7 +276,8 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 --- Create Resize Bar ---
 local resizeBar = CreateFrame('Button', nil, TradeSkillFrame)
-resizeBar:SetAllPoints(TradeSkillFrameBottomBorder)
+resizeBar:SetPoint('BOTTOM', TradeSkillFrame)
+resizeBar:SetSize(670, 12)
 resizeBar:SetScript('OnMouseDown', function(_, button)
 	if (button == 'LeftButton') and not InCombatLockdown() then
 		TradeSkillFrame:SetResizable(true)
@@ -306,7 +307,8 @@ end)
 
 --- Create Movable Bar ---
 local movBar = CreateFrame('Button', nil, TradeSkillFrame)
-movBar:SetAllPoints(TradeSkillFrameTopBorder)
+movBar:SetPoint('TOPRIGHT', TradeSkillFrame)
+movBar:SetSize(610, 24)
 movBar:SetScript('OnMouseDown', function(_, button)
 	if (button == 'LeftButton') then
 		TradeSkillFrame:SetMovable(true)
