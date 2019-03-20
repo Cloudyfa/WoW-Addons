@@ -317,17 +317,6 @@ local function CTweaks_Hooks()
 		end
 	end)
 
-	-- QuestPOI --
-	local function HookQuestPOI(_, index)
-		if CTweaksDB['QuestLevel'] then
-			local title, level = GetQuestLogTitle(index)
-			WorldMapTooltipTextLeft1:SetText('[' .. level .. '] ' .. title)
-			WorldMapTooltip:Show()
-		end
-	end
-	hooksecurefunc('WorldMapQuestPOI_SetTooltip', HookQuestPOI)
-	hooksecurefunc('WorldMapQuestPOI_AppendTooltip', HookQuestPOI)
-
 	-- GossipFrame --
 	hooksecurefunc('GossipFrameUpdate', function()
 		if (not CTweaksDB['QuestLevel']) then return end
