@@ -211,7 +211,7 @@ local function CTipMod_Hooks()
 	end)
 
 	-- Tooltip Color --
-	GameTooltip:HookScript('OnUpdate', function(self)
+	local function OnTooltipShow(self)
 		local color = nil
 		local name, unit = self:GetUnit()
 		if (not name) and (not unit) then
@@ -228,7 +228,9 @@ local function CTipMod_Hooks()
 				ColorTooltip(self, color)
 			end
 		end
-	end)
+	end
+	GameTooltip:HookScript('OnShow', OnTooltipShow)
+	GameTooltip:HookScript('OnUpdate', OnTooltipShow)
 
 	-- Hyperlink Tooltip Color --
 	hooksecurefunc('SetItemRef', function(str, link)
@@ -531,13 +533,32 @@ local function CTipMod_Hooks()
 
 		-- Cleanup Tooltip --
 		for i = 1, self:NumLines() do
-			local line = _G[self:GetName() .. 'TextLeft' .. i]
-			local text = _G[self:GetName() .. 'TextRight' .. i]
-			local nextline = _G[self:GetName() .. 'TextLeft' .. i + 1]
-
-			if nextline and line and not line:IsShown() then
-				if text then text:Hide() end
-				nextline:SetPoint(line:GetPoint())
+			local line = _G['GameTooltipTextLeft' .. i]
+			local text = _G['GameTooltipTextRight' .. i]
+			if line and not line:IsShown() then
+				line:SetText(nil)
+				text:SetText(nil)
+				for j = i + 1, self:NumLines() do
+					local nline = _G['GameTooltipTextLeft' .. j]
+					local ntext = _G['GameTooltipTextRight' .. j]
+					if nline and nline:IsShown() then
+						local textL = nline:GetText()
+						local textR = ntext:GetText()
+						if textL then
+							line:SetText(textL)
+							line:Show()
+							nline:SetText(nil)
+							nline:Hide()
+							if textR then
+								text:SetText(textR)
+								text:Show()
+								ntext:SetText(nil)
+								ntext:Hide()
+							end
+							break
+						end
+					end
+				end
 			end
 		end
 	end
