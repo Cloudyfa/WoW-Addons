@@ -7,11 +7,12 @@
 
 --- Variables ---
 local currentUNIT, currentGUID
-local GearDB, SpecDB, ItemDB = {}, {}, {}
+local GearDB, SpecDB, ItemDB, SlotDB = {}, {}, {}, {}
 
 local prefixColor = '|cffffeeaa'
 local detailColor = '|cffffffff'
-local lvlPattern = gsub(ITEM_LEVEL, '%%d', '(%%d+)')
+local lvlPattern1 = ITEM_LEVEL:gsub('%%d', '(%%d+)')
+local lvlPattern2 = ITEM_LEVEL_ALT:gsub('([()])', '%%%1'):gsub('%%d', '(%%d+)')
 local furySpec = GetSpecializationNameForSpecID(72)
 
 
@@ -35,11 +36,12 @@ local function SetUnitInfo(gear, spec)
 	local infoLine
 	for i = 2, GameTooltip:NumLines() do
 		local line = _G['GameTooltipTextLeft' .. i]
-		local text = line and line:GetText() or ''
-
-		if (text == CONTINUED) or strfind(text, spec .. ': ', 1, true) then
-			infoLine = line
-			break
+		if line and line:IsShown() then
+			local text = line:GetText() or ''
+			if (text == CONTINUED) or strfind(text, spec .. ': ', 1, true) then
+				infoLine = line
+				break
+			end
 		end
 	end
 
@@ -71,26 +73,38 @@ local function IsPVPItem(link)
 end
 
 
---- Scan Item Level ---
-local function scanItemLevel(link, forced)
-	if (not forced) and ItemDB[link] then return ItemDB[link] end
-
-	local scanTip = _G['CUnitScan'] or CreateFrame('GameTooltip', 'CUnitScan', nil, 'GameTooltipTemplate')
-	scanTip:SetOwner(UIParent, 'ANCHOR_NONE')
- 	scanTip:SetHyperlink(link)
-
-	for i = 2, scanTip:NumLines() do
-		local textLine = _G['CUnitScanTextLeft' .. i]
-		if textLine and textLine:GetText() then
-			local level = strmatch(textLine:GetText(), lvlPattern)
-			if level then
-				ItemDB[link] = tonumber(level)
-				return ItemDB[link]
-			end
-		end
+--- Inventory Slots ---
+local InvSlots = {}
+for i = 1, 17 do
+	if i ~= 4 then
+		tinsert(InvSlots, i)
 	end
 end
 
+
+--- Scan Item Level ---
+for _, i in pairs(InvSlots) do
+	local scanTip = CreateFrame('GameTooltip', 'CUnitScan' .. i, nil, 'GameTooltipTemplate')
+	scanTip:SetOwner(WorldFrame, 'ANCHOR_NONE')
+ 	scanTip:SetScript('OnTooltipSetItem', function(self)
+		local _, link = self:GetItem()
+		if link then
+			local name = self:GetName()
+			for i = 2, self:NumLines() do
+				local line = _G[name .. 'TextLeft' .. i]
+				local text = line and line:GetText()
+				if text then
+					local level = text:match(lvlPattern1) or text:match(lvlPattern2)
+					if level then
+						ItemDB[link] = tonumber(level)
+						break
+					end
+				end
+			end
+		end
+	end)
+	SlotDB[i] = scanTip
+end
 
 --- Unit Gear Info ---
 local function UnitGear(unit)
@@ -103,80 +117,74 @@ local function UnitGear(unit)
 	local wlvl, wslot = 0, 0
 	local ilvl, total, delay = nil, 0, nil
 
-	for i = 1, 17 do
-		if (i ~= 4) then
-			local id = GetInventoryItemID(unit, i)
-
-			if id then
-				local link = GetInventoryItemLink(unit, i)
-
-				if (not link) then
+	for _, i in pairs(InvSlots) do
+		local hasItem = GetInventoryItemTexture(unit, i)
+		if hasItem then
+			local link = GetInventoryItemLink(unit, i)
+			if (not link) then
+				delay = true
+			else
+				SlotDB[i]:SetInventoryItem(unit, i)
+				local _, _, rarity, level, _, _, _, _, slot = GetItemInfo(link)
+				level = ItemDB[link] or level
+				if (not rarity) or (not level) then
 					delay = true
 				else
-					local _, _, quality, level, _, _, _, _, slot = GetItemInfo(link)
-
-					if (not quality) or (not level) then
-						delay = true
+					if (rarity == 6) and (i == 16 or i == 17) then
+						local relics = {select(4, strsplit(':', link))}
+						for i = 1, 3 do
+							local relicID = relics[i] ~= '' and relics[i]
+							local relicLink = select(2, GetItemGem(link, i))
+							if relicID and (not relicLink) then
+								delay = true
+								break
+							end
+						end
+					elseif (rarity == 7) then
+						boa = boa + 1
 					else
-						if (quality == 6) and (i == 16 or i == 17) then
-							local relics = {select(4, strsplit(':', link))}
-							for i = 1, 3 do
-								local relicID = relics[i] ~= '' and relics[i]
-								local relicLink = select(2, GetItemGem(link, i))
-								if relicID and not relicLink then
-									delay = true
-									break
-								end
-							end
-							level = scanItemLevel(link, true) or level
-						elseif (quality == 7) then
-							level = scanItemLevel(link) or level
-							boa = boa + 1
-						else
-							level = scanItemLevel(link) or level
-							if IsPVPItem(link) then
-								pvp = pvp + 1
-							end
+						if IsPVPItem(link) then
+							pvp = pvp + 1
 						end
-
-						if (i == 16) then
-							if (SpecDB[currentGUID] == furySpec) or (quality == 6) then
-								wlvl = level
-								wslot = slot
-							end
-							if (slot == 'INVTYPE_2HWEAPON') or (slot == 'INVTYPE_RANGED') or ((slot == 'INVTYPE_RANGEDRIGHT') and (class == 'HUNTER')) then
-								level = level * 2
-							end
-						end
-
-						if (i == 17) then
-							if (SpecDB[currentGUID] == furySpec) then
-								if (wslot ~= 'INVTYPE_2HWEAPON') and (slot == 'INVTYPE_2HWEAPON') then
-									if (level > wlvl) then
-										level = level * 2 - wlvl
-									end
-								elseif (wslot == 'INVTYPE_2HWEAPON') then
-									if (level > wlvl) then
-										if (slot == 'INVTYPE_2HWEAPON') then
-											level = level * 2 - wlvl * 2
-										else
-											level = level - wlvl
-										end
-									else
-										level = 0
-									end
-								end
-							elseif (quality == 6) and wlvl then
-								if level > wlvl then
-									level = level * 2 - wlvl
-								else
-									level = wlvl
-								end
-							end
-						end
-
-						total = total + level
 					end
+
+					if (i == 16) then
+						if (SpecDB[currentGUID] == furySpec) or (rarity == 6) then
+							wlvl = level
+							wslot = slot
+						end
+						if (slot == 'INVTYPE_2HWEAPON') or (slot == 'INVTYPE_RANGED') or ((slot == 'INVTYPE_RANGEDRIGHT') and (class == 'HUNTER')) then
+							level = level * 2
+						end
+					end
+
+					if (i == 17) then
+						if (SpecDB[currentGUID] == furySpec) then
+							if (wslot ~= 'INVTYPE_2HWEAPON') and (slot == 'INVTYPE_2HWEAPON') then
+								if (level > wlvl) then
+									level = level * 2 - wlvl
+								end
+							elseif (wslot == 'INVTYPE_2HWEAPON') then
+								if (level > wlvl) then
+									if (slot == 'INVTYPE_2HWEAPON') then
+										level = level * 2 - wlvl * 2
+									else
+										level = level - wlvl
+									end
+								else
+									level = 0
+								end
+							end
+						elseif (rarity == 6) and wlvl then
+							if level > wlvl then
+								level = level * 2 - wlvl
+							else
+								level = wlvl
+							end
+						end
+					end
+
+					total = total + level
 				end
 			end
 		end
