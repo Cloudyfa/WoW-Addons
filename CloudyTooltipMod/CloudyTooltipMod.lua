@@ -40,7 +40,6 @@ local function CTipModDB_Init()
 	-- Change tooltip style --
 	CTipBackdrop = GameTooltip:GetBackdrop()
 	CTipBackdrop.insets = {left = 2, right = 2, top = 2, bottom = 2}
-	CTipBackdrop.edgeFile = 'Interface\\Tooltips\\UI-Tooltip-Border'
 	CTipEdgeSize = CTipBackdrop.edgeSize
 	GameTooltipStatusBar:SetHeight(5)
 end
@@ -112,8 +111,9 @@ end
 			end
 		end
 
-		tooltip:SetBackdropBorderColor(r  * 1.2, g * 1.2, b * 1.2)
+		tooltip:SetBackdrop(CTipBackdrop)
 		tooltip:SetBackdropColor(r * 0.2, g * 0.2, b * 0.2)
+		tooltip:SetBackdropBorderColor(r  * 1.2, g * 1.2, b * 1.2)
 	end
 
 	-- Get Anchor Position --
@@ -250,12 +250,10 @@ local function CTipMod_Hooks()
 	hooksecurefunc('GameTooltip_ShowCompareItem', function(self)
 		if self and self.shoppingTooltips then
 			for _, tooltip in pairs(self.shoppingTooltips) do
-				tooltip:SetBackdrop(CTipBackdrop)
-				tooltip:SetScale(CTipModDB['TipScale'])
-
 				local _, link = tooltip:GetItem()
 				local color = link and strmatch(link, '(|c%x+)')
 				ColorTooltip(tooltip, color)
+				tooltip:SetScale(CTipModDB['TipScale'])
 			end
 		end
 	end)
@@ -516,7 +514,7 @@ local function CTipMod_Hooks()
 			else
 				nameLine:SetWidth(nameLine:GetWidth() + 7)
 				self.icon:SetPoint('TOPRIGHT', 10, 7)
-				self.icon:SetAlpha(0.95)
+				self.icon:SetAlpha(0.85)
 			end
 			self.icon:Show()
 		end
@@ -578,17 +576,9 @@ local function CTipMod_Handler()
 			CTipBackdrop.edgeSize = CTipEdgeSize
 		end
 	end
-	GameTooltip:SetBackdrop(CTipBackdrop)
-	ItemRefTooltip:SetBackdrop(CTipBackdrop)
-	WorldMapTooltip:SetBackdrop(CTipBackdrop)
 
 	GameTooltip:SetScale(CTipModDB['TipScale'])
 	ItemRefTooltip:SetScale(CTipModDB['TipScale'])
-	WorldMapTooltip:SetScale(CTipModDB['TipScale'])
-
-	ColorTooltip(GameTooltip)
-	ColorTooltip(ItemRefTooltip)
-	ColorTooltip(WorldMapTooltip)
 end
 
 
