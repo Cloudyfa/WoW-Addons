@@ -1,7 +1,7 @@
-## Interface: 80100
+## Interface: 80205
 ## Title: Cloudy Tweaks
 ## Notes: A collection of useful tweaks.
-## Version: 2.3
+## Version: 2.4
 ## Author: Cloudyfa
 ## SavedVariables: CTweaksDB
 
