@@ -57,41 +57,6 @@ local function SetUnitInfo(gear, spec)
 end
 
 
---- BOA Items ---
-local BOAItems = {
-	[133585] = 1, [133595] = 1, [133596] = 1,
-	[133597] = 1, [133598] = 1,
-}
-
-
---- BOA Item Level ---
-local function BOALevel(level, id)
-	if (level > 97) then
-		if BOAItems[id] then
-			level = 815 - (110 - level) * 10
-		else
-			level = 605 - (100 - level) * 5
-		end
-	elseif (level > 90) then
-		level = 590 - (97 - level) * 10
-	elseif (level > 85) then
-		level = 463 - (90 - level) * 19.5
-	elseif (level > 80) then
-		level = 333 - (85 - level) * 13.5
-	elseif (level > 67) then
-		level = 187 - (80 - level) * 4
-	elseif (level > 57) then
-		level = 105 - (67 - level) * 2.8
-	elseif (level > 10) then
-		level = level + 5
-	else
-		level = 10
-	end
-
-	return floor(level + 0.5)
-end
-
-
 --- PVP Item Detect ---
 local function IsPVPItem(link)
 	local itemStats = GetItemStats(link)
@@ -165,7 +130,7 @@ local function UnitGear(unit)
 							end
 							level = scanItemLevel(link, true) or level
 						elseif (quality == 7) then
-							level = BOALevel(ulvl, id)
+							level = scanItemLevel(link) or level
 							boa = boa + 1
 						else
 							level = scanItemLevel(link) or level
