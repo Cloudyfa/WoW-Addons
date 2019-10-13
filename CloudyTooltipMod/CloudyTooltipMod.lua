@@ -119,57 +119,71 @@ end
 	-- Get Anchor Position --
 	local function getPosition(self)
 		local point, _, relative, xOffset, yOffset = self:GetPoint()
-		local anchor = point
-		if point == 'LEFT' then
-			anchor = yOffset > 0 and 'TOPLEFT' or 'BOTTOMLEFT'
-		elseif point == 'RIGHT' then
-			anchor = yOffset > 0 and 'TOPRIGHT' or 'BOTTOMRIGHT'
-		elseif point == 'TOP' then
-			anchor = xOffset < 0 and 'TOPLEFT' or 'TOPRIGHT'
-		elseif point == 'BOTTOM' then
-			anchor = xOffset < 0 and 'BOTTOMLEFT' or 'BOTTOMRIGHT'
-		elseif point == 'CENTER' then
-			if yOffset > 0 then
-				anchor = xOffset < 0 and 'TOPLEFT' or 'TOPRIGHT'
+		if (point == 'LEFT') or (point == 'RIGHT') then
+			if (yOffset > 0) then
+				point = 'TOP' .. point
+				yOffset = yOffset + 35
 			else
-				anchor = xOffset < 0 and 'BOTTOMLEFT' or 'BOTTOMRIGHT'
+				point = 'BOTTOM' .. point
+				yOffset = yOffset - 35
+			end
+		elseif (point == 'TOP') or (point == 'BOTTOM') then
+			if (xOffset < 0) then
+				point = point .. 'LEFT'
+				xOffset = xOffset - 85
+			else
+				point = point .. 'RIGHT'
+				xOffset = xOffset + 85
+			end
+		elseif (point == 'CENTER') then
+			if (yOffset > 0) and (xOffset < 0) then
+				point = 'TOPLEFT'
+				xOffset = xOffset - 85
+				yOffset = yOffset + 35
+			elseif (yOffset > 0) and (xOffset >= 0) then
+				point = 'TOPRIGHT'
+				xOffset = xOffset + 85
+				yOffset = yOffset + 35
+			elseif (yOffset <= 0) and (xOffset < 0) then
+				point = 'BOTTOMLEFT'
+				xOffset = xOffset - 85
+				yOffset = yOffset - 35
+			elseif (yOffset <= 0) and (xOffset >= 0) then
+				point = 'BOTTOMRIGHT'
+				xOffset = xOffset + 85
+				yOffset = yOffset - 35
 			end
 		end
-		return point, relative, xOffset, yOffset, anchor
-	end
-
-	-- Set Anchor Position --
-	local function setPosition(self)
-		if CTipModPOS and (#CTipModPOS ~= 0) then
-			self:SetPoint(CTipModPOS[1], UIParent, CTipModPOS[2], CTipModPOS[3], CTipModPOS[4])
-		else
-			self:SetPoint('BOTTOMRIGHT')
-		end
+		return point, relative, xOffset, yOffset
 	end
 
 	-- Tooltip Anchor Frame --
 	local TipAnchor = CreateFrame('Frame', 'CTipAnchor', UIParent)
 	TipAnchor:SetFrameStrata('TOOLTIP')
 	TipAnchor:SetClampedToScreen(true)
+	TipAnchor:SetMovable(true)
 	TipAnchor:SetSize(170, 70)
-	TipAnchor:EnableMouse(0)
 	TipAnchor:Hide()
 
 	TipAnchor.bg = TipAnchor:CreateTexture()
-	TipAnchor.bg:SetAllPoints(TipAnchor)
+	TipAnchor.bg:SetAllPoints(true)
 	TipAnchor.bg:SetColorTexture(0.2, 0.4, 0.6, 0.5)
 
 	TipAnchor.text = TipAnchor:CreateFontString(nil, 'ARTWORK', 'GameFontHighlightLarge')
 	TipAnchor.text:SetPoint('CENTER')
 	TipAnchor.text:SetText('CTipMod')
 
+	if CTipModPOS and (#CTipModPOS ~= 0) then
+		TipAnchor:SetPoint(CTipModPOS[1], UIParent, CTipModPOS[2], CTipModPOS[3], CTipModPOS[4])
+	else
+		TipAnchor:SetPoint('BOTTOMRIGHT', 0, 8)
+	end
+
 	TipAnchor:SetScript('OnMouseDown', function(self)
-		self:SetMovable(true)
 		self:StartMoving()
 	end)
 	TipAnchor:SetScript('OnMouseUp', function(self)
 		self:StopMovingOrSizing()
-		self:SetMovable(false)
 		CTipModPOS = {getPosition(self)}
 	end)
 
@@ -189,11 +203,7 @@ local function CTipMod_Hooks()
 		elseif CTipModDB['OffsetAnchor'] then
 			self:ClearAllPoints()
 			if CTipModPOS and (#CTipModPOS ~= 0) then
-				if strfind(CTipModPOS[5], 'BOTTOM', 1, true) then
-					self:SetPoint(CTipModPOS[5], TipAnchor, CTipModPOS[5], 0, 8)
-				else
-					self:SetPoint(CTipModPOS[5], TipAnchor, CTipModPOS[5])
-				end
+				self:SetPoint(CTipModPOS[1], parent, CTipModPOS[2], CTipModPOS[3], CTipModPOS[4])
 			else
 				self:SetPoint('BOTTOMRIGHT', 0, 8)
 			end
@@ -596,8 +606,6 @@ function CTipMod_OnEvent(self, event, ...)
 
 		CTipMod_Hooks()
 		CTipMod_Handler()
-
-		setPosition(TipAnchor)
 	end
 end
 
