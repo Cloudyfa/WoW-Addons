@@ -13,7 +13,8 @@ local function CTipModDB_Init()
 
 		-- Default configuration --
 		CTipModDB['MouseAnchor'] = 1
-		CTipModDB['OffsetAnchor'] = nil
+		CTipModDB['MousePos'] = 1
+		CTipModDB['OverlayAnchor'] = nil
 
 		CTipModDB['TipColor'] = nil
 		CTipModDB['ClassColor'] = 1
@@ -36,6 +37,10 @@ local function CTipModDB_Init()
 		CTipModDB['LinkIcon'] = 1
 	end
 	if (not CTipModPOS) then CTipModPOS = {} end
+
+	-- DropDownMenu Init --
+	UIDropDownMenu_Initialize(CTipModUI_MousePos, CTipPos_Init)
+	UIDropDownMenu_SetSelectedValue(CTipModUI_MousePos, CTipModDB['MousePos'] or 1)
 
 	-- Change tooltip style --
 	CTipBackdrop = GameTooltip:GetBackdrop()
@@ -198,9 +203,15 @@ local function CTipMod_Hooks()
 
 		if CTipModDB['MouseAnchor'] then
 			if (GetMouseFocus() == WorldFrame) then
-				self:SetOwner(parent, 'ANCHOR_CURSOR')
+				if (CTipModDB['MousePos'] == 2) then
+					self:SetOwner(parent, 'ANCHOR_CURSOR_LEFT')
+				elseif (CTipModDB['MousePos'] == 3) then
+					self:SetOwner(parent, 'ANCHOR_CURSOR_RIGHT')
+				else
+					self:SetOwner(parent, 'ANCHOR_CURSOR')
+				end
 			end
-		elseif CTipModDB['OffsetAnchor'] then
+		elseif CTipModDB['OverlayAnchor'] then
 			self:ClearAllPoints()
 			if CTipModPOS and (#CTipModPOS ~= 0) then
 				self:SetPoint(CTipModPOS[1], parent, CTipModPOS[2], CTipModPOS[3], CTipModPOS[4])
@@ -613,28 +624,28 @@ local function CTipMod_Handler()
 end
 
 
---- CTipMod Loaded ---
-function CTipMod_OnLoad(self)
-	self:RegisterEvent('PLAYER_LOGIN')
-end
+--- CTipPos Init ---
+function CTipPos_Init()
+	local selectedValue = UIDropDownMenu_GetSelectedValue(CTipModUI_MousePos)
+	local info = UIDropDownMenu_CreateInfo()
+	local items = {'Center', 'Left', 'Right'}
 
-
---- CTipMod Events ---
-function CTipMod_OnEvent(self, event, ...)
-	if (event == 'PLAYER_LOGIN') then
-		CTipModDB_Init()
-		CTipModUI_Load()
-
-		CTipMod_Hooks()
-		CTipMod_Handler()
+	for i, opt in pairs(items) do
+		info.text, info.value = opt, i
+		info.checked = (selectedValue == i)
+		info.func = function()
+			CTipModDB['MousePos'] = i
+			UIDropDownMenu_SetSelectedValue(CTipModUI_MousePos, i)
+		end
+		UIDropDownMenu_AddButton(info)
 	end
 end
 
 
 --- Load Configuration ---
-function CTipModUI_Load()
+local function CTipModUI_Load()
 	CTipModUI_MouseAnchor:SetChecked(CTipModDB['MouseAnchor'])
-	CTipModUI_OffsetAnchor:SetChecked(CTipModDB['OffsetAnchor'])
+	CTipModUI_OverlayAnchor:SetChecked(CTipModDB['OverlayAnchor'])
 
 	CTipModUI_TipColor:SetChecked(CTipModDB['TipColor'])
 	CTipModUI_ClassColor:SetChecked(CTipModDB['ClassColor'])
@@ -659,9 +670,9 @@ end
 
 
 --- Save Configuration ---
-function CTipModUI_Save()
+local function CTipModUI_Save()
 	CTipModDB['MouseAnchor'] = CTipModUI_MouseAnchor:GetChecked()
-	CTipModDB['OffsetAnchor'] = CTipModUI_OffsetAnchor:GetChecked()
+	CTipModDB['OverlayAnchor'] = CTipModUI_OverlayAnchor:GetChecked()
 
 	CTipModDB['TipColor'] = CTipModUI_TipColor:GetChecked()
 	CTipModDB['ClassColor'] = CTipModUI_ClassColor:GetChecked()
@@ -697,13 +708,14 @@ function CTipModUI_OnLoad(self)
 		CTipMod_Handler()
 	end
 	InterfaceOptions_AddCategory(self)
+	self:RegisterEvent('PLAYER_LOGIN')
 
 	-- Set ConfigUI Text --
 	CTipModUITitle:SetText(self.title)
 	CTipModUISubText:SetText(self.note)
 
 	CTipModUI_MouseAnchorText:SetText('Anchor to Mouse')
-	CTipModUI_OffsetAnchorText:SetText('Anchor to Offsets')
+	CTipModUI_OverlayAnchorText:SetText('Anchor to Overlay')
 
 	CTipModUI_TipColorText:SetText('Colorize Tooltip')
 	CTipModUI_ClassColorText:SetText('Class color priority')
@@ -722,4 +734,17 @@ function CTipModUI_OnLoad(self)
 	CTipModUI_TradeGoodsInfoText:SetText('Trade Goods info')
 	CTipModUI_FactionIconText:SetText('Faction Icon')
 	CTipModUI_LinkIconText:SetText('Link Icon')
+end
+
+
+--- CTipMod Events ---
+function CTipModUI_OnEvent(self, event, ...)
+	if (event == 'PLAYER_LOGIN') then
+		CTipModDB_Init()
+		CTipModUI_Load()
+		CTipMod_Hooks()
+		CTipMod_Handler()
+
+		self:UnregisterEvent(event)
+	end
 end

@@ -9,18 +9,6 @@
 
 	<Script file="CloudyTooltipMod.lua"/>
 
-	<Frame name="CTipMod" parent="UIParent">
-		<Scripts>
-			<OnLoad>
-				CTipMod_OnLoad(self)
-			</OnLoad>
-
-			<OnEvent>
-				CTipMod_OnEvent(self, event, ...)
-			</OnEvent>
-		</Scripts>
-	</Frame>
-
 	<Frame name="CTipModUI" parent="InterfaceOptionsFramePanelContainer">
 		<Layers>
 			<Layer level="ARTWORK">
@@ -76,25 +64,44 @@
 				<Scripts>
 					<OnClick>
 						if self:GetChecked() then
-							CTipModUI_OffsetAnchor:SetChecked(false)
 							CTipModUI_AnchorFrame:Disable()
+							CTipModUI_OverlayAnchor:SetChecked(false)
+							UIDropDownMenu_EnableDropDown(CTipModUI_MousePos)
 							if _G["CTipAnchor"]:IsShown() then
 								_G["CTipAnchor"]:Hide()
 							end
+						else
+							UIDropDownMenu_DisableDropDown(CTipModUI_MousePos)
 						end
 					</OnClick>
 				</Scripts>
 			</CheckButton>
 
-			<CheckButton name="$parent_OffsetAnchor" inherits="InterfaceOptionsCheckButtonTemplate">
+			<Frame name="$parent_MousePos" inherits="UIDropDownMenuTemplate" enableMouse="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_MouseAnchor" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 				<Scripts>
+					<OnShow>
+						if CTipModUI_MouseAnchor:GetChecked() then
+							UIDropDownMenu_EnableDropDown(self)
+						else
+							UIDropDownMenu_DisableDropDown(self)
+						end
+					</OnShow>
+				</Scripts>
+			</Frame>
+
+			<CheckButton name="$parent_OverlayAnchor" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_MousePos" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+				<Scripts>
 					<OnClick>
 						if self:GetChecked() then
-							CTipModUI_MouseAnchor:SetChecked(false)
 							CTipModUI_AnchorFrame:Enable()
+							CTipModUI_MouseAnchor:SetChecked(false)
+							UIDropDownMenu_DisableDropDown(CTipModUI_MousePos)
 						else
 							CTipModUI_AnchorFrame:Disable()
 							if _G["CTipAnchor"]:IsShown() then
@@ -110,7 +117,7 @@
 					<AbsDimension x="20" y="20"/>
 				</Size>
 				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parent_OffsetAnchor" relativePoint="RIGHT">
+					<Anchor point="LEFT" relativeTo="$parent_OverlayAnchor" relativePoint="RIGHT">
 						<Offset>
 							<AbsDimension x="115" y="0"/>
 						</Offset>
@@ -127,7 +134,9 @@
 				</HighlightTexture>
 				<Scripts>
 					<OnShow>
-						if not CTipModUI_OffsetAnchor:GetChecked() then
+						if CTipModUI_OverlayAnchor:GetChecked() then
+							self:Enable()
+						else
 							self:Disable()
 						end
 					</OnShow>
@@ -152,7 +161,7 @@
 								<AbsDimension x="0" y="24"/>
 							</Size>
 							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="$parent_OffsetAnchor" relativePoint="BOTTOMLEFT">
+								<Anchor point="TOPLEFT" relativeTo="$parent_OverlayAnchor" relativePoint="BOTTOMLEFT">
 									<Offset>
 										<AbsDimension x="0" y="-8"/>
 									</Offset>
@@ -362,6 +371,9 @@
 			<OnLoad>
 				CTipModUI_OnLoad(self)
 			</OnLoad>
+			<OnEvent>
+				CTipModUI_OnEvent(self, event, ...)
+			</OnEvent>
 		</Scripts>
 	</Frame>
 </Ui>
