@@ -35,7 +35,7 @@ local function CTweaksDB_Init()
 		CTweaksDB['QuestAccept'] = nil
 		CTweaksDB['QuestTurnin'] = 1
 
-		CTweaksDB['MapFade'] = nil
+		CTweaksDB['WorldMap'] = 1
 		CTweaksDB['MapCoords'] = 1
 		CTweaksDB['DressUpButton'] = 1
 		CTweaksDB['EliteFrame'] = 1
@@ -150,6 +150,21 @@ end
 	mCoords.player = mCoords:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
 	mCoords.player:SetPoint('BOTTOMLEFT', 10, 4)
 	mCoords.player:SetJustifyH('LEFT')
+
+	-- WorldMap Tweak --
+	WorldMapFrame.ScrollContainer.GetCursorPosition = function(f)
+		local x, y = MapCanvasScrollControllerMixin.GetCursorPosition(f)
+		local s = WorldMapFrame:GetScale()
+		return x/s, y/s
+	end
+	WorldMapFrame.HandleUserActionToggleSelf = function()
+		if WorldMapFrame:IsShown() then
+			WorldMapFrame:Hide()
+		else
+			WorldMapFrame:Show()
+		end
+	end
+	table.insert(UISpecialFrames, 'WorldMapFrame')
 
 	-- Tabard Buttons --
 	local tabard1 = CreateFrame('Button', nil, DressUpFrame, 'UIPanelButtonTemplate')
@@ -384,10 +399,12 @@ local function CTweaks_Handler()
 
 	QuestWatch_Update()
 
-	if CTweaksDB['MapFade'] then
-		SetCVar('mapFade', '1')
+	if CTweaksDB['WorldMap'] then
+		WorldMapFrame.BlackoutFrame:Hide()
+		WorldMapFrame:SetScale(0.77)
 	else
-		SetCVar('mapFade', '0')
+		WorldMapFrame.BlackoutFrame:Show()
+		WorldMapFrame:SetScale(1)
 	end
 
 	if CTweaksDB['MapCoords'] then
@@ -614,7 +631,7 @@ function CTweaksUI_Load()
 	CTweaksUI_QuestAccept:SetChecked(CTweaksDB['QuestAccept'])
 	CTweaksUI_QuestTurnin:SetChecked(CTweaksDB['QuestTurnin'])
 
-	CTweaksUI_MapFade:SetChecked(CTweaksDB['MapFade'])
+	CTweaksUI_WorldMap:SetChecked(CTweaksDB['WorldMap'])
 	CTweaksUI_MapCoords:SetChecked(CTweaksDB['MapCoords'])
 	CTweaksUI_DressUpButton:SetChecked(CTweaksDB['DressUpButton'])
 	CTweaksUI_EliteFrame:SetChecked(CTweaksDB['EliteFrame'])
@@ -649,7 +666,7 @@ function CTweaksUI_Save()
 	CTweaksDB['QuestAccept'] = CTweaksUI_QuestAccept:GetChecked()
 	CTweaksDB['QuestTurnin'] = CTweaksUI_QuestTurnin:GetChecked()
 
-	CTweaksDB['MapFade'] = CTweaksUI_MapFade:GetChecked()
+	CTweaksDB['WorldMap'] = CTweaksUI_WorldMap:GetChecked()
 	CTweaksDB['MapCoords'] = CTweaksUI_MapCoords:GetChecked()
 	CTweaksDB['DressUpButton'] = CTweaksUI_DressUpButton:GetChecked()
 	CTweaksDB['EliteFrame'] = CTweaksUI_EliteFrame:GetChecked()
@@ -699,7 +716,7 @@ function CTweaksUI_OnLoad(self)
 	CTweaksUI_QuestAcceptText:SetText('Auto accept quest')
 	CTweaksUI_QuestTurninText:SetText('Auto turn-in quest')
 
-	CTweaksUI_MapFadeText:SetText('Enable map fading')
+	CTweaksUI_WorldMapText:SetText('Enhance worldmap')
 	CTweaksUI_MapCoordsText:SetText('Show map coords')
 	CTweaksUI_DressUpButtonText:SetText('Show dress-up buttons')
 	CTweaksUI_EliteFrameText:SetText('Player elite frame')
