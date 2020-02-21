@@ -222,12 +222,12 @@ local function CTweaks_Hooks()
 		if (not CTweaksDB['QuestLevel']) then return end
 
 		local availableQuests = {GetGossipAvailableQuests()}
-		local index = updateGossip(1, availableQuests, 8)
+		local index = updateGossip(1, availableQuests, 7)
 
 		if #availableQuests > 1 then index = index + 1 end
 
 		local activeQuests = {GetGossipActiveQuests()}
-		updateGossip(index, activeQuests, 7)
+		updateGossip(index, activeQuests, 6)
 	end)
 
 	-- GreetingPanel --
@@ -242,8 +242,8 @@ local function CTweaks_Hooks()
 				title = GetActiveTitle(i)
 				level = GetActiveLevel(i)
 			else
-				title = GetAvailableTitle(i)
-				level = GetAvailableLevel(i)
+				title = GetAvailableTitle(i - numActiveQuests)
+				level = GetAvailableLevel(i - numActiveQuests)
 			end
 
 			if title and level then
@@ -360,7 +360,7 @@ local function CTweaks_Handler()
 		CTweaks:UnregisterEvent('QUEST_COMPLETE')
 	end
 
-	SortQuestWatches()
+	QuestWatch_Update()
 
 	if CTweaksDB['MapFade'] then
 		SetCVar('mapFade', '1')
