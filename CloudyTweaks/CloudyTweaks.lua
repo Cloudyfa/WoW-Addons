@@ -472,10 +472,6 @@ function CTweaks_OnEvent(self, event, ...)
 		StaticPopup_Hide('CONFIRM_LOOT_ROLL')
 
 	elseif (event == 'PARTY_INVITE_REQUEST') then
-		for index in pairs(LFG_CATEGORY_NAMES) do
-			if GetLFGMode(index) then return end
-		end
-
 		local sender = ...
 		if UnitIsInMyGuild(sender) or UnitIsInFriendList(sender) then
 			AcceptGroup()
