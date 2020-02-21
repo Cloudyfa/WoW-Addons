@@ -16,10 +16,10 @@ local function CTipModDB_Init()
 		CTipModDB['MousePos'] = 1
 		CTipModDB['OverlayAnchor'] = nil
 
-		CTipModDB['TipColor'] = nil
+		CTipModDB['TipColor'] = 1
 		CTipModDB['ClassColor'] = 1
 		CTipModDB['HideHealth'] = nil
-		CTipModDB['HideBorder'] = 1
+		CTipModDB['HideBorder'] = nil
 		CTipModDB['HidePVP'] = nil
 
 		CTipModDB['TipScale'] = 1
@@ -27,13 +27,13 @@ local function CTipModDB_Init()
 		CTipModDB['UnitTitle'] = nil
 		CTipModDB['UnitGender'] = 1
 		CTipModDB['UnitStatus'] = nil
-		CTipModDB['UnitRealm'] = nil
+		CTipModDB['UnitRealm'] = 1
 		CTipModDB['RealmLabel'] = 1
 		CTipModDB['GuildRank'] = nil
 
 		CTipModDB['TargetOfTarget'] = 1
 		CTipModDB['TradeGoods'] = 1
-		CTipModDB['FactionIcon'] = 1
+		CTipModDB['FactionIcon'] = nil
 		CTipModDB['LinkIcon'] = 1
 	end
 	if (not CTipModPOS) then CTipModPOS = {} end
