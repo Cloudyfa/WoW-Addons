@@ -18,10 +18,11 @@ local function InitDB()
 		CTradeSkillDB['Unlock'] = false
 		CTradeSkillDB['Fade'] = false
 		CTradeSkillDB['Level'] = true
-		CTradeSkillDB['Tooltip'] = false
+		CTradeSkillDB['Tooltip'] = true
 		CTradeSkillDB['Drag'] = false
 	end
 	if not CTradeSkillDB['Tabs'] then CTradeSkillDB['Tabs'] = {} end
+	if not CTradeSkillDB['Bookmarks'] then CTradeSkillDB['Bookmarks'] = {} end
 
 	-- Load UI addons --
 	if IsAddOnLoaded('Aurora') then
@@ -244,6 +245,133 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		end
 	end
 
+	--- Set Bookmark Icon ---
+	local function bookmarkIcon(button, texture)
+		button:SetNormalTexture(texture)
+		button:SetPushedTexture(texture)
+
+		local pushed = button:GetPushedTexture()
+		pushed:ClearAllPoints()
+		pushed:SetPoint('TOPLEFT', 1, -1)
+		pushed:SetPoint('BOTTOMRIGHT', -1, 1)
+		pushed:SetVertexColor(0.75, 0.75, 0.75)
+	end
+
+	--- Update Bookmarks ---
+	local function updateBookmarks()
+		local prof = C_TradeSkillUI.GetTradeSkillLine()
+		if not prof then return end
+
+		if not CTradeSkillDB['Bookmarks'][prof] then
+			CTradeSkillDB['Bookmarks'][prof] = {}
+		end
+
+		local saved = CTradeSkillDB['Bookmarks'][prof]
+		for i = 1, 8 do
+			local button = _G['CTradeSkillBookmark' .. i]
+			if saved[i] then
+				local info = C_TradeSkillUI.GetRecipeInfo(saved[i])
+				bookmarkIcon(button, info and info.icon or 'Interface\\Icons\\INV_Misc_QuestionMark')
+				button:Show()
+			else
+				button:Hide()
+			end
+		end
+
+		local main = _G['CTradeSkillBookmark0']
+		local recipe = TradeSkillFrame.RecipeList:GetSelectedRecipeID()
+		local selected = tContains(saved, recipe)
+		if not recipe or (#saved > 7 and not selected) then
+			main:Disable()
+			main.State:Hide()
+		else
+			main:Enable()
+			main.State:Show()
+			if selected then
+				main.State:SetTexture('Interface\\PetBattles\\DeadPetIcon')
+			else
+				main.State:SetTexture('Interface\\PaperDollInfoFrame\\Character-Plus')
+			end
+		end
+	end
+
+	--- Add Bookmark ---
+	local function addBookmark(index)
+		local button = _G['CTradeSkillBookmark' .. index] or CreateFrame('Button', 'CTradeSkillBookmark' .. index, TradeSkillFrame.FilterButton)
+		button:SetHighlightTexture('Interface\\Buttons\\ButtonHilight-Square', 'ADD')
+		button:RegisterForClicks('LeftButtonDown', 'RightButtonDown')
+		button:SetPoint('LEFT', -40 - (index * 25), 0)
+		button:SetSize(24, 24)
+		button:SetID(index)
+
+		if (index == 0) then
+			bookmarkIcon(button, 'Interface\\Icons\\INV_Misc_Book_09')
+			button.State = button:CreateTexture(nil, 'OVERLAY')
+			button.State:SetSize(12, 12)
+			button.State:SetPoint('BOTTOMRIGHT', -3, 3)
+		else
+			button:Hide()
+		end
+
+		button:SetScript('OnClick', function(self, mouse)
+			local prof = C_TradeSkillUI.GetTradeSkillLine()
+			local saved = CTradeSkillDB['Bookmarks'][prof]
+			local recipe = TradeSkillFrame.RecipeList:GetSelectedRecipeID()
+			if (self:GetID() == 0) then
+				if tContains(saved, recipe) then
+					for i = #saved, 1, -1 do
+						if (saved[i] == recipe) then
+							tremove(saved, i)
+						end
+					end
+				else
+					if (#saved < 8) then
+						tinsert(saved, recipe)
+					end
+				end
+				updateBookmarks()
+			else
+				if (mouse == 'LeftButton') then
+					local info = C_TradeSkillUI.GetRecipeInfo(saved[self:GetID()])
+					if info.learned then
+						TradeSkillFrame.RecipeList:OnLearnedTabClicked()
+					else
+						TradeSkillFrame.RecipeList:OnUnlearnedTabClicked()
+					end
+					TradeSkillFrame.RecipeList:SelectedAndForceRecipeIDIntoView(saved[self:GetID()])
+				elseif (mouse == 'RightButton') then
+					tremove(saved, self:GetID())
+					updateBookmarks()
+				end
+			end
+		end)
+
+		button:SetScript('OnEnter', function(self)
+			local prof = C_TradeSkillUI.GetTradeSkillLine()
+			local saved = CTradeSkillDB['Bookmarks'][prof]
+			GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+			if (self:GetID() > 0) then
+				GameTooltip:SetRecipeResultItem(saved[self:GetID()])
+			else
+				local recipe = TradeSkillFrame.RecipeList:GetSelectedRecipeID()
+				local selected = tContains(saved, recipe)
+				GameTooltip:AddLine(selected and REMOVE or ADD, 1, 1, 1)
+			end
+			GameTooltip:Show()
+		end)
+		button:SetScript('OnLeave', function()
+			GameTooltip:Hide()
+		end)
+	end
+
+	--- Create Bookmarks ---
+	local function createBookmarks()
+		for i = 0, 8 do
+			addBookmark(i)
+		end
+		hooksecurefunc(TradeSkillFrame.RecipeList, 'RefreshDisplay', updateBookmarks)
+	end
+
 	--- Update Frame Position ---
 	local function updatePosition()
 		if CTradeSkillDB['Unlock'] then
@@ -322,10 +450,6 @@ local createResizeBar = function()
 		end
 	end)
 end
-
---- Other Adjustment ---
-TradeSkillFrame.RankFrame:SetWidth(500)
-TradeSkillFrame.SearchBox:SetWidth(240)
 
 
 --- Refresh TSFrame ---
@@ -717,6 +841,7 @@ f:SetScript('OnEvent', function(self, event, ...)
 		updateTabs(true)
 		createMoveBar()
 		createResizeBar()
+		createBookmarks()
 		createOptions()
 		injectDruidButtons()
 		injectVellumButton()
