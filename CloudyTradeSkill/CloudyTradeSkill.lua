@@ -6,7 +6,7 @@
 
 
 --- Initialization ---
-local numTabs = 0
+local numTabs, craftTabs = 0, nil
 local skinUI, loadedUI, delay
 local function InitDB()
 	-- Create new DB if needed --
@@ -34,6 +34,7 @@ end
 --- Create Frame ---
 local f = CreateFrame('Frame', 'CloudyTradeSkill')
 f:RegisterEvent('PLAYER_LOGIN')
+f:RegisterEvent('ADDON_LOADED')
 f:RegisterEvent('SPELLS_CHANGED')
 f:RegisterEvent('PLAYER_REGEN_ENABLED')
 
@@ -74,12 +75,24 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 
 	--- Check Current Tab ---
 	local function isCurrentTab(self)
+		--- Check Tab State ---
 		if self.tooltip and IsCurrentSpell(self.tooltip) then
-			if TradeSkillFrame:IsShown() and (self.isSub == 0) then
-				CTradeSkillDB['Panel'] = self.tooltip
+			if IsCurrentSpell('Enchanting') then
+				if (self.tooltip == 'Enchanting') then
+					CTradeSkillDB['Panel'] = self.tooltip
+					self:SetChecked(true)
+					self:RegisterForClicks(nil)
+				elseif (self.isSub == 0) then
+					self:SetChecked(false)
+					self:RegisterForClicks('AnyDown')
+				end
+			else
+				if TradeSkillFrame:IsShown() and (self.isSub == 0) then
+					CTradeSkillDB['Panel'] = self.tooltip
+				end
+				self:SetChecked(true)
+				self:RegisterForClicks(nil)
 			end
-			self:SetChecked(true)
-			self:RegisterForClicks(nil)
 		else
 			self:SetChecked(false)
 			self:RegisterForClicks('AnyDown')
@@ -87,11 +100,11 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 	end
 
 	--- Add Tab Button ---
-	local function addTab(name, index, isSub)
+	local function addTab(name, index, isSub, frame)
 		local icon = select(3, GetSpellInfo(name))
 		if (not name) or (not icon) then return end
 
-		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate, SecureActionButtonTemplate')
+		local tab = _G['CTSTab-' .. frame:GetName() .. '_' .. index] or CreateFrame('CheckButton', 'CTSTab-' .. frame:GetName() .. '_' .. index, frame, 'SpellBookSkillLineTabTemplate, SecureActionButtonTemplate')
 		tab:SetScript('OnEvent', isCurrentTab)
 		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
 
@@ -121,27 +134,35 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 
 	--- Remove Tab Buttons ---
 	local function removeTabs()
-		for i = 1, numTabs do
-			local tab = _G['CTradeSkillTab' .. i]
-			if tab and tab:IsShown() then
-				tab:UnregisterEvent('CURRENT_SPELL_CAST_CHANGED')
-				tab:Hide()
+		for _, frame in pairs({TradeSkillFrame, CraftFrame}) do
+			for i = 1, numTabs do
+				local tab = _G['CTSTab-' .. frame:GetName() .. '_' .. i]
+				if tab and tab:IsShown() then
+					tab:UnregisterEvent('CURRENT_SPELL_CAST_CHANGED')
+					tab:Hide()
+				end
 			end
 		end
 	end
 
 	--- Sort Tabs ---
 	local function sortTabs()
-		local index = 1
-		for i = 1, numTabs do
-			local tab = _G['CTradeSkillTab' .. i]
-			if tab then
-				if CTradeSkillDB['Tabs'][tab.tooltip] then
-					tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', skinUI and -33 or -34, (-50 * index) + (-50 * tab.isSub))
-					tab:Show()
-					index = index + 1
-				else
-					tab:Hide()
+		for _, frame in pairs({TradeSkillFrame, CraftFrame}) do
+			local index = 1
+			for i = 1, numTabs do
+				local tab = _G['CTSTab-' .. frame:GetName() .. '_' .. i]
+				if tab then
+					if CTradeSkillDB['Tabs'][tab.tooltip] then
+						tab:SetPoint('TOPLEFT', frame, 'TOPRIGHT', skinUI and -33 or -34, (-50 * index) + (-50 * tab.isSub))
+						if (frame == CraftFrame) and (GetCraftDisplaySkillLine() ~= 'Enchanting') then
+							tab:Hide()
+						else
+							tab:Show()
+						end
+						index = index + 1
+					else
+						tab:Hide()
+					end
 				end
 			end
 		end
@@ -185,40 +206,49 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 			end
 		end
 
-		if not sameTabs or (numTabs ~= #mainTabs + #subTabs) then
+		if not sameTabs or (numTabs ~= #mainTabs + #subTabs) or (CraftFrame and not craftTabs) then
 			removeTabs()
 			numTabs = #mainTabs + #subTabs
 			for i = 1, numTabs do
 				local name = mainTabs[i] or subTabs[i - #mainTabs]
-				addTab(name, i, mainTabs[i] and 0 or 1)
+				addTab(name, i, mainTabs[i] and 0 or 1, TradeSkillFrame)
+				if CraftFrame then
+					addTab(name, i, mainTabs[i] and 0 or 1, CraftFrame)
+					craftTabs = true
+				end
 			end
 			sortTabs()
 		end
 	end
 
 	--- Update Frame Size ---
-	local function updateSize()
-		TradeSkillFrame:SetWidth(714)
-		TradeSkillFrame:SetHeight(skinUI and 512 or 487)
+	local function updateSize(frame)
+		_G[frame .. 'Frame']:SetWidth(714)
+		_G[frame .. 'Frame']:SetHeight(skinUI and 512 or 487)
 
-		TradeSkillDetailScrollFrame:ClearAllPoints()
-		TradeSkillDetailScrollFrame:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPLEFT', 362, -92)
-		TradeSkillDetailScrollFrame:SetSize(296, 332)
-		TradeSkillDetailScrollFrameTop:SetAlpha(0)
-		TradeSkillDetailScrollFrameBottom:SetAlpha(0)
+		_G[frame .. 'DetailScrollFrame']:ClearAllPoints()
+		_G[frame .. 'DetailScrollFrame']:SetPoint('TOPLEFT', _G[frame .. 'Frame'], 'TOPLEFT', 362, -92)
+		_G[frame .. 'DetailScrollFrame']:SetSize(296, 332)
+		_G[frame .. 'DetailScrollFrameTop']:SetAlpha(0)
+		_G[frame .. 'DetailScrollFrameBottom']:SetAlpha(0)
 
-		TradeSkillListScrollFrame:ClearAllPoints()
-		TradeSkillListScrollFrame:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPLEFT', 23.8, -99)
-		TradeSkillListScrollFrame:SetSize(296, 332)
+		_G[frame .. 'ListScrollFrame']:ClearAllPoints()
+		if (frame == 'Craft') then
+			_G[frame .. 'ListScrollFrame']:SetPoint('TOPLEFT', _G[frame .. 'Frame'], 'TOPLEFT', 23.8, -74.3)
+			_G[frame .. 'ListScrollFrame']:SetSize(296, 357)
+		else
+			_G[frame .. 'ListScrollFrame']:SetPoint('TOPLEFT', _G[frame .. 'Frame'], 'TOPLEFT', 23.8, -99)
+			_G[frame .. 'ListScrollFrame']:SetSize(296, 332)
+		end
 		if not skinUI then
-			local scrollFix = TradeSkillListScrollFrame:CreateTexture(nil, 'BACKGROUND')
-			scrollFix:SetPoint('TOPRIGHT', TradeSkillListScrollFrame, 'TOPRIGHT', 29, -110)
+			local scrollFix = _G[frame .. 'ListScrollFrame']:CreateTexture(nil, 'BACKGROUND')
+			scrollFix:SetPoint('TOPRIGHT', _G[frame .. 'ListScrollFrame'], 'TOPRIGHT', 29, -110)
 			scrollFix:SetTexture('Interface\\ClassTrainerFrame\\UI-ClassTrainer-ScrollBar')
 			scrollFix:SetTexCoord(.0, .5, .2, .9)
 			scrollFix:SetSize(32, 0)
 		end
 
-		local regions = {TradeSkillFrame:GetRegions()}
+		local regions = {_G[frame .. 'Frame']:GetRegions()}
 		regions[2]:SetTexture('Interface\\QuestFrame\\UI-QuestLogDualPane-Left')
 		regions[2]:SetSize(512, 512)
 
@@ -236,40 +266,50 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 
 		if not skinUI then
 			--- Recipe Background ---
-			local RecipeInset = TradeSkillFrame:CreateTexture(nil, 'ARTWORK')
-			RecipeInset:SetPoint('TOPLEFT', 'TradeSkillFrame', 'TOPLEFT', 16.4, -72)
+			local RecipeInset = _G[frame .. 'Frame']:CreateTexture(nil, 'ARTWORK')
+			RecipeInset:SetPoint('TOPLEFT', _G[frame .. 'Frame'], 'TOPLEFT', 16.4, -72)
 			RecipeInset:SetTexture('Interface\\RaidFrame\\UI-RaidFrame-GroupBg')
 			RecipeInset:SetSize(326.5, 360.8)
 
 			--- Detail Background ---
-			local DetailsInset = TradeSkillFrame:CreateTexture(nil, 'ARTWORK')
-			DetailsInset:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPLEFT', 349, -73)
+			local DetailsInset = _G[frame .. 'Frame']:CreateTexture(nil, 'ARTWORK')
+			DetailsInset:SetPoint('TOPLEFT', _G[frame .. 'Frame'], 'TOPLEFT', 349, -73)
 			DetailsInset:SetAtlas('tradeskill-background-recipe')
 			DetailsInset:SetSize(324, 339)
 		end
 
 		-- Expand Tab ---
-		TradeSkillExpandTabLeft:Hide()
+		_G[frame .. 'ExpandTabLeft']:Hide()
 
 		--- Filter Dropdown ---
-		TradeSkillInvSlotDropDown:ClearAllPoints()
-		TradeSkillInvSlotDropDown:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPLEFT', 190, -70)
-		TradeSkillSubClassDropDown:ClearAllPoints()
-		TradeSkillSubClassDropDown:SetPoint('TOPRIGHT', TradeSkillInvSlotDropDown, 'TOPLEFT', 29, 0)
+		if (frame ~= 'Craft') then
+			TradeSkillInvSlotDropDown:ClearAllPoints()
+			TradeSkillInvSlotDropDown:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPLEFT', 190, -70)
+			TradeSkillSubClassDropDown:ClearAllPoints()
+			TradeSkillSubClassDropDown:SetPoint('TOPRIGHT', TradeSkillInvSlotDropDown, 'TOPLEFT', 29, 0)
+		end
 
 		--- Craft Buttons ---
-		TradeSkillCancelButton:ClearAllPoints()
-		TradeSkillCancelButton:SetPoint('BOTTOMRIGHT', TradeSkillFrame, 'BOTTOMRIGHT', -40, skinUI and 79 or 54)
-		TradeSkillCreateButton:ClearAllPoints()
-		TradeSkillCreateButton:SetPoint('RIGHT', TradeSkillCancelButton, 'LEFT', -1, 0)
+		_G[frame .. 'CancelButton']:ClearAllPoints()
+		_G[frame .. 'CancelButton']:SetPoint('BOTTOMRIGHT', _G[frame .. 'Frame'], 'BOTTOMRIGHT', -40, skinUI and 79 or 54)
+		_G[frame .. 'CreateButton']:ClearAllPoints()
+		_G[frame .. 'CreateButton']:SetPoint('RIGHT', _G[frame .. 'CancelButton'], 'LEFT', -1, 0)
 
 		--- Recipe Buttons ---
-		TRADE_SKILLS_DISPLAYED = CTradeSkillDB['Size']
+		local skillButton
+		if (frame == 'Craft') then
+			skillButton = 'Craft'
+			CRAFTS_DISPLAYED = CTradeSkillDB['Size']
+		else
+			skillButton = 'TradeSkillSkill'
+			TRADE_SKILLS_DISPLAYED = CTradeSkillDB['Size']
+		end
+
 		for i = 1, CTradeSkillDB['Size'] do
-			local button = _G['TradeSkillSkill' .. i] or CreateFrame('Button', 'TradeSkillSkill' .. i, TradeSkillFrame, 'TradeSkillSkillButtonTemplate')
+			local button = _G[skillButton .. i] or CreateFrame('Button', skillButton .. i, _G[frame .. 'Frame'], skillButton .. 'ButtonTemplate')
 			if (i > 1) then
 				button:ClearAllPoints()
-				button:SetPoint('TOPLEFT', _G['TradeSkillSkill' .. (i - 1)], 'BOTTOMLEFT', 0, 1)
+				button:SetPoint('TOPLEFT', _G[skillButton .. (i - 1)], 'BOTTOMLEFT', 0, 1)
 			end
 			if skinUI and not button.skinned then
 				button._minus = button:CreateTexture(nil, 'OVERLAY')
@@ -280,11 +320,20 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 	end
 
 	--- Get Recipe Index ---
-	local function getRecipeIndex(name)
-		for index = 1, GetNumTradeSkills() do
-			local recipe = GetTradeSkillInfo(index)
-			if (recipe == name) then
-				return index
+	local function getRecipeIndex(name, frame)
+		if (frame == CraftFrame) then
+			for index = 1, GetNumCrafts() do
+				local recipe = GetCraftInfo(index)
+				if (recipe == name) then
+					return index
+				end
+			end
+		else
+			for index = 1, GetNumTradeSkills() do
+				local recipe = GetTradeSkillInfo(index)
+				if (recipe == name) then
+					return index
+				end
 			end
 		end
 	end
@@ -302,8 +351,13 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 	end
 
 	--- Update Bookmarks ---
-	local function updateBookmarks()
-		local prof = GetTradeSkillLine()
+	local function updateBookmarks(frame)
+		local prof
+		if (frame == CraftFrame) then
+			prof = GetCraftDisplaySkillLine()
+		else
+			prof = GetTradeSkillLine()
+		end
 		if not prof or (prof == 'UNKNOWN') then return end
 
 		if not CTradeSkillDB['Bookmarks'][prof] then
@@ -312,11 +366,16 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 
 		local saved = CTradeSkillDB['Bookmarks'][prof]
 		for i = 1, 10 do
-			local button = _G['CTradeSkillBookmark' .. i]
+			local button = _G['CTSBookmark-' .. frame:GetName() .. '_' .. i]
 			if saved[i] then
-				local index = getRecipeIndex(saved[i])
+				local index = getRecipeIndex(saved[i], frame)
 				if index then
-					local icon = GetTradeSkillIcon(index)
+					local icon
+					if (frame == CraftFrame) then
+						icon = GetCraftIcon(index)
+					else
+						icon = GetTradeSkillIcon(index)
+					end
 					bookmarkIcon(button, icon or 'Interface\\Icons\\INV_Misc_QuestionMark')
 					button:Show()
 				end
@@ -325,9 +384,17 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 			end
 		end
 
-		local main = _G['CTradeSkillBookmark0']
-		local recipe = GetTradeSkillInfo(TradeSkillFrame.selectedSkill or 0)
+		local recipe
+		if (frame == CraftFrame) then
+			local index = GetCraftSelectionIndex()
+			recipe = GetCraftInfo(index)
+		else
+			local index = GetTradeSkillSelectionIndex()
+			recipe = GetTradeSkillInfo(index)
+		end
+
 		local selected = tContains(saved, recipe)
+		local main = _G['CTSBookmark-' .. frame:GetName() .. '_0']
 		if not recipe or (#saved > 9 and not selected) then
 			main:Disable()
 			main.State:Hide()
@@ -343,11 +410,11 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 	end
 
 	--- Add Bookmark ---
-	local function addBookmark(index)
-		local button = _G['CTradeSkillBookmark' .. index] or CreateFrame('Button', 'CTradeSkillBookmark' .. index, TradeSkillFrame)
+	local function addBookmark(index, frame)
+		local button = _G['CTSBookmark-' .. frame:GetName() .. '_' .. index] or CreateFrame('Button', 'CTSBookmark-' .. frame:GetName() .. '_' .. index, frame)
 		button:SetHighlightTexture('Interface\\Buttons\\ButtonHilight-Square', 'ADD')
 		button:RegisterForClicks('LeftButtonDown', 'RightButtonDown')
-		button:SetPoint('TOPRIGHT', TradeSkillFrame, 'TOPRIGHT', -65 - (index * 25), -42)
+		button:SetPoint('TOPRIGHT', frame, 'TOPRIGHT', -65 - (index * 25), -42)
 		button:SetSize(24, 24)
 		button:SetID(index)
 
@@ -361,11 +428,26 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 		end
 
 		button:SetScript('OnClick', function(self, mouse)
-			local prof = GetTradeSkillLine()
+			local frame = self:GetParent()
+			local prof
+			if (frame == CraftFrame) then
+				prof = GetCraftDisplaySkillLine()
+				if (prof ~= 'Enchanting') then return end
+			else
+				prof = GetTradeSkillLine()
+			end
 			if not prof then return end
 
+			local recipe
+			if (frame == CraftFrame) then
+				local index = GetCraftSelectionIndex()
+				recipe = GetCraftInfo(index)
+			else
+				local index = GetTradeSkillSelectionIndex()
+				recipe = GetTradeSkillInfo(index)
+			end
+
 			local saved = CTradeSkillDB['Bookmarks'][prof]
-			local recipe = GetTradeSkillInfo(TradeSkillFrame.selectedSkill or 0)
 			if (self:GetID() == 0) then
 				if tContains(saved, recipe) then
 					for i = #saved, 1, -1 do
@@ -378,35 +460,60 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 						tinsert(saved, recipe)
 					end
 				end
-				updateBookmarks()
+				updateBookmarks(frame)
 			else
 				if (mouse == 'LeftButton') then
-					local index = getRecipeIndex(saved[self:GetID()])
+					local index = getRecipeIndex(saved[self:GetID()], frame)
 					if index then
-						TradeSkillListScrollFrameScrollBar:SetValue((index - 1) * 16)
-						TradeSkillFrame_SetSelection(index)
-						TradeSkillFrame_Update()
+						if (frame == CraftFrame) then
+							CraftListScrollFrameScrollBar:SetValue((index - 1) * 16)
+							CraftFrame_SetSelection(index)
+							CraftFrame_Update()
+						else
+							TradeSkillListScrollFrameScrollBar:SetValue((index - 1) * 16)
+							TradeSkillFrame_SetSelection(index)
+							TradeSkillFrame_Update()
+						end
 					end
 				elseif (mouse == 'RightButton') then
 					tremove(saved, self:GetID())
-					updateBookmarks()
+					updateBookmarks(frame)
 				end
 			end
 		end)
 
 		button:SetScript('OnEnter', function(self)
-			local prof = GetTradeSkillLine()
+			local frame = self:GetParent()
+			local prof
+			if (frame == CraftFrame) then
+				prof = GetCraftDisplaySkillLine()
+				if (prof ~= 'Enchanting') then return end
+			else
+				prof = GetTradeSkillLine()
+			end
 			if not prof then return end
 
 			local saved = CTradeSkillDB['Bookmarks'][prof]
 			GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
 			if (self:GetID() > 0) then
-				local index = getRecipeIndex(saved[self:GetID()])
+				local index = getRecipeIndex(saved[self:GetID()], frame)
 				if index then
-					GameTooltip:SetTradeSkillItem(index)
+					if (frame == CraftFrame) then
+						GameTooltip:SetCraftSpell(index)
+					else
+						GameTooltip:SetTradeSkillItem(index)
+					end
 				end
 			else
-				local recipe = GetTradeSkillInfo(TradeSkillFrame.selectedSkill or 0)
+				local recipe
+				if (frame == CraftFrame) then
+					local index = GetCraftSelectionIndex()
+					recipe = GetCraftInfo(index)
+				else
+					local index = GetTradeSkillSelectionIndex()
+					recipe = GetTradeSkillInfo(index)
+				end
+
 				local selected = tContains(saved, recipe)
 				GameTooltip:AddLine(selected and REMOVE or ADD, 1, 1, 1)
 			end
@@ -418,39 +525,45 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 	end
 
 	--- Create Bookmarks ---
-	local function createBookmarks()
+	local function createBookmarks(frame)
 		for i = 0, 10 do
-			addBookmark(i)
+			addBookmark(i, frame)
 		end
-		hooksecurefunc('TradeSkillFrame_Update', updateBookmarks)
+
+		local function hookFrame()
+			updateBookmarks(frame)
+		end
+		hooksecurefunc(frame:GetName() .. '_Update', hookFrame)
 	end
 
 	--- Update Frame Position ---
 	local function updatePosition()
-		if CTradeSkillDB['Unlock'] then
-			UIPanelWindows['TradeSkillFrame'].area = nil
-			TradeSkillFrame:ClearAllPoints()
-			if CTradeSkillDB['OffsetX'] and CTradeSkillDB['OffsetY'] then
-				TradeSkillFrame:SetPoint('TOPLEFT', UIParent, 'BOTTOMLEFT', CTradeSkillDB['OffsetX'], CTradeSkillDB['OffsetY'])
+		for _, frame in pairs({TradeSkillFrame, CraftFrame}) do
+			if CTradeSkillDB['Unlock'] then
+				UIPanelWindows[frame:GetName()].area = nil
+				frame:ClearAllPoints()
+				if CTradeSkillDB['OffsetX'] and CTradeSkillDB['OffsetY'] then
+					frame:SetPoint('TOPLEFT', UIParent, 'BOTTOMLEFT', CTradeSkillDB['OffsetX'], CTradeSkillDB['OffsetY'])
+				else
+					frame:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', GetUIPanel('left') and 623 or 16, -116)
+				end
 			else
-				TradeSkillFrame:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', GetUIPanel('left') and 623 or 16, -116)
+				UpdateUIPanelPositions(frame)
 			end
-		else
-			UpdateUIPanelPositions(TradeSkillFrame)
 		end
 	end
 
 
 --- Create Movable Bar ---
-local createMoveBar = function()
-	local movBar = CreateFrame('Button', nil, TradeSkillFrame)
-	movBar:SetPoint('TOPRIGHT', TradeSkillFrame, -37, -15)
+local createMoveBar = function(frame)
+	local movBar = CreateFrame('Button', nil, frame)
+	movBar:SetPoint('TOPRIGHT', frame, -37, -15)
 	movBar:SetSize(610, 20)
 	movBar:SetScript('OnMouseDown', function(_, button)
 		if (button == 'LeftButton') then
 			if CTradeSkillDB['Unlock'] then
-				TradeSkillFrame:SetMovable(true)
-				TradeSkillFrame:StartMoving()
+				frame:SetMovable(true)
+				frame:StartMoving()
 			end
 		elseif (button == 'RightButton') then
 			if not UnitAffectingCombat('player') then
@@ -462,32 +575,53 @@ local createMoveBar = function()
 	end)
 	movBar:SetScript('OnMouseUp', function(_, button)
 		if (button == 'LeftButton') then
-			TradeSkillFrame:StopMovingOrSizing()
-			TradeSkillFrame:SetMovable(false)
+			frame:StopMovingOrSizing()
+			frame:SetMovable(false)
 
-			CTradeSkillDB['OffsetX'] = TradeSkillFrame:GetLeft()
-			CTradeSkillDB['OffsetY'] = TradeSkillFrame:GetTop()
+			CTradeSkillDB['OffsetX'] = frame:GetLeft()
+			CTradeSkillDB['OffsetY'] = frame:GetTop()
 		end
 	end)
 end
 
 
 --- Refresh TSRecipes ---
-local function refreshRecipes()
-	hooksecurefunc('TradeSkillFrame_Update', function()
-		if not TradeSkillFrame:IsShown() then return end
+local function refreshRecipes(frame)
+	local function hookFrame()
+		if not frame and frame:IsShown() then return end
+
+		local skillButton, scrollFrame, getSkillInfo
+		if (frame == TradeSkillFrame) then
+			skillButton = 'TradeSkillSkill'
+			scrollFrame = TradeSkillListScrollFrame
+			getSkillInfo = GetTradeSkillInfo
+		elseif (frame == CraftFrame) then
+			skillButton = 'Craft'
+			scrollFrame = CraftListScrollFrame
+			getSkillInfo = GetCraftInfo
+		end
 
 		for i = 1, CTradeSkillDB['Size'] do
-			local button = _G['TradeSkillSkill' .. i]
+			local button = _G[skillButton .. i]
 			if button then
 				--- Button Tooltip ---
 				if not button.CTSTip then
 					button:HookScript('OnEnter', function(self)
 						if CTradeSkillDB['Tooltip'] then
-							local offset = FauxScrollFrame_GetOffset(TradeSkillListScrollFrame)
+							local frame = self:GetParent()
+							if (frame == CraftFrame) then
+								local prof = GetCraftDisplaySkillLine()
+								if (prof ~= 'Enchanting') then return end
+							end
+
+							local offset = FauxScrollFrame_GetOffset(scrollFrame)
 							local index = i + offset
 							GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-							GameTooltip:SetTradeSkillItem(index)
+							if (frame == CraftFrame) then
+								GameTooltip:SetCraftSpell(index)
+							else
+								GameTooltip:SetTradeSkillItem(index)
+							end
 						end
 					end)
 					button:HookScript('OnLeave', function()
@@ -505,22 +639,32 @@ local function refreshRecipes()
 						button.CTSLevel:SetPoint('RIGHT', button, 'LEFT', 20, 2)
 					end
 
-					local offset = FauxScrollFrame_GetOffset(TradeSkillListScrollFrame)
-					local index = i + offset
-					local recipe, hdr = GetTradeSkillInfo(index)
-					if recipe and (hdr ~= 'header') then
-						local link = GetTradeSkillItemLink(index)
-						if link then
-							local quality, _, level = select(3, GetItemInfo(link))
-							if quality and level and level > 1 then
-								button.CTSLevel:SetText(level)
-								button.CTSLevel:SetTextColor(GetItemQualityColor(quality))
-							else
-								button.CTSLevel:SetText('')
-							end
-						end
-					else
+					if (frame == CraftFrame) and (GetCraftDisplaySkillLine() ~= 'Enchanting') then
 						button.CTSLevel:SetText('')
+					else
+						local offset = FauxScrollFrame_GetOffset(scrollFrame)
+						local index = i + offset
+						local recipe, hdr, quality, _, _, _, level = getSkillInfo(index)
+						if recipe and level then
+							if (level > 1) then
+								button.CTSLevel:SetText(level)
+								button.CTSLevel:SetTextColor(GetItemQualityColor(1))
+							end
+							button:SetText('      ' .. recipe)
+						elseif recipe and (hdr ~= 'header') then
+							local link = GetTradeSkillItemLink(index)
+							if link then
+								quality, _, level = select(3, GetItemInfo(link))
+								if quality and level and level > 1 then
+									button.CTSLevel:SetText(level)
+									button.CTSLevel:SetTextColor(GetItemQualityColor(quality))
+								else
+									button.CTSLevel:SetText('')
+								end
+							end
+						else
+							button.CTSLevel:SetText('')
+						end
 					end
 				else
 					if button.CTSLevel then
@@ -529,7 +673,8 @@ local function refreshRecipes()
 				end
 			end
 		end
-	end)
+	end
+	hooksecurefunc(frame:GetName() .. '_Update', hookFrame)
 end
 
 
@@ -579,10 +724,16 @@ StaticPopupDialogs['CTRADESKILL_WARNING'] = {
 		ReloadUI()
 	end,
 	OnShow = function()
-		_G['CTSOption']:Disable()
+		_G['CTSOption-TradeSkillFrame']:Disable()
+		if _G['CTSOption-CraftFrame'] then
+			_G['CTSOption-CraftFrame']:Disable()
+		end
 	end,
 	OnHide = function()
-		_G['CTSOption']:Enable()
+		_G['CTSOption-TradeSkillFrame']:Enable()
+		if _G['CTSOption-CraftFrame'] then
+			_G['CTSOption-CraftFrame']:Enable()
+		end
 	end,
 	timeout = 0,
 	exclusive = 1,
@@ -614,6 +765,9 @@ local function CTSDropdown_Init(self, level)
 		info.text = STAT_AVERAGE_ITEM_LEVEL
 		info.func = function()
 			CTradeSkillDB['Level'] = not CTradeSkillDB['Level']
+			if CraftFrame then
+				CraftFrame_Update()
+			end
 			TradeSkillFrame_Update()
 		end
 		info.keepShownOnClick = true
@@ -647,7 +801,7 @@ local function CTSDropdown_Init(self, level)
 		info.keepShownOnClick = true
 		if UIDROPDOWNMENU_MENU_VALUE == 1 then
 			for i = 1, numTabs do
-				local tab = _G['CTradeSkillTab' .. i]
+				local tab = _G['CTSTab-TradeSkillFrame_' .. i]
 				if tab and (tab.isSub == 0) then
 					info.text = tab.tooltip
 					info.func = function()
@@ -660,7 +814,7 @@ local function CTSDropdown_Init(self, level)
 			end
 		elseif UIDROPDOWNMENU_MENU_VALUE == 2 then
 			for i = 1, numTabs do
-				local tab = _G['CTradeSkillTab' .. i]
+				local tab = _G['CTSTab-TradeSkillFrame_' .. i]
 				if tab and (tab.isSub == 1) then
 					info.text = tab.tooltip
 					info.func = function()
@@ -677,16 +831,16 @@ end
 
 
 --- Create Option Menu ---
-local function createOptions()
+local function createOptions(frame)
 	if not _G['CTSDropdown'] then
-		local menu = CreateFrame('Frame', 'CTSDropdown', TradeSkillFrame, 'UIDropDownMenuTemplate')
+		local menu = CreateFrame('Frame', 'CTSDropdown', frame, 'UIDropDownMenuTemplate')
 		UIDropDownMenu_Initialize(CTSDropdown, CTSDropdown_Init, 'MENU')
 	end
 
 	--- Option Button ---
-	local button = CreateFrame('Button', 'CTSOption', TradeSkillFrame, 'UIPanelButtonTemplate')
+	local button = CreateFrame('Button', 'CTSOption-' .. frame:GetName(), frame, 'UIPanelButtonTemplate')
 	button:SetScript('OnClick', function(self) ToggleDropDownMenu(1, nil, CTSDropdown, self, 2, -6) end)
-	button:SetPoint('RIGHT', TradeSkillFrameCloseButton, 'LEFT', 3.5, 0.4)
+	button:SetPoint('RIGHT', _G[frame:GetName() .. 'CloseButton'], 'LEFT', 3.5, 0.4)
 	button:SetFrameStrata('HIGH')
 	button:SetText('CTS')
 	button:SetSize(38, 22)
@@ -711,17 +865,32 @@ end)
 
 
 --- Handle Events ---
-f:SetScript('OnEvent', function(self, event, ...)
+f:SetScript('OnEvent', function(self, event, arg1)
 	if (event == 'PLAYER_LOGIN') then
 		InitDB()
 		updatePosition()
 		updateTabs(true)
-		updateSize()
-		createMoveBar()
-		createBookmarks()
-		createOptions()
-		refreshRecipes()
+		updateSize('TradeSkill')
+		createMoveBar(TradeSkillFrame)
+		createBookmarks(TradeSkillFrame)
+		createOptions(TradeSkillFrame)
+		refreshRecipes(TradeSkillFrame)
 		injectDruidButtons()
+	elseif (event == 'ADDON_LOADED') then
+		if (arg1 == 'Blizzard_CraftUI') then
+			if UnitAffectingCombat('player') then
+				delay = true
+			else
+				updateTabs()
+			end
+			updateSize('Craft')
+			createMoveBar(CraftFrame)
+			createBookmarks(CraftFrame)
+			createOptions(CraftFrame)
+			refreshRecipes(CraftFrame)
+
+			f:UnregisterEvent('ADDON_LOADED')
+		end
 	elseif (event == 'SPELLS_CHANGED') then
 		if UnitAffectingCombat('player') then
 			delay = true
