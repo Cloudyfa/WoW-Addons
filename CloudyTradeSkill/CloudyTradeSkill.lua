@@ -75,6 +75,17 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 
 	--- Check Current Tab ---
 	local function isCurrentTab(self)
+		--- Auto Hide Tab ---
+		local frame = self:GetParent()
+		if (frame == CraftFrame) and not UnitAffectingCombat('player') then
+			if IsCurrentSpell('Enchanting') then
+				self:Show()
+			else
+				self:Hide()
+				return
+			end
+		end
+
 		--- Check Tab State ---
 		if self.tooltip and IsCurrentSpell(self.tooltip) then
 			if IsCurrentSpell('Enchanting') then
@@ -358,7 +369,26 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 		else
 			prof = GetTradeSkillLine()
 		end
-		if not prof or (prof == 'UNKNOWN') then return end
+		if not prof or (prof == 'UNKNOWN') then
+			for i = 0, 10 do
+				local button = _G['CTSBookmark-' .. frame:GetName() .. '_' .. i]
+				if button and button:IsShown() then
+					button:Hide()
+				end
+			end
+			if _G['CTSOption-CraftFrame'] then
+				_G['CTSOption-CraftFrame']:Hide()
+			end
+			return
+		else
+			local button = _G['CTSBookmark-' .. frame:GetName() .. '_0']
+			if button and not button:IsShown() then
+				button:Show()
+			end
+			if _G['CTSOption-CraftFrame'] then
+				_G['CTSOption-CraftFrame']:Show()
+			end
+		end
 
 		if not CTradeSkillDB['Bookmarks'][prof] then
 			CTradeSkillDB['Bookmarks'][prof] = {}
