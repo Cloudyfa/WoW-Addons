@@ -894,6 +894,18 @@ hooksecurefunc('ToggleGameMenu', function()
 end)
 
 
+--- Switch Panel ---
+local function switchPanel(self)
+	local frame = self:GetName()
+	if (frame == 'CraftFrame') and CraftFrame:IsShown() then
+		CloseTradeSkill()
+	else
+		CloseCraft()
+	end
+	updatePosition()
+end
+
+
 --- Handle Events ---
 f:SetScript('OnEvent', function(self, event, arg1)
 	if (event == 'PLAYER_LOGIN') then
@@ -919,6 +931,8 @@ f:SetScript('OnEvent', function(self, event, arg1)
 			createOptions(CraftFrame)
 			refreshRecipes(CraftFrame)
 
+			CraftFrame:HookScript('OnShow', switchPanel)
+			TradeSkillFrame:HookScript('OnShow', switchPanel)
 			f:UnregisterEvent('ADDON_LOADED')
 		end
 	elseif (event == 'SPELLS_CHANGED') then
