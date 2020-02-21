@@ -34,8 +34,8 @@ end
 --- Create Frame ---
 local f = CreateFrame('Frame', 'CloudyTradeSkill')
 f:RegisterEvent('PLAYER_LOGIN')
+f:RegisterEvent('SPELLS_CHANGED')
 f:RegisterEvent('PLAYER_REGEN_ENABLED')
-f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 
 --- Local Functions ---
@@ -767,7 +767,7 @@ f:SetScript('OnEvent', function(self, event, ...)
 		createBookmarks()
 		createOptions()
 		injectDruidButtons()
-	elseif (event == 'TRADE_SKILL_DATA_SOURCE_CHANGED') then
+	elseif (event == 'SPELLS_CHANGED') then
 		if UnitAffectingCombat('player') then
 			delay = true
 		else
