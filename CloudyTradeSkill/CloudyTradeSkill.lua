@@ -16,7 +16,6 @@ local function InitDB()
 		CTradeSkillDB['Unlock'] = false
 		CTradeSkillDB['Level'] = true
 		CTradeSkillDB['Tooltip'] = true
-		CTradeSkillDB['Drag'] = false
 	end
 	if not CTradeSkillDB['Tabs'] then CTradeSkillDB['Tabs'] = {} end
 	if not CTradeSkillDB['Bookmarks'] then CTradeSkillDB['Bookmarks'] = {} end
@@ -423,23 +422,6 @@ TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 	for i = 1, #self.buttons do
 		local button = self.buttons[i]
 
-		--- Button Draggable ---
-		if not button.CTSDrag then
-			button:RegisterForDrag('LeftButton')
-			button:SetScript('OnDragStart', function(self)
-				if CTradeSkillDB and CTradeSkillDB['Drag'] then
-					if not UnitAffectingCombat('player') then
-						if self.tradeSkillInfo and self.tradeSkillInfo.learned then
-							if not self.isHeader then
-								PickupSpell(self.tradeSkillInfo.recipeID)
-							end
-						end
-					end
-				end
-			end)
-			button.CTSDrag = true
-		end
-
 		--- Button Tooltip ---
 		if not button.CTSTip then
 			button:HookScript('OnEnter', function(self)
@@ -660,14 +642,6 @@ local function CTSDropdown_Init(self, level)
 		end
 		info.keepShownOnClick = true
 		info.checked = CTradeSkillDB['Tooltip']
-		UIDropDownMenu_AddButton(info, level)
-
-		info.text = DRAG_MODEL .. ' ' .. AUCTION_CATEGORY_RECIPES
-		info.func = function()
-			CTradeSkillDB['Drag'] = not CTradeSkillDB['Drag']
-		end
-		info.keepShownOnClick = true
-		info.checked = CTradeSkillDB['Drag']
 		UIDropDownMenu_AddButton(info, level)
 
 		info.func = nil
