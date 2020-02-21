@@ -298,7 +298,12 @@ local function CTipMod_Hooks()
 		if (not unit) then return end
 
 		-- Analyzing --
-		local nameLine, guildLine, detailLine, lootLine
+		local nameLine, guildLine, detailLine, lootLine, hasGuild
+
+		if UnitIsPlayer(unit) and GetGuildInfo(unit) then
+			hasGuild = true
+			self:AddLine(GUILD)
+		end
 
 		for i = 1, self:NumLines() do
 			local line = _G[self:GetName() .. 'TextLeft' .. i]
@@ -308,10 +313,15 @@ local function CTipMod_Hooks()
 				if (i == 1) then
 					nameLine = line
 				elseif strfind(text, UNIT_LEVEL_TEMPLATE) or strfind(text, UNIT_LETHAL_LEVEL_TEMPLATE) then
-					if (i > 2) then
-						guildLine = _G[self:GetName() .. 'TextLeft' .. (i - 1)]
+					if hasGuild then
+						guildLine = line
+						detailLine = _G[self:GetName() .. 'TextLeft' .. self:NumLines()]
+					else
+						if (i > 2) then
+							guildLine = _G[self:GetName() .. 'TextLeft' .. (i - 1)]
+						end
+						detailLine = line
 					end
-					detailLine = line
 				elseif strfind(text, LOOT .. ':') then
 					lootLine = line
 				elseif strfind(text, TARGET .. ':') then
