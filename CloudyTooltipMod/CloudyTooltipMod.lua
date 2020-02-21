@@ -32,7 +32,7 @@ local function CTipModDB_Init()
 		CTipModDB['GuildRank'] = nil
 
 		CTipModDB['TargetOfTarget'] = 1
-		CTipModDB['TradeGoodsInfo'] = 1
+		CTipModDB['TradeGoods'] = 1
 		CTipModDB['FactionIcon'] = 1
 		CTipModDB['LinkIcon'] = 1
 	end
@@ -284,7 +284,7 @@ local function CTipMod_Hooks()
 	-- Modify Item Tooltip --
 	local TradeGoods = select(2, GetItemInfoInstant(2589))
 	local function OnTooltipSetItem(self)
-		if (not CTipModDB['TradeGoodsInfo']) then return end
+		if (not CTipModDB['TradeGoods']) then return end
 
 		local _, link = self:GetItem()
 		if (not link) then return end
@@ -306,7 +306,7 @@ local function CTipMod_Hooks()
 		if (not unit) then return end
 
 		-- Analyzing --
-		local nameLine, guildLine, detailLine, lootLine, faction
+		local nameLine, guildLine, detailLine, lootLine
 
 		for i = 1, self:NumLines() do
 			local line = _G[self:GetName() .. 'TextLeft' .. i]
@@ -328,7 +328,6 @@ local function CTipMod_Hooks()
 					line:Hide()
 				elseif (text == FACTION_ALLIANCE) or (text == FACTION_HORDE) then
 					if CTipModDB['FactionIcon'] then
-						faction = text
 						line:Hide()
 					end
 				end
@@ -394,20 +393,14 @@ local function CTipMod_Hooks()
 		-- Detail Mod --
 		if detailLine then
 			-- Unit Level --
-			local unitLevel, levelColor
+			local unitLevel, levelColor = UnitLevel(unit), defaultColor
 
 			if UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit) then
 				unitLevel = UnitBattlePetLevel(unit)
-			else
-				unitLevel = UnitLevel(unit)
 			end
-
 			if (unitLevel == -1) then unitLevel = '??' end
-
 			if UnitCanAttack(unit, 'player') then
 				levelColor = GetLevelColor(unitLevel)
-			else
-				levelColor = defaultColor
 			end
 
 			unitLevel = levelColor .. 'L' .. unitLevel
@@ -519,7 +512,8 @@ local function CTipMod_Hooks()
 		end
 
 		-- Faction Icon --
-		if faction then
+		local faction = UnitFactionGroup(unit)
+		if CTipModDB['FactionIcon'] and faction then
 			if not self.icon then
 				self.icon = self:CreateTexture(nil, 'ARTWORK')
 				self.icon:SetSize(32, 32)
@@ -533,11 +527,11 @@ local function CTipMod_Hooks()
 			if CTipModDB['HideBorder'] then
 				nameLine:SetWidth(nameLine:GetWidth() + 15)
 				self.icon:SetPoint('TOPRIGHT', 3, -1)
-				self.icon:SetAlpha(0.65)
+				self.icon:SetAlpha(0.55)
 			else
 				nameLine:SetWidth(nameLine:GetWidth() + 7)
 				self.icon:SetPoint('TOPRIGHT', 10, 7)
-				self.icon:SetAlpha(0.85)
+				self.icon:SetAlpha(0.75)
 			end
 			self.icon:Show()
 		end
@@ -663,7 +657,7 @@ local function CTipModUI_Load()
 	CTipModUI_GuildRank:SetChecked(CTipModDB['GuildRank'])
 
 	CTipModUI_TargetOfTarget:SetChecked(CTipModDB['TargetOfTarget'])
-	CTipModUI_TradeGoodsInfo:SetChecked(CTipModDB['TradeGoodsInfo'])
+	CTipModUI_TradeGoods:SetChecked(CTipModDB['TradeGoods'])
 	CTipModUI_FactionIcon:SetChecked(CTipModDB['FactionIcon'])
 	CTipModUI_LinkIcon:SetChecked(CTipModDB['LinkIcon'])
 end
@@ -690,7 +684,7 @@ local function CTipModUI_Save()
 	CTipModDB['GuildRank'] = CTipModUI_GuildRank:GetChecked()
 
 	CTipModDB['TargetOfTarget'] = CTipModUI_TargetOfTarget:GetChecked()
-	CTipModDB['TradeGoodsInfo'] = CTipModUI_TradeGoodsInfo:GetChecked()
+	CTipModDB['TradeGoods'] = CTipModUI_TradeGoods:GetChecked()
 	CTipModDB['FactionIcon'] = CTipModUI_FactionIcon:GetChecked()
 	CTipModDB['LinkIcon'] = CTipModUI_LinkIcon:GetChecked()
 end
@@ -717,23 +711,23 @@ function CTipModUI_OnLoad(self)
 	CTipModUI_MouseAnchorText:SetText('Anchor to Mouse')
 	CTipModUI_OverlayAnchorText:SetText('Anchor to Overlay')
 
-	CTipModUI_TipColorText:SetText('Colorize Tooltip')
+	CTipModUI_TipColorText:SetText('Colorize tooltip')
 	CTipModUI_ClassColorText:SetText('Class color priority')
-	CTipModUI_HideHealthText:SetText('Hide Health Bar')
-	CTipModUI_HideBorderText:SetText('Hide Tooltip Border')
-	CTipModUI_HidePVPText:SetText('Hide in Combat')
+	CTipModUI_HideHealthText:SetText('Hide health bar')
+	CTipModUI_HideBorderText:SetText('Hide tooltip border')
+	CTipModUI_HidePVPText:SetText('Hide in combat')
 
-	CTipModUI_UnitTitleText:SetText('Player Title')
-	CTipModUI_UnitGenderText:SetText('Player Gender')
-	CTipModUI_UnitStatusText:SetText('Player Status')
-	CTipModUI_UnitRealmText:SetText('Player Realm')
+	CTipModUI_UnitTitleText:SetText('Player title')
+	CTipModUI_UnitGenderText:SetText('Player gender')
+	CTipModUI_UnitStatusText:SetText('Player status')
+	CTipModUI_UnitRealmText:SetText('Player realm')
 	CTipModUI_RealmLabelText:SetText('Use realm label')
-	CTipModUI_GuildRankText:SetText('Guild Rank')
+	CTipModUI_GuildRankText:SetText('Guild rank')
 
 	CTipModUI_TargetOfTargetText:SetText('Target of Target')
-	CTipModUI_TradeGoodsInfoText:SetText('Trade Goods info')
-	CTipModUI_FactionIconText:SetText('Faction Icon')
-	CTipModUI_LinkIconText:SetText('Link Icon')
+	CTipModUI_TradeGoodsText:SetText('Trade goods')
+	CTipModUI_FactionIconText:SetText('Faction icon')
+	CTipModUI_LinkIconText:SetText('Link icon')
 end
 
 

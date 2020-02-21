@@ -305,7 +305,10 @@
 				</Anchors>
 				<Scripts>
 					<OnShow>
-						if not CTipModUI_UnitRealm:GetChecked() then
+						if CTipModUI_UnitRealm:GetChecked() then
+							self:Enable()
+							self:SetAlpha(1.0)
+						else
 							self:Disable()
 							self:SetAlpha(0.5)
 						end
@@ -348,7 +351,7 @@
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_TradeGoodsInfo" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_TradeGoods" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_TargetOfTarget" relativePoint="BOTTOMLEFT" />
 				</Anchors>
@@ -356,7 +359,7 @@
 
 			<CheckButton name="$parent_FactionIcon" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_TradeGoodsInfo" relativePoint="BOTTOMLEFT" />
+					<Anchor point="TOPLEFT" relativeTo="$parent_TradeGoods" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
