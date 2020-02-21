@@ -296,9 +296,15 @@
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_EliteFrame" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_DressUpButton" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_MapCoords" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
+			<CheckButton name="$parent_EliteFrame" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_DressUpButton" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 

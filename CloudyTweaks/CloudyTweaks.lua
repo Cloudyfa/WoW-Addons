@@ -37,6 +37,7 @@ local function CTweaksDB_Init()
 
 		CTweaksDB['MapFade'] = nil
 		CTweaksDB['MapCoords'] = 1
+		CTweaksDB['DressUpButton'] = 1
 		CTweaksDB['EliteFrame'] = 1
 		CTweaksDB['HideGryphons'] = nil
 		CTweaksDB['CamDistance'] = nil
@@ -149,6 +150,27 @@ end
 	mCoords.player = mCoords:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
 	mCoords.player:SetPoint('BOTTOMLEFT', 10, 4)
 	mCoords.player:SetJustifyH('LEFT')
+
+	-- Tabard Buttons --
+	local tabard1 = CreateFrame('Button', nil, DressUpFrame, 'UIPanelButtonTemplate')
+	tabard1.Text:SetText(TABARDSLOT)
+	tabard1:SetSize(80, 22)
+	tabard1:SetFrameLevel(3)
+	tabard1:SetPoint('RIGHT', DressUpFrameResetButton, 'LEFT')
+	tabard1:SetScript('OnClick', function()
+		DressUpFrame.DressUpModel:UndressSlot(19)
+		PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)
+	end)
+
+	local tabard2 = CreateFrame('Button', nil, SideDressUpFrame, 'UIPanelButtonTemplate')
+	tabard2.Text:SetText(TABARDSLOT)
+	tabard2:SetSize(80, 22)
+	tabard2:SetFrameLevel(3)
+	tabard2:SetPoint('TOP', SideDressUpModelResetButton, 'BOTTOM')
+	tabard2:SetScript('OnClick', function()
+		DressUpFrame.DressUpModel:UndressSlot(19)
+		PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)
+	end)
 
 
 --- Hook Functions ---
@@ -376,6 +398,14 @@ local function CTweaks_Handler()
 		mCoords:Hide()
 	end
 
+	if CTweaksDB['DressUpButton'] then
+		tabard1:Show()
+		tabard2:Show()
+	else
+		tabard1:Hide()
+		tabard2:Hide()
+	end
+
 	if CTweaksDB['EliteFrame'] then
 		PlayerFrameTexture:SetTexture('Interface\\TargetingFrame\\UI-TargetingFrame-Rare-Elite')
 	else
@@ -586,6 +616,7 @@ function CTweaksUI_Load()
 
 	CTweaksUI_MapFade:SetChecked(CTweaksDB['MapFade'])
 	CTweaksUI_MapCoords:SetChecked(CTweaksDB['MapCoords'])
+	CTweaksUI_DressUpButton:SetChecked(CTweaksDB['DressUpButton'])
 	CTweaksUI_EliteFrame:SetChecked(CTweaksDB['EliteFrame'])
 	CTweaksUI_HideGryphons:SetChecked(CTweaksDB['HideGryphons'])
 	CTweaksUI_CamDistance:SetChecked(CTweaksDB['CamDistance'])
@@ -620,6 +651,7 @@ function CTweaksUI_Save()
 
 	CTweaksDB['MapFade'] = CTweaksUI_MapFade:GetChecked()
 	CTweaksDB['MapCoords'] = CTweaksUI_MapCoords:GetChecked()
+	CTweaksDB['DressUpButton'] = CTweaksUI_DressUpButton:GetChecked()
 	CTweaksDB['EliteFrame'] = CTweaksUI_EliteFrame:GetChecked()
 	CTweaksDB['HideGryphons'] = CTweaksUI_HideGryphons:GetChecked()
 	CTweaksDB['CamDistance'] = CTweaksUI_CamDistance:GetChecked()
@@ -669,6 +701,7 @@ function CTweaksUI_OnLoad(self)
 
 	CTweaksUI_MapFadeText:SetText('Enable map fading')
 	CTweaksUI_MapCoordsText:SetText('Show map coords')
+	CTweaksUI_DressUpButtonText:SetText('Show dress-up buttons')
 	CTweaksUI_EliteFrameText:SetText('Player elite frame')
 	CTweaksUI_HideGryphonsText:SetText('Hide gryphons')
 	CTweaksUI_CamDistanceText:SetText('Increase camera distance')
