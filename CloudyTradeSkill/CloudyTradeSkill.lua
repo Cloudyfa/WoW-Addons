@@ -56,20 +56,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 	--- Add Tab Button ---
 	local function addTab(id, index, isSub)
-		local name, icon, tabType, tabItem
-		if (id == 134020) then
-			name, icon = select(2, C_ToyBox.GetToyInfo(id))
-			tabType = 'toy'
-			tabItem = true
-		else
-			name, _, icon = GetSpellInfo(id)
-			if (id == 126462) then
-				tabType = 'item'
-				tabItem = true
-			else
-				tabType = 'spell'
-			end
-		end
+		local icon = select(3, GetSpellInfo(id))
 		if (not name) or (not icon) then return end
 
 		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate, SecureActionButtonTemplate')
@@ -129,28 +116,16 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		end
 	end
 
-	--- Check Profession Useable ---
-	local function isUseable(id)
-		local name = GetSpellInfo(id)
-		return IsUsableSpell(name)
-	end
-
 	--- Update Profession Tabs ---
 	local function updateTabs(init)
 		local mainTabs, subTabs = {}, {}
 
 		local _, class = UnitClass('player')
-		if (class == 'DEATHKNIGHT') and isUseable(53428) then
-			tinsert(mainTabs, 53428) --RuneForging
-		elseif (class == 'ROGUE') and isUseable(1804) then
-			tinsert(subTabs, 1804) --PickLock
-		end
-
-		if PlayerHasToy(134020) and C_ToyBox.IsToyUsable(134020) then
-			tinsert(subTabs, 134020) --ChefHat
-		end
-		if GetItemCount(87216) ~= 0 then
-			tinsert(subTabs, 126462) --ThermalAnvil
+		if (class == 'ROGUE') then
+			local spell = GetSpellInfo(1804) --PickLock
+			if IsUsableSpell(spell) then
+				tinsert(subTabs, spell)
+			end
 		end
 
 		local prof1, prof2, arch, fishing, cooking, firstaid = GetProfessions()
