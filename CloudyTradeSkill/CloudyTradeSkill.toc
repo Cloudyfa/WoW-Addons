@@ -1,7 +1,7 @@
-## Interface: 80205
+## Interface: 80300
 ## Title: Cloudy TradeSkill
 ## Notes: Improve default TradeSkill UI.
-## Version: 2.7
+## Version: 3.0
 ## Author: Cloudyfa
 ## Dependencies: Blizzard_TradeSkillUI
 ## SavedVariablesPerCharacter: CTradeSkillDB
