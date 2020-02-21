@@ -249,6 +249,17 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 			end
 		end
 	end
+
+	--- Get Recipe Index ---
+	local function getRecipeIndex(name)
+		for index = 1, GetNumTradeSkills() do
+			local recipe = GetTradeSkillInfo(index)
+			if (recipe == name) then
+				return index
+			end
+		end
+	end
+
 	--- Set Bookmark Icon ---
 	local function bookmarkIcon(button, texture)
 		button:SetNormalTexture(texture)
@@ -263,29 +274,32 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 	--- Update Bookmarks ---
 	local function updateBookmarks()
-		local prof = C_TradeSkillUI.GetTradeSkillLine()
-		if not prof then return end
+		local prof = GetTradeSkillLine()
+		if not prof or (prof == 'UNKNOWN') then return end
 
 		if not CTradeSkillDB['Bookmarks'][prof] then
 			CTradeSkillDB['Bookmarks'][prof] = {}
 		end
 
 		local saved = CTradeSkillDB['Bookmarks'][prof]
-		for i = 1, 8 do
+		for i = 1, 10 do
 			local button = _G['CTradeSkillBookmark' .. i]
 			if saved[i] then
-				local info = C_TradeSkillUI.GetRecipeInfo(saved[i])
-				bookmarkIcon(button, info and info.icon or 'Interface\\Icons\\INV_Misc_QuestionMark')
-				button:Show()
+				local index = getRecipeIndex(saved[i])
+				if index then
+					local icon = GetTradeSkillIcon(index)
+					bookmarkIcon(button, icon or 'Interface\\Icons\\INV_Misc_QuestionMark')
+					button:Show()
+				end
 			else
 				button:Hide()
 			end
 		end
 
 		local main = _G['CTradeSkillBookmark0']
-		local recipe = TradeSkillFrame.RecipeList:GetSelectedRecipeID()
+		local recipe = GetTradeSkillInfo(TradeSkillFrame.selectedSkill or 0)
 		local selected = tContains(saved, recipe)
-		if not recipe or (#saved > 7 and not selected) then
+		if not recipe or (#saved > 9 and not selected) then
 			main:Disable()
 			main.State:Hide()
 		else
@@ -301,10 +315,10 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 	--- Add Bookmark ---
 	local function addBookmark(index)
-		local button = _G['CTradeSkillBookmark' .. index] or CreateFrame('Button', 'CTradeSkillBookmark' .. index, TradeSkillFrame.FilterButton)
+		local button = _G['CTradeSkillBookmark' .. index] or CreateFrame('Button', 'CTradeSkillBookmark' .. index, TradeSkillFrame)
 		button:SetHighlightTexture('Interface\\Buttons\\ButtonHilight-Square', 'ADD')
 		button:RegisterForClicks('LeftButtonDown', 'RightButtonDown')
-		button:SetPoint('LEFT', -40 - (index * 25), 0)
+		button:SetPoint('TOPRIGHT', TradeSkillFrame, 'TOPRIGHT', -65 - (index * 25), -42)
 		button:SetSize(24, 24)
 		button:SetID(index)
 
@@ -318,9 +332,11 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		end
 
 		button:SetScript('OnClick', function(self, mouse)
-			local prof = C_TradeSkillUI.GetTradeSkillLine()
+			local prof = GetTradeSkillLine()
+			if not prof then return end
+
 			local saved = CTradeSkillDB['Bookmarks'][prof]
-			local recipe = TradeSkillFrame.RecipeList:GetSelectedRecipeID()
+			local recipe = GetTradeSkillInfo(TradeSkillFrame.selectedSkill or 0)
 			if (self:GetID() == 0) then
 				if tContains(saved, recipe) then
 					for i = #saved, 1, -1 do
@@ -329,20 +345,19 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 						end
 					end
 				else
-					if (#saved < 8) then
+					if (#saved < 10) then
 						tinsert(saved, recipe)
 					end
 				end
 				updateBookmarks()
 			else
 				if (mouse == 'LeftButton') then
-					local info = C_TradeSkillUI.GetRecipeInfo(saved[self:GetID()])
-					if info.learned then
-						TradeSkillFrame.RecipeList:OnLearnedTabClicked()
-					else
-						TradeSkillFrame.RecipeList:OnUnlearnedTabClicked()
+					local index = getRecipeIndex(saved[self:GetID()])
+					if index then
+						TradeSkillListScrollFrameScrollBar:SetValue((index - 1) * 16)
+						TradeSkillFrame_SetSelection(index)
+						TradeSkillFrame_Update()
 					end
-					TradeSkillFrame.RecipeList:SelectedAndForceRecipeIDIntoView(saved[self:GetID()])
 				elseif (mouse == 'RightButton') then
 					tremove(saved, self:GetID())
 					updateBookmarks()
@@ -351,13 +366,18 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		end)
 
 		button:SetScript('OnEnter', function(self)
-			local prof = C_TradeSkillUI.GetTradeSkillLine()
+			local prof = GetTradeSkillLine()
+			if not prof then return end
+
 			local saved = CTradeSkillDB['Bookmarks'][prof]
 			GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
 			if (self:GetID() > 0) then
-				GameTooltip:SetRecipeResultItem(saved[self:GetID()])
+				local index = getRecipeIndex(saved[self:GetID()])
+				if index then
+					GameTooltip:SetTradeSkillItem(index)
+				end
 			else
-				local recipe = TradeSkillFrame.RecipeList:GetSelectedRecipeID()
+				local recipe = GetTradeSkillInfo(TradeSkillFrame.selectedSkill or 0)
 				local selected = tContains(saved, recipe)
 				GameTooltip:AddLine(selected and REMOVE or ADD, 1, 1, 1)
 			end
@@ -370,10 +390,10 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 	--- Create Bookmarks ---
 	local function createBookmarks()
-		for i = 0, 8 do
+		for i = 0, 10 do
 			addBookmark(i)
 		end
-		hooksecurefunc(TradeSkillFrame.RecipeList, 'RefreshDisplay', updateBookmarks)
+		hooksecurefunc('TradeSkillFrame_Update', updateBookmarks)
 	end
 
 	--- Update Frame Position ---
