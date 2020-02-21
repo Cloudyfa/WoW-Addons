@@ -7,8 +7,6 @@
 
 --- Initialization ---
 local numTabs = 0
-local searchTxt = ''
-local filterMats, filterSkill
 local skinUI, loadedUI, delay
 local function InitDB()
 	-- Create new DB if needed --
@@ -38,29 +36,15 @@ end
 local f = CreateFrame('Frame', 'CloudyTradeSkill')
 f:RegisterEvent('PLAYER_LOGIN')
 f:RegisterEvent('PLAYER_REGEN_ENABLED')
-f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 
 --- Local Functions ---
-	--- Save Filters ---
-	local function saveFilters()
-		filterMats = C_TradeSkillUI.GetOnlyShowMakeableRecipes()
-		filterSkill = C_TradeSkillUI.GetOnlyShowSkillUpRecipes()
-	end
-
-	--- Restore Filters ---
-	local function restoreFilters()
-		C_TradeSkillUI.SetOnlyShowMakeableRecipes(filterMats)
-		C_TradeSkillUI.SetOnlyShowSkillUpRecipes(filterSkill)
-	end
-
 	--- Check Current Tab ---
 	local function isCurrentTab(self)
 		if self.id and IsCurrentSpell(self.id) then
 			if TradeSkillFrame:IsShown() and (self.isSub == 0) then
 				CTradeSkillDB['Panel'] = self.id
-				restoreFilters()
 			end
 			self:SetChecked(true)
 			self:RegisterForClicks(nil)
@@ -559,23 +543,6 @@ hooksecurefunc(TradeSkillFrame.RecipeList, 'OnHeaderButtonClicked', function(sel
 end)
 
 
---- Fix SearchBox ---
-hooksecurefunc('ChatEdit_InsertLink', function(link)
-	if link and TradeSkillFrame:IsShown() then
-		local activeWindow = ChatEdit_GetActiveWindow()
-		if activeWindow then return end
-
-		if strfind(link, 'item:', 1, true) or strfind(link, 'enchant:', 1, true) then
-			local text = strmatch(link, '|h%[(.+)%]|h|r')
-			if text then
-				text = strmatch(text, ':%s(.+)') or text
-				TradeSkillFrame.SearchBox:SetText(text)
-			end
-		end
-	end
-end)
-
-
 --- Fix StackSplit ---
 hooksecurefunc('ContainerFrameItemButton_OnModifiedClick', function(self, button)
 	if TradeSkillFrame:IsShown() then
@@ -823,16 +790,12 @@ f:SetScript('OnEvent', function(self, event, ...)
 		createOptions()
 		injectDruidButtons()
 		injectVellumButton()
-	elseif (event == 'TRADE_SKILL_LIST_UPDATE') then
-		saveFilters()
-		searchTxt = TradeSkillFrame.SearchBox:GetText()
 	elseif (event == 'TRADE_SKILL_DATA_SOURCE_CHANGED') then
 		if UnitAffectingCombat('player') then
 			delay = true
 		else
 			updateTabs()
 		end
-		TradeSkillFrame.SearchBox:SetText(searchTxt)
 	elseif (event == 'PLAYER_REGEN_ENABLED') then
 		if delay then
 			updateTabs()
