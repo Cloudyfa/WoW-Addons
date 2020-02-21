@@ -9,7 +9,7 @@
 local numTabs = 0
 local searchTxt = ''
 local filterMats, filterSkill
-local skinUI, loadedUI
+local skinUI, loadedUI, delay
 local function InitDB()
 	-- Create new DB if needed --
 	if (not CTradeSkillDB) then
@@ -37,11 +37,23 @@ end
 --- Create Frame ---
 local f = CreateFrame('Frame', 'CloudyTradeSkill')
 f:RegisterEvent('PLAYER_LOGIN')
+f:RegisterEvent('PLAYER_REGEN_ENABLED')
 f:RegisterEvent('TRADE_SKILL_LIST_UPDATE')
 f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 
 --- Local Functions ---
+	--- Check Fading State ---
+	local function fadeState()
+		if CTradeSkillDB['Fade'] then
+			f:RegisterEvent('PLAYER_STARTED_MOVING')
+			f:RegisterEvent('PLAYER_STOPPED_MOVING')
+		else
+			f:UnregisterEvent('PLAYER_STARTED_MOVING')
+			f:UnregisterEvent('PLAYER_STOPPED_MOVING')
+		end
+	end
+
 	--- Save Filters ---
 	local function saveFilters()
 		filterMats = C_TradeSkillUI.GetOnlyShowMakeableRecipes()
@@ -143,27 +155,6 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 					tab:Hide()
 				end
 			end
-		end
-	end
-
-	--- Check Fading State ---
-	local function fadeState()
-		if GetUnitSpeed('player') == 0 then
-			TradeSkillFrame:SetAlpha(1.0)
-		else
-			if CTradeSkillDB['Fade'] == true then
-				TradeSkillFrame:SetAlpha(0.4)
-			else
-				TradeSkillFrame:SetAlpha(1.0)
-			end
-		end
-
-		if CTradeSkillDB['Fade'] == true then
-			f:RegisterEvent('PLAYER_STARTED_MOVING')
-			f:RegisterEvent('PLAYER_STOPPED_MOVING')
-		else
-			f:UnregisterEvent('PLAYER_STARTED_MOVING')
-			f:UnregisterEvent('PLAYER_STOPPED_MOVING')
 		end
 	end
 
@@ -274,72 +265,66 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 	end
 
 
---- Create Resize Bar ---
-local resizeBar = CreateFrame('Button', nil, TradeSkillFrame)
-resizeBar:SetPoint('BOTTOM', TradeSkillFrame)
-resizeBar:SetSize(670, 12)
-resizeBar:SetScript('OnMouseDown', function(_, button)
-	if (button == 'LeftButton') and not InCombatLockdown() then
-		TradeSkillFrame:SetResizable(true)
-		TradeSkillFrame:SetMinResize(670, 495)
-		TradeSkillFrame:SetMaxResize(670, TradeSkillFrame:GetTop() - 40)
-		TradeSkillFrame:StartSizing('BOTTOM')
-	end
-end)
-resizeBar:SetScript('OnMouseUp', function(_, button)
-	if (button == 'LeftButton') and not InCombatLockdown() then
-		TradeSkillFrame:StopMovingOrSizing()
-		TradeSkillFrame:SetResizable(false)
-		updateSize(true)
-	end
-end)
-resizeBar:SetScript('OnEnter', function()
-	if not InCombatLockdown() then
-		SetCursor('CAST_CURSOR')
-	end
-end)
-resizeBar:SetScript('OnLeave', function()
-	if not InCombatLockdown() then
-		ResetCursor()
-	end
-end)
-
-
 --- Create Movable Bar ---
-local movBar = CreateFrame('Button', nil, TradeSkillFrame)
-movBar:SetPoint('TOPRIGHT', TradeSkillFrame)
-movBar:SetSize(610, 24)
-movBar:SetScript('OnMouseDown', function(_, button)
-	if (button == 'LeftButton') then
-		TradeSkillFrame:SetMovable(true)
-		TradeSkillFrame:StartMoving()
-	elseif (button == 'RightButton') then
-		if not InCombatLockdown() then
-			CTradeSkillDB['OffsetX'] = nil
-			CTradeSkillDB['OffsetY'] = nil
-			updatePosition()
+local createMoveBar = function()
+	local movBar = CreateFrame('Button', nil, TradeSkillFrame)
+	movBar:SetPoint('TOPRIGHT', TradeSkillFrame)
+	movBar:SetSize(610, 24)
+	movBar:SetScript('OnMouseDown', function(_, button)
+		if (button == 'LeftButton') then
+			TradeSkillFrame:SetMovable(true)
+			TradeSkillFrame:StartMoving()
+		elseif (button == 'RightButton') then
+			if not InCombatLockdown() then
+				CTradeSkillDB['OffsetX'] = nil
+				CTradeSkillDB['OffsetY'] = nil
+				updatePosition()
+			end
 		end
-	end
-end)
-movBar:SetScript('OnMouseUp', function(_, button)
-	if (button == 'LeftButton') then
-		TradeSkillFrame:StopMovingOrSizing()
-		TradeSkillFrame:SetMovable(false)
+	end)
+	movBar:SetScript('OnMouseUp', function(_, button)
+		if (button == 'LeftButton') then
+			TradeSkillFrame:StopMovingOrSizing()
+			TradeSkillFrame:SetMovable(false)
 
-		CTradeSkillDB['OffsetX'] = TradeSkillFrame:GetLeft()
-		CTradeSkillDB['OffsetY'] = TradeSkillFrame:GetTop()
-	end
-end)
+			CTradeSkillDB['OffsetX'] = TradeSkillFrame:GetLeft()
+			CTradeSkillDB['OffsetY'] = TradeSkillFrame:GetTop()
+		end
+	end)
+end
 
 
---- Force ESC Close ---
-hooksecurefunc('ToggleGameMenu', function()
-	if CTradeSkillDB['Unlock'] and TradeSkillFrame:IsShown() then
-		C_TradeSkillUI.CloseTradeSkill()
-		HideUIPanel(GameMenuFrame)
-	end
-end)
-
+--- Create Resize Bar ---
+local createResizeBar = function()
+	local resizeBar = CreateFrame('Button', nil, TradeSkillFrame)
+	resizeBar:SetPoint('BOTTOM', TradeSkillFrame)
+	resizeBar:SetSize(670, 12)
+	resizeBar:SetScript('OnMouseDown', function(_, button)
+		if (button == 'LeftButton') and not InCombatLockdown() then
+			TradeSkillFrame:SetResizable(true)
+			TradeSkillFrame:SetMinResize(670, 495)
+			TradeSkillFrame:SetMaxResize(670, TradeSkillFrame:GetTop() - 40)
+			TradeSkillFrame:StartSizing('BOTTOM')
+		end
+	end)
+	resizeBar:SetScript('OnMouseUp', function(_, button)
+		if (button == 'LeftButton') and not InCombatLockdown() then
+			TradeSkillFrame:StopMovingOrSizing()
+			TradeSkillFrame:SetResizable(false)
+			updateSize(true)
+		end
+	end)
+	resizeBar:SetScript('OnEnter', function()
+		if not InCombatLockdown() then
+			SetCursor('CAST_CURSOR')
+		end
+	end)
+	resizeBar:SetScript('OnLeave', function()
+		if not InCombatLockdown() then
+			ResetCursor()
+		end
+	end)
+end
 
 --- Other Adjustment ---
 TradeSkillFrame.RankFrame:SetWidth(500)
@@ -712,17 +697,28 @@ local function createOptions()
 end
 
 
+--- Force ESC Close ---
+hooksecurefunc('ToggleGameMenu', function()
+	if CTradeSkillDB['Unlock'] and TradeSkillFrame:IsShown() then
+		C_TradeSkillUI.CloseTradeSkill()
+		HideUIPanel(GameMenuFrame)
+	end
+end)
+
+
 --- Handle Events ---
 f:SetScript('OnEvent', function(self, event, ...)
 	if (event == 'PLAYER_LOGIN') then
 		InitDB()
+		fadeState()
 		updateSize(true)
 		updatePosition()
 		updateTabs(true)
+		createMoveBar()
+		createResizeBar()
 		createOptions()
 		injectDruidButtons()
 		injectVellumButton()
-		fadeState()
 	elseif (event == 'PLAYER_STARTED_MOVING') then
 		TradeSkillFrame:SetAlpha(0.4)
 	elseif (event == 'PLAYER_STOPPED_MOVING') then
@@ -731,9 +727,16 @@ f:SetScript('OnEvent', function(self, event, ...)
 		saveFilters()
 		searchTxt = TradeSkillFrame.SearchBox:GetText()
 	elseif (event == 'TRADE_SKILL_DATA_SOURCE_CHANGED') then
-		if not InCombatLockdown() then
+		if UnitAffectingCombat('player') then
+			delay = true
+		else
 			updateTabs()
 		end
 		TradeSkillFrame.SearchBox:SetText(searchTxt)
+	elseif (event == 'PLAYER_REGEN_ENABLED') then
+		if delay then
+			updateTabs()
+			delay = false
+		end
 	end
 end)
