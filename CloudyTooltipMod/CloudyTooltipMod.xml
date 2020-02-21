@@ -351,7 +351,7 @@
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_TradeGoods" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_VendorPrice" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_TargetOfTarget" relativePoint="BOTTOMLEFT" />
 				</Anchors>
@@ -359,7 +359,7 @@
 
 			<CheckButton name="$parent_FactionIcon" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_TradeGoods" relativePoint="BOTTOMLEFT" />
+					<Anchor point="TOPLEFT" relativeTo="$parent_VendorPrice" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 

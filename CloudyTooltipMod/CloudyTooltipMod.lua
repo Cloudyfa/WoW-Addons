@@ -32,7 +32,7 @@ local function CTipModDB_Init()
 		CTipModDB['GuildRank'] = nil
 
 		CTipModDB['TargetOfTarget'] = 1
-		CTipModDB['TradeGoods'] = 1
+		CTipModDB['VendorPrice'] = 1
 		CTipModDB['FactionIcon'] = nil
 		CTipModDB['LinkIcon'] = 1
 	end
@@ -274,19 +274,17 @@ local function CTipMod_Hooks()
 	end)
 
 	-- Modify Item Tooltip --
-	local TradeGoods = select(2, GetItemInfoInstant(2589))
 	local function OnTooltipSetItem(self)
-		if (not CTipModDB['TradeGoods']) then return end
+		if (not CTipModDB['VendorPrice']) then return end
 
 		local _, link = self:GetItem()
 		if (not link) then return end
 
-		local id = strmatch(link, 'item:(%d+)')
-		if (not id) then return end
-
-		local itemType, subType = select(2, GetItemInfoInstant(id))
-		if (itemType == TradeGoods) then
-			self:AddLine(BAG_FILTER_TRADE_GOODS .. ': |cffaaff77' .. (subType or UNKNOWN))
+		local price = select(11, GetItemInfo(link))
+		if (not self.shownMoneyFrames) and price and (price > 0) then
+			local container = GetMouseFocus()
+			local quantity = container and container.count and tonumber(container.count) or 1
+			SetTooltipMoney(self, price * quantity, 'STATIC', SELL_PRICE .. ':')
 		end
 	end
 	GameTooltip:HookScript('OnTooltipSetItem', OnTooltipSetItem)
@@ -649,7 +647,7 @@ local function CTipModUI_Load()
 	CTipModUI_GuildRank:SetChecked(CTipModDB['GuildRank'])
 
 	CTipModUI_TargetOfTarget:SetChecked(CTipModDB['TargetOfTarget'])
-	CTipModUI_TradeGoods:SetChecked(CTipModDB['TradeGoods'])
+	CTipModUI_VendorPrice:SetChecked(CTipModDB['VendorPrice'])
 	CTipModUI_FactionIcon:SetChecked(CTipModDB['FactionIcon'])
 	CTipModUI_LinkIcon:SetChecked(CTipModDB['LinkIcon'])
 end
@@ -676,7 +674,7 @@ local function CTipModUI_Save()
 	CTipModDB['GuildRank'] = CTipModUI_GuildRank:GetChecked()
 
 	CTipModDB['TargetOfTarget'] = CTipModUI_TargetOfTarget:GetChecked()
-	CTipModDB['TradeGoods'] = CTipModUI_TradeGoods:GetChecked()
+	CTipModDB['VendorPrice'] = CTipModUI_VendorPrice:GetChecked()
 	CTipModDB['FactionIcon'] = CTipModUI_FactionIcon:GetChecked()
 	CTipModDB['LinkIcon'] = CTipModUI_LinkIcon:GetChecked()
 end
@@ -717,7 +715,7 @@ function CTipModUI_OnLoad(self)
 	CTipModUI_GuildRankText:SetText('Guild rank')
 
 	CTipModUI_TargetOfTargetText:SetText('Target of Target')
-	CTipModUI_TradeGoodsText:SetText('Trade goods')
+	CTipModUI_VendorPriceText:SetText('Vendor price')
 	CTipModUI_FactionIconText:SetText('Faction icon')
 	CTipModUI_LinkIconText:SetText('Link icon')
 end
