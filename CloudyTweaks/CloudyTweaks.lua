@@ -428,11 +428,11 @@ local function CTweaks_Handler()
 	end
 
 	if CTweaksDB['HideGryphons'] then
-		MainMenuBarArtFrame.LeftEndCap:Hide()
-		MainMenuBarArtFrame.RightEndCap:Hide()
+		MainMenuBarLeftEndCap:Hide()
+		MainMenuBarRightEndCap:Hide()
 	else
-		MainMenuBarArtFrame.LeftEndCap:Show()
-		MainMenuBarArtFrame.RightEndCap:Show()
+		MainMenuBarLeftEndCap:Show()
+		MainMenuBarRightEndCap:Show()
 	end
 
 	if CTweaksUI_CamDistance:IsEnabled() then
