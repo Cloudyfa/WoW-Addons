@@ -82,14 +82,6 @@ end
 			color = '|cff77aaaa'
 		end
 
-		if C_PetBattles.IsInBattle() then
-			if UnitIsBattlePetCompanion(unit) then
-				color = '|cff0099ff'
-			elseif UnitIsWildBattlePet(unit) then
-				color = '|cffe5b200'
-			end
-		end
-
 		return color
 	end
 
@@ -395,9 +387,6 @@ local function CTipMod_Hooks()
 			-- Unit Level --
 			local unitLevel, levelColor = UnitLevel(unit), defaultColor
 
-			if UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit) then
-				unitLevel = UnitBattlePetLevel(unit)
-			end
 			if (unitLevel == -1) then unitLevel = '??' end
 			if UnitCanAttack(unit, 'player') then
 				levelColor = GetLevelColor(unitLevel)
@@ -425,30 +414,23 @@ local function CTipMod_Hooks()
 			else
 				local creatureClass, creatureType
 
-				if UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit) then
-					creatureType = UnitBattlePetType(unit)
-					creatureType = PET_TYPE_SUFFIX[creatureType]
+				creatureType = UnitCreatureType(unit)
+				if (not creatureType) or (creatureType == 'Not specified') then
+					creatureType = ''
+				end
 
-					creatureClass = ' (' .. PET .. ')'
-				else
-					creatureType = UnitCreatureType(unit)
-					if (not creatureType) or (creatureType == 'Not specified') then
-						creatureType = ''
+				creatureClass = UnitClassification(unit)
+				if creatureClass then
+					if (creatureClass == 'elite') or (creatureClass == 'rareelite') then
+						unitLevel = unitLevel .. '+'
 					end
 
-					creatureClass = UnitClassification(unit)
-					if creatureClass then
-						if (creatureClass == 'elite') or (creatureClass == 'rareelite') then
-							unitLevel = unitLevel .. '+'
-						end
-
-						if (creatureClass == 'rare') or (creatureClass == 'rareelite') then
-							creatureClass = ' |cffff66ff(' .. ITEM_QUALITY3_DESC ..')'
-						elseif (creatureClass == 'worldboss') then
-							creatureClass = ' |cffff0000(' .. BOSS ..')'
-						else
-							creatureClass = ''
-						end
+					if (creatureClass == 'rare') or (creatureClass == 'rareelite') then
+						creatureClass = ' |cffff66ff(' .. ITEM_QUALITY3_DESC ..')'
+					elseif (creatureClass == 'worldboss') then
+						creatureClass = ' |cffff0000(' .. BOSS ..')'
+					else
+						creatureClass = ''
 					end
 				end
 
