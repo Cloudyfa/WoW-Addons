@@ -443,80 +443,65 @@ local createMoveBar = function()
 end
 
 
---- Refresh TSFrame ---
-TradeSkillFrame:HookScript('OnSizeChanged', function(self)
-	if self:IsShown() and not UnitAffectingCombat('player') then
-		CTradeSkillDB['Size'] = (self:GetHeight() - 96) / 16
-		updateSize()
-	end
-end)
+--- Refresh TSRecipes ---
+local function refreshRecipes()
+	hooksecurefunc('TradeSkillFrame_Update', function()
+		if not TradeSkillFrame:IsShown() then return end
 
-
---- Refresh RecipeList ---
-hooksecurefunc(TradeSkillFrame.RecipeList, 'UpdateFilterBar', function(self)
-	if self.FilterBar:IsVisible() then
-		self:SetHeight(CTradeSkillDB['Size'] * 16 - 11) --389
-	else
-		self:SetHeight(CTradeSkillDB['Size'] * 16 + 5) --405
-	end
-end)
-
-
---- Refresh RecipeButton ---
-TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
-	for i = 1, #self.buttons do
-		local button = self.buttons[i]
-
-		--- Button Tooltip ---
-		if not button.CTSTip then
-			button:HookScript('OnEnter', function(self)
-				if CTradeSkillDB and CTradeSkillDB['Tooltip'] then
-					if self.tradeSkillInfo and not self.isHeader then
-						local link = C_TradeSkillUI.GetRecipeLink(self.tradeSkillInfo.recipeID)
-						if link then
+		for i = 1, CTradeSkillDB['Size'] do
+			local button = _G['TradeSkillSkill' .. i]
+			if button then
+				--- Button Tooltip ---
+				if not button.CTSTip then
+					button:HookScript('OnEnter', function(self)
+						if CTradeSkillDB['Tooltip'] then
+							local offset = FauxScrollFrame_GetOffset(TradeSkillListScrollFrame)
+							local index = i + offset
 							GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
-							GameTooltip:SetHyperlink(link)
+							GameTooltip:SetTradeSkillItem(index)
 						end
+					end)
+					button:HookScript('OnLeave', function()
+						if CTradeSkillDB['Tooltip'] then
+							GameTooltip:Hide()
+						end
+					end)
+					button.CTSTip = true
+				end
+
+				--- Required Level ---
+				if CTradeSkillDB['Level'] then
+					if not button.CTSLevel then
+						button.CTSLevel = button:CreateFontString(nil, 'ARTWORK', 'GameFontNormalSmall')
+						button.CTSLevel:SetPoint('RIGHT', button, 'LEFT', 20, 2)
 					end
-				end
-			end)
-			button:HookScript('OnLeave', function()
-				if CTradeSkillDB and CTradeSkillDB['Tooltip'] then
-					GameTooltip:Hide()
-				end
-			end)
-			button.CTSTip = true
-		end
 
-		--- Required Level ---
-		if CTradeSkillDB and CTradeSkillDB['Level'] then
-			if not button.CTSLevel then
-				button.CTSLevel = button:CreateFontString(nil, 'ARTWORK', 'GameFontNormalSmall')
-				button.CTSLevel:SetPoint('RIGHT', button.Text, 'LEFT', 1, 0)
-			end
-
-			if button.tradeSkillInfo and not button.isHeader then
-				local recipe = button.tradeSkillInfo.recipeID
-				local item = C_TradeSkillUI.GetRecipeItemLink(recipe)
-				if item then
-					local quality, _, level = select(3, GetItemInfo(item))
-					if quality and level and level > 1 then
-						button.CTSLevel:SetText(level)
-						button.CTSLevel:SetTextColor(GetItemQualityColor(quality))
+					local offset = FauxScrollFrame_GetOffset(TradeSkillListScrollFrame)
+					local index = i + offset
+					local recipe, hdr = GetTradeSkillInfo(index)
+					if recipe and (hdr ~= 'header') then
+						local link = GetTradeSkillItemLink(index)
+						if link then
+							local quality, _, level = select(3, GetItemInfo(link))
+							if quality and level and level > 1 then
+								button.CTSLevel:SetText(level)
+								button.CTSLevel:SetTextColor(GetItemQualityColor(quality))
+							else
+								button.CTSLevel:SetText('')
+							end
+						end
 					else
 						button.CTSLevel:SetText('')
 					end
+				else
+					if button.CTSLevel then
+						button.CTSLevel:SetText('')
+					end
 				end
-			else
-				button.CTSLevel:SetText('')
-			end
-		else
-			if button.CTSLevel then
-				button.CTSLevel:SetText('')
 			end
 		end
-	end
-end)
+	end)
+end
 
 
 --- Druid Unshapeshift ---
@@ -550,8 +535,8 @@ local function injectDruidButtons()
 			macro:RegisterForClicks('LeftButtonDown')
 		end)
 	end
-	injectMacro(TradeSkillFrame.DetailsFrame.CreateButton, CREATE_PROFESSION)
-	injectMacro(TradeSkillFrame.DetailsFrame.CreateAllButton, CREATE_ALL)
+	injectMacro(TradeSkillCreateButton, CREATE_PROFESSION)
+	injectMacro(TradeSkillCreateAllButton, CREATE_ALL)
 end
 
 
@@ -600,7 +585,7 @@ local function CTSDropdown_Init(self, level)
 		info.text = STAT_AVERAGE_ITEM_LEVEL
 		info.func = function()
 			CTradeSkillDB['Level'] = not CTradeSkillDB['Level']
-			TradeSkillFrame.RecipeList:Refresh()
+			TradeSkillFrame_Update()
 		end
 		info.keepShownOnClick = true
 		info.checked = CTradeSkillDB['Level']
@@ -690,7 +675,7 @@ end
 --- Force ESC Close ---
 hooksecurefunc('ToggleGameMenu', function()
 	if CTradeSkillDB['Unlock'] and TradeSkillFrame:IsShown() then
-		C_TradeSkillUI.CloseTradeSkill()
+		CloseTradeSkill()
 		HideUIPanel(GameMenuFrame)
 	end
 end)
@@ -700,13 +685,13 @@ end)
 f:SetScript('OnEvent', function(self, event, ...)
 	if (event == 'PLAYER_LOGIN') then
 		InitDB()
-		updateSize(true)
 		updatePosition()
 		updateTabs(true)
+		updateSize()
 		createMoveBar()
-		createResizeBar()
 		createBookmarks()
 		createOptions()
+		refreshRecipes()
 		injectDruidButtons()
 	elseif (event == 'SPELLS_CHANGED') then
 		if UnitAffectingCombat('player') then
