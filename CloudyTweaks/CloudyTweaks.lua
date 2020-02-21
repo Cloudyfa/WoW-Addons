@@ -80,8 +80,7 @@ end
 		for i = 1, #data, step do
 			local button = _G['GossipTitleButton' .. index]
 			local title, level = data[i], data[i + 1]
-			if level == -1 then level = UnitLevel('player') end
-
+			if (level == -1) then level = UnitLevel('player') end
 			button:SetText('[' .. level .. '] ' .. title)
 			GossipResize(button)
 			index = index + 1
@@ -129,7 +128,7 @@ end
 
 	-- Update Map Coords --
 	local function updateCoords(self)
-		if (not CTweaksDB['MapCoords']) or (not WorldMapFrame:IsVisible()) then return end
+		if (not WorldMapFrame:IsVisible()) then return end
 
 		local cPos = NOT_APPLICABLE
 		local cX, cY = WorldMapFrame:GetNormalizedCursorPosition()
@@ -291,16 +290,16 @@ local function CTweaks_Hooks()
 		if (not CTweaksDB['QuestLevel']) then return end
 
 		local availableQuests = {GetGossipAvailableQuests()}
-		local index = updateGossip(1, availableQuests, 7)
+		local index = updateGossip(1, availableQuests, 8)
 
 		if #availableQuests > 1 then index = index + 1 end
 
 		local activeQuests = {GetGossipActiveQuests()}
-		updateGossip(index, activeQuests, 6)
+		updateGossip(index, activeQuests, 7)
 	end)
 
 	-- GreetingPanel --
-	hooksecurefunc('QuestFrameGreetingPanel_OnShow', function()
+	QuestFrameGreetingPanel:HookScript('OnShow', function()
 		if (not CTweaksDB['QuestLevel']) then return end
 
 		local numActiveQuests = GetNumActiveQuests()
@@ -561,11 +560,8 @@ function CTweaks_OnEvent(self, event, ...)
 	elseif event == 'QUEST_DETAIL' then
 		if IsShiftKeyDown() then return end
 
-		if QuestFrame.autoQuest then
-			AcknowledgeAutoAcceptQuest()
-		else
-			AcceptQuest()
-		end
+		AcceptQuest()
+		HideUIPanel(QuestFrame)
 
 	elseif (event == 'QUEST_PROGRESS') then
 		if IsShiftKeyDown() then return end
