@@ -56,11 +56,11 @@ end
 --- Local Functions ---
 	-- Detect Friends --
 	local function UnitIsInFriendList(name)
-		ShowFriends()
+		C_FriendList.ShowFriends()
 
-		for i = 1, GetNumFriends() do
-			local toon = GetFriendInfo(i)
-			if (toon == name) then
+		for i = 1, C_FriendList.GetNumOnlineFriends() do
+			local toon = C_FriendList.GetFriendInfoByIndex(i).name
+			if toon and (toon == name) then
 				return true
 			end
 		end
@@ -527,7 +527,7 @@ function CTweaks_OnEvent(self, event, ...)
 
 	elseif (event == 'CONFIRM_SUMMON') then
 		if (not UnitAffectingCombat('player')) then
-			ConfirmSummon()
+			C_SummonInfo.ConfirmSummon()
 			StaticPopup_Hide('CONFIRM_SUMMON')
 		end
 
@@ -542,7 +542,7 @@ function CTweaks_OnEvent(self, event, ...)
 		end
 
 	elseif (event == 'PLAYER_DEAD') then
-		if HasSoulstone() then return end
+		if C_DeathInfo.GetSelfResurrectOptions() and (#C_DeathInfo.GetSelfResurrectOptions() > 0) then return end
 
 		local instZone, instType = IsInInstance()
 		if instZone and (instType == 'pvp') then
