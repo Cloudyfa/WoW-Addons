@@ -272,8 +272,10 @@ local createMoveBar = function()
 	movBar:SetSize(610, 24)
 	movBar:SetScript('OnMouseDown', function(_, button)
 		if (button == 'LeftButton') then
-			TradeSkillFrame:SetMovable(true)
-			TradeSkillFrame:StartMoving()
+			if CTradeSkillDB['Unlock'] then
+				TradeSkillFrame:SetMovable(true)
+				TradeSkillFrame:StartMoving()
+			end
 		elseif (button == 'RightButton') then
 			if not InCombatLockdown() then
 				CTradeSkillDB['OffsetX'] = nil
