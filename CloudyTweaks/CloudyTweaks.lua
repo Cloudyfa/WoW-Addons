@@ -297,10 +297,8 @@ end
 local function CTweaks_Handler()
 	if CTweaksDB['ConfirmLoot'] then
 		CTweaks:RegisterEvent('CONFIRM_LOOT_ROLL')
-		CTweaks:RegisterEvent('CONFIRM_DISENCHANT_ROLL')
 	else
 		CTweaks:UnregisterEvent('CONFIRM_LOOT_ROLL')
-		CTweaks:UnregisterEvent('CONFIRM_DISENCHANT_ROLL')
 	end
 
 	if CTweaksDB['AcceptInvite'] then
@@ -468,7 +466,7 @@ function CTweaks_OnEvent(self, event, ...)
 		CTweaks_Hooks()
 		CTweaks_Handler()
 
-	elseif (event == 'CONFIRM_LOOT_ROLL') or (event == 'CONFIRM_DISENCHANT_ROLL') then
+	elseif (event == 'CONFIRM_LOOT_ROLL') then
 		local id, roll = ...
 		ConfirmLootRoll(id, roll)
 		StaticPopup_Hide('CONFIRM_LOOT_ROLL')
