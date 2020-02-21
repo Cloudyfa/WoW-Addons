@@ -86,22 +86,6 @@ end
 		return index
 	end
 
-	-- Update Quest Title --
-	local function updateQuestTitle(button, title, tracker)
-		local header = tracker and button.HeaderText or button.Text
-		local oldHeight = header:GetHeight()
-		header:SetText(title)
-		if tracker then
-			if not button.lineWidth then
-				header:SetWidth(255)
-			end
-		else
-			header:SetWidth(200)
-		end
-		local newHeight = header:GetHeight()
-		button:SetHeight(button:GetHeight() + newHeight - oldHeight)
-	end
-
 	-- Update Quest Color --
 	local function updateQuestColor(id, level, freq)
 		local _, tag = GetQuestTagInfo(id)
@@ -170,115 +154,65 @@ end
 --- Hook Functions ---
 local function CTweaks_Hooks()
 	-- QuestLog --
-	hooksecurefunc('QuestLogQuests_Update', function()
+	hooksecurefunc('QuestLog_Update', function(self)
 		if (not CTweaksDB['QuestLevel']) then return end
 
-		for _, button in pairs{QuestMapFrame.QuestsFrame.Contents:GetChildren()} do
-			if button and button.Check then
-				local title, level = GetQuestLogTitle(button.questLogIndex)
-				if title and level then
-					title = '[' .. level .. '] ' .. title
+		local numEntries, numQuests = GetNumQuestLogEntries()
+		if numEntries == 0 then return end
 
-					local memberOnQuest = 0
-					for i = 1, GetNumSubgroupMembers() do
-						if IsUnitOnQuestByQuestID(button.questID, 'party'..i) then
-							memberOnQuest = memberOnQuest + 1
-						end
-					end
-					if ( memberOnQuest > 0 ) then
-						title = '[' .. memberOnQuest .. '] ' .. title
-					end
-					updateQuestTitle(button, title)
+		for i = 1, QUESTS_DISPLAYED do
+			local questIndex = i + FauxScrollFrame_GetOffset(QuestLogListScrollFrame)
+			if (questIndex <= numEntries) then
+				local questButton = _G['QuestLogTitle' .. i]
+				local questCheck = _G['QuestLogTitle' .. i .. 'Check']
+				local title, level, _, isHeader = GetQuestLogTitle(questIndex)
+				if (not isHeader) and title and level then
+					local questString = string.format('  [%d] %s', level, title)
+					questButton:SetText(questString)
+					QuestLogDummyText:SetText(questString)
 
-					if IsQuestWatched(button.questLogIndex) then
-						button.Check:SetPoint('LEFT', button.Text, button.Text:GetWrappedWidth() + 2, 0)
-						button.Check:Show()
-					else
-						button.Check:Hide()
+					if IsQuestWatched(questIndex) then
+						local checkPos = QuestLogDummyText:GetWidth() + 24
+						questCheck:SetPoint('LEFT', questButton, 'LEFT', checkPos, 0)
 					end
 				end
 			end
 		end
 	end)
 
-	-- QuestButton --
-	hooksecurefunc('QuestMapLogTitleButton_OnEnter', function(button)
-		if CTweaksDB['QuestLevel'] then
-			local title, level = GetQuestLogTitle(button.questLogIndex)
-			GameTooltipTextLeft1:SetText('[' .. level .. '] ' .. title)
-			GameTooltip:Show()
-		end
-	end)
-
-	-- QuestInfo --
-	hooksecurefunc('QuestInfo_Display', function(self)
-		if (not CTweaksDB['QuestLevel']) then return end
-
-		for i = 1, #self.elements, 3 do
-			if (self.elements[i] == QuestInfo_ShowTitle) then
-				local index = GetQuestLogSelection()
-				local title, level = GetQuestLogTitle(index)
-				if title and level then
-					QuestInfoTitleHeader:SetText('[' .. level .. '] ' .. title)
-				end
-			end
-		end
-	end)
-
-	-- QuestTracker --
-	hooksecurefunc(QUEST_TRACKER_MODULE, 'Update', function(self)
+	-- QuestWatch --
+	hooksecurefunc('QuestWatch_Update', function(self)
 		if (not CTweaksDB['QuestLevel']) and (not CTweaksDB['QuestColor']) then return end
 
+		local watchTextIndex = 1
 		for i = 1, GetNumQuestWatches() do
-			local id, title, index = GetQuestWatchInfo(i)
-			local block = id and self:GetExistingBlock(id)
-			if not block then return end
+			local questIndex = GetQuestIndexForWatch(i)
+			if questIndex then
+				local numObjectives = GetNumQuestLeaderBoards(questIndex)
+				if (numObjectives > 0) then
+					local watchText = _G['QuestWatchLine' .. watchTextIndex]
+					local title, level, _, _, _, _ , freq, id = GetQuestLogTitle(questIndex)
+					if title and level then
+						if CTweaksDB['QuestLevel'] then
+							local questString = string.format('[%d] %s', level, title)
+							watchText:SetText(questString)
+						end
 
-			local _, level, _, _, _, _ , freq = GetQuestLogTitle(index)
-			if CTweaksDB['QuestLevel'] and level then
-				title = '[' .. level .. '] ' .. title
-				updateQuestTitle(block, title, true)
-			end
+						if CTweaksDB['QuestColor'] then
+							local color = updateQuestColor(id, level, freq)
+							watchText:SetTextColor(color.r, color.g, color.b)
+						else
+							watchText:SetTextColor(0.75, 0.61, 0)
+						end
+					end
+					watchTextIndex = watchTextIndex + 1
 
-			if CTweaksDB['QuestColor'] then
-				local color = updateQuestColor(id, level, freq)
-				block.HeaderText:SetTextColor(color.r * 0.75, color.g * 0.75, color.b * 0.75)
-			else
-				local color = OBJECTIVE_TRACKER_COLOR['Header']
-				block.HeaderText:SetTextColor(color.r, color.g, color.b)
-			end
-		end
-	end)
-
-	-- QuestHighlight --
-	local function HookQuestTracker(self)
-		if CTweaksDB['QuestColor'] then
-			local block = self:GetParent()
-			if block and block.id then
-				local index = GetQuestLogIndexByID(block.id)
-				local _, level, _, _, _, _ , freq = GetQuestLogTitle(index)
-				local color = updateQuestColor(block.id, level, freq)
-
-				if block.isHighlighted then
-					block.HeaderText:SetTextColor(color.r * 1.1, color.g * 1.1, color.b * 1.1)
-				else
-					block.HeaderText:SetTextColor(color.r * 0.75, color.g * 0.75, color.b * 0.75)
+					for j = 1, numObjectives do
+						local watchText = _G['QuestWatchLine' .. watchTextIndex]
+						watchText:SetTextColor(0.8, 0.8, 0.8)
+						watchTextIndex = watchTextIndex + 1
+					end
 				end
-			end
-		end
-	end
-	hooksecurefunc('ObjectiveTrackerBlockHeader_OnEnter', HookQuestTracker)
-	hooksecurefunc('ObjectiveTrackerBlockHeader_OnLeave', HookQuestTracker)
-
-	-- QuestLink --
-	hooksecurefunc('ChatFrame_OnHyperlinkShow', function(_, text, link)
-		if CTweaksDB['QuestLevel'] then
-			local level = strmatch(text, 'quest:%d+:(\-?%d+):')
-			local title = strmatch(link, '%[(.+)%]')
-			if level and title then
-				if (level == '-1') then level = UnitLevel('player') end
-				ItemRefTooltipTextLeft1:SetText('[' .. level .. '] ' .. title)
-				ItemRefTooltip:Show()
 			end
 		end
 	end)
