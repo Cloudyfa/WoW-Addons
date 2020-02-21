@@ -83,14 +83,16 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 	--- Add Tab Button ---
 	local function addTab(id, index, isSub)
-		local name, icon, tabType
+		local name, icon, tabType, tabItem
 		if (id == 134020) then
 			name, icon = select(2, C_ToyBox.GetToyInfo(id))
 			tabType = 'toy'
+			tabItem = true
 		else
 			name, _, icon = GetSpellInfo(id)
 			if (id == 126462) then
 				tabType = 'item'
+				tabItem = true
 			else
 				tabType = 'spell'
 			end
@@ -107,7 +109,8 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		tab.tooltip = name
 		tab:SetNormalTexture(icon)
 		tab:SetAttribute('type', tabType)
-		tab:SetAttribute(tabType, id)
+		tab:SetAttribute(tabType, tabItem and name or id)
+		isCurrentTab(tab)
 
 		if skinUI and not tab.skinned then
 			local checkedTexture
@@ -124,9 +127,6 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 			tab:GetRegions():Hide()
 			tab.skinned = true
 		end
-
-		isCurrentTab(tab)
-		tab:Show()
 	end
 
 	--- Remove Tab Buttons ---
@@ -147,8 +147,8 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		for i = 1, numTabs do
 			local tab = _G['CTradeSkillTab' .. i]
 			if tab then
-				if CTradeSkillDB['Tabs'][tab.id] == true then
-					tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', skinUI and 1 or 0, (-44 * index) + (-40 * tab.isSub))
+				if CTradeSkillDB['Tabs'][tab.id] then
+					tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', skinUI and 1 or 0, (-50 * index) + (-50 * tab.isSub))
 					tab:Show()
 					index = index + 1
 				else
@@ -166,13 +166,12 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 	--- Update Profession Tabs ---
 	local function updateTabs(init)
-		if init and CTradeSkillDB['Panel'] then return end
 		local mainTabs, subTabs = {}, {}
 
 		local _, class = UnitClass('player')
-		if class == 'DEATHKNIGHT' and isUseable(53428) then
+		if (class == 'DEATHKNIGHT') and isUseable(53428) then
 			tinsert(mainTabs, 53428) --RuneForging
-		elseif class == 'ROGUE' and isUseable(1804) then
+		elseif (class == 'ROGUE') and isUseable(1804) then
 			tinsert(subTabs, 1804) --PickLock
 		end
 
@@ -195,7 +194,6 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 						tinsert(mainTabs, id)
 						if init and not CTradeSkillDB['Panel'] then
 							CTradeSkillDB['Panel'] = id
-							return
 						end
 					else
 						tinsert(subTabs, id)
@@ -207,7 +205,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		local sameTabs = true
 		for i = 1, #mainTabs + #subTabs do
 			local id = mainTabs[i] or subTabs[i - #mainTabs]
-			if CTradeSkillDB['Tabs'][id] == nil then
+			if not CTradeSkillDB['Tabs'][id] then
 				CTradeSkillDB['Tabs'][id] = true
 				sameTabs = false
 			end
@@ -216,7 +214,6 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		if not sameTabs or (numTabs ~= #mainTabs + #subTabs) then
 			removeTabs()
 			numTabs = #mainTabs + #subTabs
-
 			for i = 1, numTabs do
 				local id = mainTabs[i] or subTabs[i - #mainTabs]
 				addTab(id, i, mainTabs[i] and 0 or 1)
@@ -362,9 +359,11 @@ TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 			button:RegisterForDrag('LeftButton')
 			button:SetScript('OnDragStart', function(self)
 				if CTradeSkillDB and CTradeSkillDB['Drag'] then
-					if not InCombatLockdown() then
-						if self.tradeSkillInfo and not self.isHeader then
-							PickupSpell(self.tradeSkillInfo.recipeID)
+					if not UnitAffectingCombat('player') then
+						if self.tradeSkillInfo and self.tradeSkillInfo.learned then
+							if not self.isHeader then
+								PickupSpell(self.tradeSkillInfo.recipeID)
+							end
 						end
 					end
 				end
@@ -394,7 +393,7 @@ TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 		end
 
 		--- Required Level ---
-		if CTradeSkillDB and CTradeSkillDB['Level'] == true then
+		if CTradeSkillDB and CTradeSkillDB['Level'] then
 			if not button.CTSLevel then
 				button.CTSLevel = button:CreateFontString(nil, 'ARTWORK', 'GameFontNormalSmall')
 				button.CTSLevel:SetPoint('RIGHT', button.Text, 'LEFT', 1, 0)
