@@ -101,7 +101,6 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate, SecureActionButtonTemplate')
 		tab:SetScript('OnEvent', isCurrentTab)
-		tab:RegisterEvent('TRADE_SKILL_SHOW')
 		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
 
 		tab.id = id
@@ -134,7 +133,6 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		for i = 1, numTabs do
 			local tab = _G['CTradeSkillTab' .. i]
 			if tab and tab:IsShown() then
-				tab:UnregisterEvent('TRADE_SKILL_SHOW')
 				tab:UnregisterEvent('CURRENT_SPELL_CAST_CHANGED')
 				tab:Hide()
 			end
