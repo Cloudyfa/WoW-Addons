@@ -443,39 +443,6 @@ local createMoveBar = function()
 end
 
 
---- Create Resize Bar ---
-local createResizeBar = function()
-	local resizeBar = CreateFrame('Button', nil, TradeSkillFrame)
-	resizeBar:SetPoint('BOTTOM', TradeSkillFrame)
-	resizeBar:SetSize(670, 6)
-	resizeBar:SetScript('OnMouseDown', function(_, button)
-		if (button == 'LeftButton') and not UnitAffectingCombat('player') then
-			TradeSkillFrame:SetResizable(true)
-			TradeSkillFrame:SetMinResize(670, 512)
-			TradeSkillFrame:SetMaxResize(670, TradeSkillFrame:GetTop())
-			TradeSkillFrame:StartSizing('BOTTOM')
-		end
-	end)
-	resizeBar:SetScript('OnMouseUp', function(_, button)
-		if (button == 'LeftButton') and not UnitAffectingCombat('player') then
-			TradeSkillFrame:StopMovingOrSizing()
-			TradeSkillFrame:SetResizable(false)
-			updateSize(true)
-		end
-	end)
-	resizeBar:SetScript('OnEnter', function()
-		if not UnitAffectingCombat('player') then
-			SetCursor('CAST_CURSOR')
-		end
-	end)
-	resizeBar:SetScript('OnLeave', function()
-		if not UnitAffectingCombat('player') then
-			ResetCursor()
-		end
-	end)
-end
-
-
 --- Refresh TSFrame ---
 TradeSkillFrame:HookScript('OnSizeChanged', function(self)
 	if self:IsShown() and not UnitAffectingCombat('player') then
@@ -549,32 +516,6 @@ TradeSkillFrame.RecipeList:HookScript('OnUpdate', function(self, ...)
 			end
 		end
 	end
-end)
-
-
---- Collapse Recipes ---
-hooksecurefunc(TradeSkillFrame.RecipeList, 'OnHeaderButtonClicked', function(self, _, info, button)
-	if (button ~= 'RightButton') then return end
-
-	local collapsed = self:IsCategoryCollapsed(info.categoryID)
-	local subCat = C_TradeSkillUI.GetSubCategories(info.categoryID)
-	if subCat then
-		collapsed = not self:IsCategoryCollapsed(subCat)
-	end
-
-	local allCategories = {C_TradeSkillUI.GetCategories()}
-	for _, catId in pairs(allCategories) do
-		local subCategories = {C_TradeSkillUI.GetSubCategories(catId)}
-		if #subCategories == 0 then
-			self.collapsedCategories[catId] = collapsed
-		else
-			self.collapsedCategories[catId] = false
-			for _, subId in pairs(subCategories) do
-				self.collapsedCategories[subId] = collapsed
-			end
-		end
-	end
-	self:Refresh()
 end)
 
 
