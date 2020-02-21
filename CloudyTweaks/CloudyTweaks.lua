@@ -28,7 +28,6 @@ local function CTweaksDB_Init()
 		CTweaksDB['ChatScroll'] = 1
 
 		CTweaksDB['MinimapScroll'] = 1
-		CTweaksDB['HideMapButton'] = 1
 		CTweaksDB['DayNight'] = 1
 
 		CTweaksDB['QuestLevel'] = 1
@@ -405,14 +404,6 @@ local function CTweaks_Handler()
 		MinimapZoomOut:Show()
 	end
 
-	if CTweaksDB['HideMapButton'] then
-		MiniMapWorldMapButton:Hide()
-		MinimapZoneTextButton:SetPoint('CENTER', 14, 83)
-	else
-		MiniMapWorldMapButton:Show()
-		MinimapZoneTextButton:SetPoint('CENTER', 7, 83)
-	end
-
 	if CTweaksDB['DayNight'] then
 		GameTimeTexture:Show()
 	else
@@ -652,7 +643,6 @@ function CTweaksUI_Load()
 	CTweaksUI_ChatScroll:SetChecked(CTweaksDB['ChatScroll'])
 
 	CTweaksUI_MinimapScroll:SetChecked(CTweaksDB['MinimapScroll'])
-	CTweaksUI_HideMapButton:SetChecked(CTweaksDB['HideMapButton'])
 	CTweaksUI_DayNight:SetChecked(CTweaksDB['DayNight'])
 
 	CTweaksUI_QuestLevel:SetChecked(CTweaksDB['QuestLevel'])
@@ -687,7 +677,6 @@ function CTweaksUI_Save()
 	CTweaksDB['ChatScroll'] = CTweaksUI_ChatScroll:GetChecked()
 
 	CTweaksDB['MinimapScroll'] = CTweaksUI_MinimapScroll:GetChecked()
-	CTweaksDB['HideMapButton'] = CTweaksUI_HideMapButton:GetChecked()
 	CTweaksDB['DayNight'] = CTweaksUI_DayNight:GetChecked()
 
 	CTweaksDB['QuestLevel'] = CTweaksUI_QuestLevel:GetChecked()
@@ -737,7 +726,6 @@ function CTweaksUI_OnLoad(self)
 	CTweaksUI_ChatScrollText:SetText('Enable chat scroll')
 
 	CTweaksUI_MinimapScrollText:SetText('Enable minimap scroll')
-	CTweaksUI_HideMapButtonText:SetText('Hide worldmap button')
 	CTweaksUI_DayNightText:SetText('Day/Night indicator')
 
 	CTweaksUI_QuestLevelText:SetText('Show quest level')

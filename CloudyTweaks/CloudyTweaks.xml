@@ -216,15 +216,9 @@
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_HideMapButton" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_MinimapScroll" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
 			<CheckButton name="$parent_DayNight" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_HideMapButton" relativePoint="BOTTOMLEFT" />
+					<Anchor point="TOPLEFT" relativeTo="$parent_MinimapScroll" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
