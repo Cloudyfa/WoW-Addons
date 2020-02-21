@@ -12,11 +12,11 @@ local function InitDB()
 	-- Create new DB if needed --
 	if (not CTradeSkillDB) then
 		CTradeSkillDB = {}
-		CTradeSkillDB['Size'] = 30
 		CTradeSkillDB['Unlock'] = false
 		CTradeSkillDB['Level'] = true
 		CTradeSkillDB['Tooltip'] = true
 	end
+	CTradeSkillDB['Size'] = 22
 	if not CTradeSkillDB['Tabs'] then CTradeSkillDB['Tabs'] = {} end
 	if not CTradeSkillDB['Bookmarks'] then CTradeSkillDB['Bookmarks'] = {} end
 
@@ -168,29 +168,87 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 	end
 
 	--- Update Frame Size ---
-	local function updateSize(forced)
-		TradeSkillFrame:SetHeight(CTradeSkillDB['Size'] * 16 + 96) --496
-		TradeSkillFrame.RecipeInset:SetHeight(CTradeSkillDB['Size'] * 16 + 10) --410
-		TradeSkillFrame.DetailsInset:SetHeight(CTradeSkillDB['Size'] * 16 - 10) --390
-		TradeSkillFrame.DetailsFrame:SetHeight(CTradeSkillDB['Size'] * 16 - 15) --385
-		TradeSkillFrame.DetailsFrame.Background:SetHeight(CTradeSkillDB['Size'] * 16 - 17) --383
+	local function updateSize()
+		TradeSkillFrame:SetWidth(714)
+		TradeSkillFrame:SetHeight(skinUI and 512 or 487)
 
-		if TradeSkillFrame.RecipeList.FilterBar:IsVisible() then
-			TradeSkillFrame.RecipeList:SetHeight(CTradeSkillDB['Size'] * 16 - 11) --389
-		else
-			TradeSkillFrame.RecipeList:SetHeight(CTradeSkillDB['Size'] * 16 + 5) --405
+		TradeSkillDetailScrollFrame:ClearAllPoints()
+		TradeSkillDetailScrollFrame:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPLEFT', 362, -92)
+		TradeSkillDetailScrollFrame:SetSize(296, 332)
+		TradeSkillDetailScrollFrameTop:SetAlpha(0)
+		TradeSkillDetailScrollFrameBottom:SetAlpha(0)
+
+		TradeSkillListScrollFrame:ClearAllPoints()
+		TradeSkillListScrollFrame:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPLEFT', 23.8, -99)
+		TradeSkillListScrollFrame:SetSize(296, 332)
+		if not skinUI then
+			local scrollFix = TradeSkillListScrollFrame:CreateTexture(nil, 'BACKGROUND')
+			scrollFix:SetPoint('TOPRIGHT', TradeSkillListScrollFrame, 'TOPRIGHT', 29, -110)
+			scrollFix:SetTexture('Interface\\ClassTrainerFrame\\UI-ClassTrainer-ScrollBar')
+			scrollFix:SetTexCoord(.0, .5, .2, .9)
+			scrollFix:SetSize(32, 0)
 		end
 
-		if forced then
-			if #TradeSkillFrame.RecipeList.buttons < floor(CTradeSkillDB['Size'], 0.5) + 2 then
-				local range = TradeSkillFrame.RecipeList.scrollBar:GetValue()
-				HybridScrollFrame_CreateButtons(TradeSkillFrame.RecipeList, 'TradeSkillRowButtonTemplate', 0, 0)
-				TradeSkillFrame.RecipeList.scrollBar:SetValue(range)
+		local regions = {TradeSkillFrame:GetRegions()}
+		regions[2]:SetTexture('Interface\\QuestFrame\\UI-QuestLogDualPane-Left')
+		regions[2]:SetSize(512, 512)
+
+		regions[3]:ClearAllPoints()
+		regions[3]:SetPoint('TOPLEFT', regions[2], 'TOPRIGHT')
+		regions[3]:SetTexture('Interface\\QuestFrame\\UI-QuestLogDualPane-Right')
+		regions[3]:SetSize(256, 512)
+
+		if not skinUI then
+			regions[4]:Hide()
+			regions[5]:Hide()
+		end
+		regions[9]:Hide()
+		regions[10]:Hide()
+
+		if not skinUI then
+			--- Recipe Background ---
+			local RecipeInset = TradeSkillFrame:CreateTexture(nil, 'ARTWORK')
+			RecipeInset:SetPoint('TOPLEFT', 'TradeSkillFrame', 'TOPLEFT', 16.4, -72)
+			RecipeInset:SetTexture('Interface\\RaidFrame\\UI-RaidFrame-GroupBg')
+			RecipeInset:SetSize(326.5, 360.8)
+
+			--- Detail Background ---
+			local DetailsInset = TradeSkillFrame:CreateTexture(nil, 'ARTWORK')
+			DetailsInset:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPLEFT', 349, -73)
+			DetailsInset:SetAtlas('tradeskill-background-recipe')
+			DetailsInset:SetSize(324, 339)
+		end
+
+		-- Expand Tab ---
+		TradeSkillExpandTabLeft:Hide()
+
+		--- Filter Dropdown ---
+		TradeSkillInvSlotDropDown:ClearAllPoints()
+		TradeSkillInvSlotDropDown:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPLEFT', 190, -70)
+		TradeSkillSubClassDropDown:ClearAllPoints()
+		TradeSkillSubClassDropDown:SetPoint('TOPRIGHT', TradeSkillInvSlotDropDown, 'TOPLEFT', 29, 0)
+
+		--- Craft Buttons ---
+		TradeSkillCancelButton:ClearAllPoints()
+		TradeSkillCancelButton:SetPoint('BOTTOMRIGHT', TradeSkillFrame, 'BOTTOMRIGHT', -40, skinUI and 79 or 54)
+		TradeSkillCreateButton:ClearAllPoints()
+		TradeSkillCreateButton:SetPoint('RIGHT', TradeSkillCancelButton, 'LEFT', -1, 0)
+
+		--- Recipe Buttons ---
+		TRADE_SKILLS_DISPLAYED = CTradeSkillDB['Size']
+		for i = 1, CTradeSkillDB['Size'] do
+			local button = _G['TradeSkillSkill' .. i] or CreateFrame('Button', 'TradeSkillSkill' .. i, TradeSkillFrame, 'TradeSkillSkillButtonTemplate')
+			if (i > 1) then
+				button:ClearAllPoints()
+				button:SetPoint('TOPLEFT', _G['TradeSkillSkill' .. (i - 1)], 'BOTTOMLEFT', 0, 1)
 			end
-			TradeSkillFrame.RecipeList:Refresh()
+			if skinUI and not button.skinned then
+				button._minus = button:CreateTexture(nil, 'OVERLAY')
+				button._plus = button:CreateTexture(nil, 'OVERLAY')
+				button.skinned = true
+			end
 		end
 	end
-
 	--- Set Bookmark Icon ---
 	local function bookmarkIcon(button, texture)
 		button:SetNormalTexture(texture)
@@ -337,8 +395,8 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 --- Create Movable Bar ---
 local createMoveBar = function()
 	local movBar = CreateFrame('Button', nil, TradeSkillFrame)
-	movBar:SetPoint('TOPRIGHT', TradeSkillFrame)
-	movBar:SetSize(610, 24)
+	movBar:SetPoint('TOPRIGHT', TradeSkillFrame, -37, -15)
+	movBar:SetSize(610, 20)
 	movBar:SetScript('OnMouseDown', function(_, button)
 		if (button == 'LeftButton') then
 			if CTradeSkillDB['Unlock'] then
@@ -497,16 +555,6 @@ hooksecurefunc(TradeSkillFrame.RecipeList, 'OnHeaderButtonClicked', function(sel
 		end
 	end
 	self:Refresh()
-end)
-
-
---- Fix StackSplit ---
-hooksecurefunc('ContainerFrameItemButton_OnModifiedClick', function(self, button)
-	if TradeSkillFrame:IsShown() then
-		if (button == 'LeftButton') then
-			StackSplitFrame:Hide()
-		end
-	end
 end)
 
 
