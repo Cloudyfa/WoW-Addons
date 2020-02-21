@@ -39,11 +39,44 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 
 
 --- Local Functions ---
+	--- Profession Data ---
+	local CTS_ProfsData = {
+		-- profName: profID, subSpell
+		['Herbalism'] = {182},
+		['Alchemy'] = {171},
+		['Skinning'] = {393},
+		['Leatherworking'] = {165},
+		['Smelting'] = {186},
+		['Blacksmithing'] = {164},
+		['Engineering'] = {202},
+		['Tailoring'] = {197},
+		['Enchanting'] = {333, 'Disenchant'},
+		-- ['Fishing'] = {356},
+		['Cooking'] = {185, 'Basic Campfire'},
+		['First Aid'] = {129},
+	}
+
+	--- Get Player Professions ---
+	local function CTS_GetProfessions()
+		local section, profs = 0, {}
+		for i = 1, GetNumSkillLines() do
+			local name, hdr = GetSkillLineInfo(i)
+			if hdr then
+				section = section + 1
+			else
+				if (section == 2) or (section == 3) then
+					tinsert(profs, name)
+				end
+			end
+		end
+		return profs
+	end
+
 	--- Check Current Tab ---
 	local function isCurrentTab(self)
-		if self.id and IsCurrentSpell(self.id) then
+		if self.tooltip and IsCurrentSpell(self.tooltip) then
 			if TradeSkillFrame:IsShown() and (self.isSub == 0) then
-				CTradeSkillDB['Panel'] = self.id
+				CTradeSkillDB['Panel'] = self.tooltip
 			end
 			self:SetChecked(true)
 			self:RegisterForClicks(nil)
@@ -54,20 +87,19 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 	end
 
 	--- Add Tab Button ---
-	local function addTab(id, index, isSub)
-		local icon = select(3, GetSpellInfo(id))
+	local function addTab(name, index, isSub)
+		local icon = select(3, GetSpellInfo(name))
 		if (not name) or (not icon) then return end
 
 		local tab = _G['CTradeSkillTab' .. index] or CreateFrame('CheckButton', 'CTradeSkillTab' .. index, TradeSkillFrame, 'SpellBookSkillLineTabTemplate, SecureActionButtonTemplate')
 		tab:SetScript('OnEvent', isCurrentTab)
 		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
 
-		tab.id = id
 		tab.isSub = isSub
 		tab.tooltip = name
 		tab:SetNormalTexture(icon)
-		tab:SetAttribute('type', tabType)
-		tab:SetAttribute(tabType, tabItem and name or id)
+		tab:SetAttribute('type', 'spell')
+		tab:SetAttribute('spell', name)
 		isCurrentTab(tab)
 
 		if skinUI and not tab.skinned then
@@ -104,8 +136,8 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 		for i = 1, numTabs do
 			local tab = _G['CTradeSkillTab' .. i]
 			if tab then
-				if CTradeSkillDB['Tabs'][tab.id] then
-					tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', skinUI and 1 or 0, (-50 * index) + (-50 * tab.isSub))
+				if CTradeSkillDB['Tabs'][tab.tooltip] then
+					tab:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPRIGHT', skinUI and -33 or -34, (-50 * index) + (-50 * tab.isSub))
 					tab:Show()
 					index = index + 1
 				else
@@ -127,31 +159,28 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 			end
 		end
 
-		local prof1, prof2, arch, fishing, cooking, firstaid = GetProfessions()
-		local profs = {prof1, prof2, cooking, firstaid}
+		local profs = CTS_GetProfessions()
 		for _, prof in pairs(profs) do
-			local num, offset, _, _, _, spec = select(5, GetProfessionInfo(prof))
-			if (spec and spec ~= 0) then num = 1 end
-			for i = 1, num do
-				if not IsPassiveSpell(offset + i, BOOKTYPE_PROFESSION) then
-					local _, id = GetSpellBookItemInfo(offset + i, BOOKTYPE_PROFESSION)
-					if (i == 1) then
-						tinsert(mainTabs, id)
-						if init and not CTradeSkillDB['Panel'] then
-							CTradeSkillDB['Panel'] = id
-						end
-					else
-						tinsert(subTabs, id)
-					end
+			if (prof == 'Mining') then prof = 'Smelting' end
+			local profInfo = CTS_ProfsData[prof]
+			if profInfo then
+				local profID, subSpell = profInfo[1], profInfo[2]
+				tinsert(mainTabs, prof)
+				if subSpell then
+					tinsert(subTabs, subSpell)
+				end
+
+				if init and not CTradeSkillDB['Panel'] then
+					CTradeSkillDB['Panel'] = prof
 				end
 			end
 		end
 
 		local sameTabs = true
 		for i = 1, #mainTabs + #subTabs do
-			local id = mainTabs[i] or subTabs[i - #mainTabs]
-			if not CTradeSkillDB['Tabs'][id] then
-				CTradeSkillDB['Tabs'][id] = true
+			local name = mainTabs[i] or subTabs[i - #mainTabs]
+			if not CTradeSkillDB['Tabs'][name] then
+				CTradeSkillDB['Tabs'][name] = true
 				sameTabs = false
 			end
 		end
@@ -160,8 +189,8 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 			removeTabs()
 			numTabs = #mainTabs + #subTabs
 			for i = 1, numTabs do
-				local id = mainTabs[i] or subTabs[i - #mainTabs]
-				addTab(id, i, mainTabs[i] and 0 or 1)
+				local name = mainTabs[i] or subTabs[i - #mainTabs]
+				addTab(name, i, mainTabs[i] and 0 or 1)
 			end
 			sortTabs()
 		end
@@ -622,10 +651,10 @@ local function CTSDropdown_Init(self, level)
 				if tab and (tab.isSub == 0) then
 					info.text = tab.tooltip
 					info.func = function()
-						CTradeSkillDB['Tabs'][tab.id] = not CTradeSkillDB['Tabs'][tab.id]
+						CTradeSkillDB['Tabs'][tab.tooltip] = not CTradeSkillDB['Tabs'][tab.tooltip]
 						sortTabs()
 					end
-					info.checked = CTradeSkillDB['Tabs'][tab.id]
+					info.checked = CTradeSkillDB['Tabs'][tab.tooltip]
 					UIDropDownMenu_AddButton(info, level)
 				end
 			end
@@ -635,10 +664,10 @@ local function CTSDropdown_Init(self, level)
 				if tab and (tab.isSub == 1) then
 					info.text = tab.tooltip
 					info.func = function()
-						CTradeSkillDB['Tabs'][tab.id] = not CTradeSkillDB['Tabs'][tab.id]
+						CTradeSkillDB['Tabs'][tab.tooltip] = not CTradeSkillDB['Tabs'][tab.tooltip]
 						sortTabs()
 					end
-					info.checked = CTradeSkillDB['Tabs'][tab.id]
+					info.checked = CTradeSkillDB['Tabs'][tab.tooltip]
 					UIDropDownMenu_AddButton(info, level)
 				end
 			end
