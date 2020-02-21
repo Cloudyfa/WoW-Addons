@@ -16,7 +16,6 @@ local function InitDB()
 		CTradeSkillDB = {}
 		CTradeSkillDB['Size'] = 30
 		CTradeSkillDB['Unlock'] = false
-		CTradeSkillDB['Fade'] = false
 		CTradeSkillDB['Level'] = true
 		CTradeSkillDB['Tooltip'] = true
 		CTradeSkillDB['Drag'] = false
@@ -44,17 +43,6 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 
 
 --- Local Functions ---
-	--- Check Fading State ---
-	local function fadeState()
-		if CTradeSkillDB['Fade'] then
-			f:RegisterEvent('PLAYER_STARTED_MOVING')
-			f:RegisterEvent('PLAYER_STOPPED_MOVING')
-		else
-			f:UnregisterEvent('PLAYER_STARTED_MOVING')
-			f:UnregisterEvent('PLAYER_STOPPED_MOVING')
-		end
-	end
-
 	--- Save Filters ---
 	local function saveFilters()
 		filterMats = C_TradeSkillUI.GetOnlyShowMakeableRecipes()
@@ -715,15 +703,6 @@ local function CTSDropdown_Init(self, level)
 		info.checked = CTradeSkillDB['Unlock']
 		UIDropDownMenu_AddButton(info, level)
 
-		info.text = 'UI ' .. ACTION_SPELL_AURA_REMOVED_BUFF
-		info.func = function()
-			CTradeSkillDB['Fade'] = not CTradeSkillDB['Fade']
-			fadeState()
-		end
-		info.keepShownOnClick = true
-		info.checked = CTradeSkillDB['Fade']
-		UIDropDownMenu_AddButton(info, level)
-
 		info.text = STAT_AVERAGE_ITEM_LEVEL
 		info.func = function()
 			CTradeSkillDB['Level'] = not CTradeSkillDB['Level']
@@ -835,7 +814,6 @@ end)
 f:SetScript('OnEvent', function(self, event, ...)
 	if (event == 'PLAYER_LOGIN') then
 		InitDB()
-		fadeState()
 		updateSize(true)
 		updatePosition()
 		updateTabs(true)
@@ -845,10 +823,6 @@ f:SetScript('OnEvent', function(self, event, ...)
 		createOptions()
 		injectDruidButtons()
 		injectVellumButton()
-	elseif (event == 'PLAYER_STARTED_MOVING') then
-		TradeSkillFrame:SetAlpha(0.3)
-	elseif (event == 'PLAYER_STOPPED_MOVING') then
-		TradeSkillFrame:SetAlpha(1.0)
 	elseif (event == 'TRADE_SKILL_LIST_UPDATE') then
 		saveFilters()
 		searchTxt = TradeSkillFrame.SearchBox:GetText()
