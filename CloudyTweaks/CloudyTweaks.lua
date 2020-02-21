@@ -18,7 +18,6 @@ local function CTweaksDB_Init()
 
 		CTweaksDB['AcceptResurrect'] = 1
 		CTweaksDB['AutoRelease'] = nil
-		CTweaksDB['TabTarget'] = 1
 
 		CTweaksDB['AutoSell'] = 1
 		CTweaksDB['AutoRepair'] = 1
@@ -47,10 +46,6 @@ local function CTweaksDB_Init()
 	end
 
 	-- Check if features are useable --
-	if not GetCVar('TargetNearestUseOld') then
-		CTweaksUI_TabTarget:Disable()
-		CTweaksUI_TabTarget:SetAlpha(0.5)
-	end
 	if not GetCVar('cameraDistanceMaxZoomFactor') then
 		CTweaksUI_CamDistance:Disable()
 		CTweaksUI_CamDistance:SetAlpha(0.5)
@@ -173,25 +168,6 @@ end
 	mCoords.player = mCoords:CreateFontString(nil, 'ARTWORK', 'GameFontNormal')
 	mCoords.player:SetPoint('BOTTOMLEFT', 10, 4)
 	mCoords.player:SetJustifyH('LEFT')
-
-	-- Tabard Buttons --
-	local tabard1 = CreateFrame('Button', nil, DressUpFrame, 'UIPanelButtonTemplate')
-	tabard1.Text:SetText(TABARDSLOT)
-	tabard1:SetSize(80, 22)
-	tabard1:SetPoint('RIGHT', DressUpFrameResetButton, 'LEFT')
-	tabard1:SetScript('OnClick', function()
-		DressUpModel:UndressSlot(19)
-		PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)
-	end)
-
-	local tabard2 = CreateFrame('Button', nil, SideDressUpFrame, 'UIPanelButtonTemplate')
-	tabard2.Text:SetText(TABARDSLOT)
-	tabard2:SetSize(80, 22)
-	tabard2:SetPoint('TOP', SideDressUpModelResetButton, 'BOTTOM')
-	tabard2:SetScript('OnClick', function()
-		SideDressUpModel:UndressSlot(19)
-		PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)
-	end)
 
 
 --- Hook Functions ---
@@ -381,14 +357,6 @@ local function CTweaks_Handler()
 		CTweaks:RegisterEvent('PLAYER_DEAD')
 	else
 		CTweaks:UnregisterEvent('PLAYER_DEAD')
-	end
-
-	if CTweaksUI_TabTarget:IsEnabled() then
-		if CTweaksDB['TabTarget'] then
-			SetCVar('TargetNearestUseOld', '1')
-		else
-			SetCVar('TargetNearestUseOld', '0')
-		end
 	end
 
 	if CTweaksDB['AutoSell'] or CTweaksDB['AutoRepair'] then
@@ -619,7 +587,6 @@ function CTweaks_OnEvent(self, event, ...)
 
 		if CTweaksDB['AutoSell'] then
 			local total = 0
-
 			for bag = 0, 4 do
 				for slot = 1, GetContainerNumSlots(bag) do
 					local item = GetContainerItemID(bag, slot)
@@ -696,7 +663,6 @@ function CTweaksUI_Load()
 
 	CTweaksUI_AcceptResurrect:SetChecked(CTweaksDB['AcceptResurrect'])
 	CTweaksUI_AutoRelease:SetChecked(CTweaksDB['AutoRelease'])
-	CTweaksUI_TabTarget:SetChecked(CTweaksDB['TabTarget'])
 
 	CTweaksUI_AutoSell:SetChecked(CTweaksDB['AutoSell'])
 	CTweaksUI_AutoRepair:SetChecked(CTweaksDB['AutoRepair'])
@@ -733,7 +699,6 @@ function CTweaksUI_Save()
 
 	CTweaksDB['AcceptResurrect'] = CTweaksUI_AcceptResurrect:GetChecked()
 	CTweaksDB['AutoRelease'] = CTweaksUI_AutoRelease:GetChecked()
-	CTweaksDB['TabTarget'] = CTweaksUI_TabTarget:GetChecked()
 
 	CTweaksDB['AutoSell'] = CTweaksUI_AutoSell:GetChecked()
 	CTweaksDB['AutoRepair'] = CTweaksUI_AutoRepair:GetChecked()
@@ -785,7 +750,6 @@ function CTweaksUI_OnLoad(self)
 
 	CTweaksUI_AcceptResurrectText:SetText('Auto accept resurrection')
 	CTweaksUI_AutoReleaseText:SetText('Auto release in BGs')
-	CTweaksUI_TabTargetText:SetText('Use legacy Tab targeting')
 
 	CTweaksUI_AutoSellText:SetText('Auto sell junk')
 	CTweaksUI_AutoRepairText:SetText('Auto repair all items')

@@ -14,7 +14,6 @@
 			<OnLoad>
 				CTweaks_OnLoad(self)
 			</OnLoad>
-
 			<OnEvent>
 				CTweaks_OnEvent(self, event, ...)
 			</OnEvent>
@@ -118,12 +117,6 @@
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_TabTarget" inherits="InterfaceOptionsCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_AutoRelease" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
 			<Frame>
 				<Layers>
 					<Layer level="ARTWORK">
@@ -132,7 +125,7 @@
 								<AbsDimension x="0" y="24"/>
 							</Size>
 							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="$parent_TabTarget" relativePoint="BOTTOMLEFT">
+								<Anchor point="TOPLEFT" relativeTo="$parent_AutoRelease" relativePoint="BOTTOMLEFT">
 									<Offset>
 										<AbsDimension x="0" y="-8"/>
 									</Offset>
