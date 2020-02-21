@@ -21,7 +21,6 @@ local function CTweaksDB_Init()
 
 		CTweaksDB['AutoSell'] = 1
 		CTweaksDB['AutoRepair'] = 1
-		CTweaksDB['SelfRepair'] = nil
 		CTweaksDB['SkipGossip'] = nil
 
 		CTweaksDB['ChatFade'] = nil
@@ -607,22 +606,6 @@ function CTweaks_OnEvent(self, event, ...)
 			if needed and (cost > 0) then
 				local repaired, source
 
-				if (not CTweaksDB['SelfRepair']) and CanGuildBankRepair() then
-					local limit = GetGuildBankWithdrawMoney()
-					if (limit == -1) or (limit >= cost) then
-						local remain = GetGuildBankMoney()
-						if (remain == 0) then
-							RepairAllItems(1)
-							RepairAllItems()
-							repaired = 1
-						elseif (remain >= cost) then
-							RepairAllItems(1)
-							repaired = 1
-							source = ' (' .. GUILD .. ')'
-						end
-					end
-				end
-
 				if (not repaired) then
 					local funds = GetMoney()
 					if (funds >= cost) then
@@ -662,7 +645,6 @@ function CTweaksUI_Load()
 
 	CTweaksUI_AutoSell:SetChecked(CTweaksDB['AutoSell'])
 	CTweaksUI_AutoRepair:SetChecked(CTweaksDB['AutoRepair'])
-	CTweaksUI_SelfRepair:SetChecked(CTweaksDB['SelfRepair'])
 	CTweaksUI_SkipGossip:SetChecked(CTweaksDB['SkipGossip'])
 
 	CTweaksUI_ChatFade:SetChecked(CTweaksDB['ChatFade'])
@@ -698,7 +680,6 @@ function CTweaksUI_Save()
 
 	CTweaksDB['AutoSell'] = CTweaksUI_AutoSell:GetChecked()
 	CTweaksDB['AutoRepair'] = CTweaksUI_AutoRepair:GetChecked()
-	CTweaksDB['SelfRepair'] = CTweaksUI_SelfRepair:GetChecked()
 	CTweaksDB['SkipGossip'] = CTweaksUI_SkipGossip:GetChecked()
 
 	CTweaksDB['ChatFade'] = CTweaksUI_ChatFade:GetChecked()
@@ -749,7 +730,6 @@ function CTweaksUI_OnLoad(self)
 
 	CTweaksUI_AutoSellText:SetText('Auto sell junk')
 	CTweaksUI_AutoRepairText:SetText('Auto repair all items')
-	CTweaksUI_SelfRepairText:SetText('Use own money only')
 	CTweaksUI_SkipGossipText:SetText('Skip useless gossip')
 
 	CTweaksUI_ChatFadeText:SetText('Enable chat fading')

@@ -146,44 +146,11 @@
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_AutoSell" relativePoint="BOTTOMLEFT" />
 				</Anchors>
-				<Scripts>
-					<OnClick>
-						if self:GetChecked() then
-							CTweaksUI_SelfRepair:Enable()
-							CTweaksUI_SelfRepair:SetAlpha(1.0)
-						else
-							CTweaksUI_SelfRepair:Disable()
-							CTweaksUI_SelfRepair:SetAlpha(0.5)
-						end
-					</OnClick>
-				</Scripts>
-			</CheckButton>
-
-			<CheckButton name="$parent_SelfRepair" inherits="InterfaceOptionsSmallCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_AutoRepair" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="10" y="4"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnShow>
-						if not CTweaksUI_AutoRepair:GetChecked() then
-							self:Disable()
-							self:SetAlpha(0.5)
-						end
-					</OnShow>
-				</Scripts>
 			</CheckButton>
 
 			<CheckButton name="$parent_SkipGossip" inherits="InterfaceOptionsCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_SelfRepair" relativePoint="BOTTOMLEFT">
-						<Offset>
-							<AbsDimension x="-10" y="0"/>
-						</Offset>
-					</Anchor>
+					<Anchor point="TOPLEFT" relativeTo="$parent_AutoRepair" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
