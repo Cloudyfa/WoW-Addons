@@ -594,45 +594,6 @@ local function injectDruidButtons()
 end
 
 
---- Enchanting Vellum ---
-local function injectVellumButton()
-	local vellum = CreateFrame('Button', nil, TradeSkillFrame, 'MagicButtonTemplate')
-	if (skinUI == 'Aurora') then
-		loadedUI.Reskin(vellum)
-	elseif (skinUI == 'ElvUI') then
-		loadedUI:HandleButton(vellum, true)
-	end
-
-	vellum:SetSize(90, 22)
-	vellum:SetPoint('RIGHT', TradeSkillFrame.DetailsFrame.CreateButton, 'LEFT')
-	vellum:SetScript('OnClick', function()
-		C_TradeSkillUI.CraftRecipe(TradeSkillFrame.DetailsFrame.selectedRecipeID)
-		UseItemByName(38682)
-	end)
-
-	hooksecurefunc(TradeSkillFrame.DetailsFrame, 'RefreshButtons', function(self)
-		if (select(6, C_TradeSkillUI.GetTradeSkillLine()) ~= 333) or C_TradeSkillUI.IsTradeSkillLinked() or not self.createVerbOverride then
-			vellum:Hide()
-		else
-			local recipeInfo = self.selectedRecipeID and C_TradeSkillUI.GetRecipeInfo(self.selectedRecipeID)
-			if recipeInfo then
-				local numScrolls = min(recipeInfo.numAvailable, GetItemCount(38682))
-				if numScrolls > 0 then
-					vellum:SetText(CREATE_PROFESSION .. ' [' .. numScrolls .. ']')
-					vellum:Enable()
-				else
-					vellum:SetText(CREATE_PROFESSION)
-					vellum:Disable()
-				end
-				vellum:Show()
-			else
-				vellum:Hide()
-			end
-		end
-	end)
-end
-
-
 --- Warning Dialog ---
 StaticPopupDialogs['CTRADESKILL_WARNING'] = {
 	text = UNLOCK_FRAME .. ' ' .. REQUIRES_RELOAD:lower() .. '!\n',
@@ -786,7 +747,6 @@ f:SetScript('OnEvent', function(self, event, ...)
 		createBookmarks()
 		createOptions()
 		injectDruidButtons()
-		injectVellumButton()
 	elseif (event == 'TRADE_SKILL_DATA_SOURCE_CHANGED') then
 		if UnitAffectingCombat('player') then
 			delay = true
