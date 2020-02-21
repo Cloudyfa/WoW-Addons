@@ -400,7 +400,7 @@ local createMoveBar = function()
 				TradeSkillFrame:StartMoving()
 			end
 		elseif (button == 'RightButton') then
-			if not InCombatLockdown() then
+			if not UnitAffectingCombat('player') then
 				CTradeSkillDB['OffsetX'] = nil
 				CTradeSkillDB['OffsetY'] = nil
 				updatePosition()
@@ -423,29 +423,29 @@ end
 local createResizeBar = function()
 	local resizeBar = CreateFrame('Button', nil, TradeSkillFrame)
 	resizeBar:SetPoint('BOTTOM', TradeSkillFrame)
-	resizeBar:SetSize(670, 12)
+	resizeBar:SetSize(670, 6)
 	resizeBar:SetScript('OnMouseDown', function(_, button)
-		if (button == 'LeftButton') and not InCombatLockdown() then
+		if (button == 'LeftButton') and not UnitAffectingCombat('player') then
 			TradeSkillFrame:SetResizable(true)
-			TradeSkillFrame:SetMinResize(670, 495)
-			TradeSkillFrame:SetMaxResize(670, TradeSkillFrame:GetTop() - 40)
+			TradeSkillFrame:SetMinResize(670, 512)
+			TradeSkillFrame:SetMaxResize(670, TradeSkillFrame:GetTop())
 			TradeSkillFrame:StartSizing('BOTTOM')
 		end
 	end)
 	resizeBar:SetScript('OnMouseUp', function(_, button)
-		if (button == 'LeftButton') and not InCombatLockdown() then
+		if (button == 'LeftButton') and not UnitAffectingCombat('player') then
 			TradeSkillFrame:StopMovingOrSizing()
 			TradeSkillFrame:SetResizable(false)
 			updateSize(true)
 		end
 	end)
 	resizeBar:SetScript('OnEnter', function()
-		if not InCombatLockdown() then
+		if not UnitAffectingCombat('player') then
 			SetCursor('CAST_CURSOR')
 		end
 	end)
 	resizeBar:SetScript('OnLeave', function()
-		if not InCombatLockdown() then
+		if not UnitAffectingCombat('player') then
 			ResetCursor()
 		end
 	end)
@@ -454,7 +454,7 @@ end
 
 --- Refresh TSFrame ---
 TradeSkillFrame:HookScript('OnSizeChanged', function(self)
-	if self:IsShown() and not InCombatLockdown() then
+	if self:IsShown() and not UnitAffectingCombat('player') then
 		CTradeSkillDB['Size'] = (self:GetHeight() - 96) / 16
 		updateSize()
 	end
