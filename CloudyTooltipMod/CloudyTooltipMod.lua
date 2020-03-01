@@ -194,19 +194,17 @@ local function CTipMod_Hooks()
 		end
 
 		if CTipModDB['MouseAnchor'] then
-			if (GetMouseFocus() == WorldFrame) then
-				if (CTipModDB['MousePos'] == 2) then
-					self:SetOwner(parent, 'ANCHOR_CURSOR_LEFT')
-				elseif (CTipModDB['MousePos'] == 3) then
-					self:SetOwner(parent, 'ANCHOR_CURSOR_RIGHT')
-				else
-					self:SetOwner(parent, 'ANCHOR_CURSOR')
-				end
+			if (CTipModDB['MousePos'] == 2) then
+				self:SetOwner(parent, 'ANCHOR_CURSOR_LEFT')
+			elseif (CTipModDB['MousePos'] == 3) then
+				self:SetOwner(parent, 'ANCHOR_CURSOR_RIGHT')
+			else
+				self:SetOwner(parent, 'ANCHOR_CURSOR')
 			end
 		elseif CTipModDB['OverlayAnchor'] then
 			self:ClearAllPoints()
 			if CTipModPOS and (#CTipModPOS ~= 0) then
-				self:SetPoint(CTipModPOS[1], parent, CTipModPOS[2], CTipModPOS[3], CTipModPOS[4])
+				self:SetPoint(CTipModPOS[1], UIParent, CTipModPOS[2], CTipModPOS[3], CTipModPOS[4])
 			else
 				self:SetPoint('BOTTOMRIGHT', 0, 8)
 			end
@@ -596,8 +594,8 @@ local function CTipMod_Handler()
 	if CTipModDB['HideBorder'] then
 		CTipBackdrop.edgeSize = 0.01
 	else
-		if CTipEdgeSize > 12 then
-			CTipBackdrop.edgeSize = 12
+		if CTipEdgeSize > 13 then
+			CTipBackdrop.edgeSize = 13
 		else
 			CTipBackdrop.edgeSize = CTipEdgeSize
 		end
