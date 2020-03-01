@@ -67,6 +67,29 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		C_TradeSkillUI.SetOnlyShowSkillUpRecipes(filterSkill)
 	end
 
+	--- Get Player Professions ---
+	local function CTS_GetProfessions()
+		local mProfs, sProfs = {}, {}
+		local prof1, prof2, arch, fishing, cooking, firstaid = GetProfessions()
+		local profs = {prof1, prof2, cooking, firstaid}
+		for _, prof in pairs(profs) do
+			local num, offset, _, _, _, spec = select(5, GetProfessionInfo(prof))
+			if (spec and spec ~= 0) then num = 1 end
+			for i = 1, num do
+				local index = offset + i
+				if not IsPassiveSpell(index, BOOKTYPE_PROFESSION) then
+					local _, id = GetSpellBookItemInfo(index, BOOKTYPE_PROFESSION)
+					if (i == 1) then
+						tinsert(mProfs, id)
+					else
+						tinsert(sProfs, id)
+					end
+				end
+			end
+		end
+		return mProfs, sProfs
+	end
+
 	--- Check Current Tab ---
 	local function isCurrentTab(self)
 		if self.id and IsCurrentSpell(self.id) then
@@ -157,48 +180,26 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		end
 	end
 
-	--- Check Profession Useable ---
-	local function isUseable(id)
-		local name = GetSpellInfo(id)
-		return IsUsableSpell(name)
-	end
-
 	--- Update Profession Tabs ---
 	local function updateTabs(init)
-		local mainTabs, subTabs = {}, {}
-
-		local _, class = UnitClass('player')
-		if (class == 'DEATHKNIGHT') and isUseable(53428) then
-			tinsert(mainTabs, 53428) --RuneForging
-		elseif (class == 'ROGUE') and isUseable(1804) then
-			tinsert(subTabs, 1804) --PickLock
+		local mainTabs, subTabs = CTS_GetProfessions()
+		if init and not CTradeSkillDB['Panel'] then
+			if mainTabs[1] then
+				CTradeSkillDB['Panel'] = mainTabs[1]
+			end
 		end
 
+		local _, class = UnitClass('player')
+		if (class == 'DEATHKNIGHT') and IsUsableSpell(53428) then
+			tinsert(mainTabs, 53428) --RuneForging
+		elseif (class == 'ROGUE') and IsUsableSpell(1804) then
+			tinsert(subTabs, 1804) --PickLock
+		end
 		if PlayerHasToy(134020) and C_ToyBox.IsToyUsable(134020) then
 			tinsert(subTabs, 134020) --ChefHat
 		end
 		if GetItemCount(87216) ~= 0 then
 			tinsert(subTabs, 126462) --ThermalAnvil
-		end
-
-		local prof1, prof2, arch, fishing, cooking, firstaid = GetProfessions()
-		local profs = {prof1, prof2, cooking, firstaid}
-		for _, prof in pairs(profs) do
-			local num, offset, _, _, _, spec = select(5, GetProfessionInfo(prof))
-			if (spec and spec ~= 0) then num = 1 end
-			for i = 1, num do
-				if not IsPassiveSpell(offset + i, BOOKTYPE_PROFESSION) then
-					local _, id = GetSpellBookItemInfo(offset + i, BOOKTYPE_PROFESSION)
-					if (i == 1) then
-						tinsert(mainTabs, id)
-						if init and not CTradeSkillDB['Panel'] then
-							CTradeSkillDB['Panel'] = id
-						end
-					else
-						tinsert(subTabs, id)
-					end
-				end
-			end
 		end
 
 		local sameTabs = true
@@ -849,6 +850,7 @@ f:SetScript('OnEvent', function(self, event, ...)
 		saveFilters()
 		searchTxt = TradeSkillFrame.SearchBox:GetText()
 	elseif (event == 'TRADE_SKILL_DATA_SOURCE_CHANGED') then
+		if not CTradeSkillDB then return end
 		if UnitAffectingCombat('player') then
 			delay = true
 		else
