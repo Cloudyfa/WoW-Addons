@@ -671,13 +671,17 @@ local function refreshRecipes(frame)
 					else
 						local offset = FauxScrollFrame_GetOffset(scrollFrame)
 						local index = i + offset
-						local recipe, hdr, quality, _, _, _, level = getSkillInfo(index)
+						local recipe, hdr, quality, quantity, _, _, level = getSkillInfo(index)
 						if recipe and level then
 							if (level > 1) then
 								button.CTSLevel:SetText(level)
 								button.CTSLevel:SetTextColor(GetItemQualityColor(1))
 							end
-							button:SetText('      ' .. recipe)
+							if (quantity == 0) then
+								button:SetText('      ' .. recipe)
+							else
+								button:SetText('      ' .. recipe .. ' [' .. quantity .. ']')
+							end
 						elseif recipe and (hdr ~= 'header') then
 							local link = GetTradeSkillItemLink(index)
 							if link then
