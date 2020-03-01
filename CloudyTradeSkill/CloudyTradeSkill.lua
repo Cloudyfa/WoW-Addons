@@ -18,7 +18,7 @@ local function InitDB()
 		CTradeSkillDB['Unlock'] = false
 		CTradeSkillDB['Fade'] = false
 		CTradeSkillDB['Level'] = true
-		CTradeSkillDB['Tooltip'] = true
+		CTradeSkillDB['Tooltip'] = false
 		CTradeSkillDB['Drag'] = false
 	end
 	if not CTradeSkillDB['Tabs'] then CTradeSkillDB['Tabs'] = {} end
@@ -807,10 +807,10 @@ local function createOptions()
 	--- Option Button ---
 	local button = CreateFrame('Button', 'CTSOption', TradeSkillFrame, 'UIPanelButtonTemplate')
 	button:SetScript('OnClick', function(self) ToggleDropDownMenu(1, nil, CTSDropdown, self, 2, -6) end)
-	button:SetPoint('RIGHT', TradeSkillFrameCloseButton, 'LEFT', 3.5, 0.4)
+	button:SetPoint('RIGHT', TradeSkillFrameCloseButton, 'LEFT', 3.5, 0.6)
 	button:SetFrameStrata('HIGH')
 	button:SetText('CTS')
-	button:SetSize(38, 22)
+	button:SetSize(38, 23)
 
 	if (skinUI == 'Aurora') then
 		loadedUI.Reskin(button)
@@ -836,19 +836,15 @@ f:SetScript('OnEvent', function(self, event, ...)
 	if (event == 'PLAYER_LOGIN') then
 		InitDB()
 		fadeState()
-		updateSize(true)
 		updatePosition()
 		updateTabs(true)
+		updateSize(true)
 		createMoveBar()
 		createResizeBar()
 		createBookmarks()
 		createOptions()
 		injectDruidButtons()
 		injectVellumButton()
-	elseif (event == 'PLAYER_STARTED_MOVING') then
-		TradeSkillFrame:SetAlpha(0.3)
-	elseif (event == 'PLAYER_STOPPED_MOVING') then
-		TradeSkillFrame:SetAlpha(1.0)
 	elseif (event == 'TRADE_SKILL_LIST_UPDATE') then
 		saveFilters()
 		searchTxt = TradeSkillFrame.SearchBox:GetText()
@@ -859,6 +855,10 @@ f:SetScript('OnEvent', function(self, event, ...)
 			updateTabs()
 		end
 		TradeSkillFrame.SearchBox:SetText(searchTxt)
+	elseif (event == 'PLAYER_STARTED_MOVING') then
+		TradeSkillFrame:SetAlpha(0.3)
+	elseif (event == 'PLAYER_STOPPED_MOVING') then
+		TradeSkillFrame:SetAlpha(1.0)
 	elseif (event == 'PLAYER_REGEN_ENABLED') then
 		if delay then
 			updateTabs()
