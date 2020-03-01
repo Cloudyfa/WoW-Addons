@@ -13,7 +13,7 @@ local function CTipModDB_Init()
 
 		-- Default configuration --
 		CTipModDB['MouseAnchor'] = 1
-		CTipModDB['MousePos'] = 1
+		CTipModDB['MousePos'] = 3
 		CTipModDB['OverlayAnchor'] = nil
 
 		CTipModDB['TipColor'] = 1
@@ -40,7 +40,7 @@ local function CTipModDB_Init()
 
 	-- DropDownMenu Init --
 	UIDropDownMenu_Initialize(CTipModUI_MousePos, CTipPos_Init)
-	UIDropDownMenu_SetSelectedValue(CTipModUI_MousePos, CTipModDB['MousePos'] or 1)
+	UIDropDownMenu_SetSelectedValue(CTipModUI_MousePos, CTipModDB['MousePos'] or 3)
 
 	-- Change tooltip style --
 	CTipBackdrop = GameTooltip:GetBackdrop()
