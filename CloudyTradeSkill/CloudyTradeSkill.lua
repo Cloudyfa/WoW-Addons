@@ -14,7 +14,7 @@ local function InitDB()
 		CTradeSkillDB = {}
 		CTradeSkillDB['Unlock'] = false
 		CTradeSkillDB['Level'] = true
-		CTradeSkillDB['Tooltip'] = true
+		CTradeSkillDB['Tooltip'] = false
 	end
 	CTradeSkillDB['Size'] = 22
 	if not CTradeSkillDB['Tabs'] then CTradeSkillDB['Tabs'] = {} end
@@ -41,21 +41,11 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 
 --- Local Functions ---
 	--- Profession Data ---
-	local CTS_ProfsData = {
-		-- profName: profID, subSpell
-		['Herbalism'] = {182},
-		['Alchemy'] = {171},
-		['Skinning'] = {393},
-		['Leatherworking'] = {165},
-		['Smelting'] = {186},
-		['Blacksmithing'] = {164},
-		['Engineering'] = {202},
-		['Tailoring'] = {197},
-		['Enchanting'] = {333, 'Disenchant'},
-		-- ['Fishing'] = {356},
-		['Cooking'] = {185, 'Basic Campfire'},
-		['First Aid'] = {129},
-	}
+	local profMining = GetSpellInfo(2576)
+	local profSmelting = GetSpellInfo(2656)
+	local profEnchant = GetSpellInfo(7412)
+	local profFishing = GetSpellInfo(7731)
+	local profCooking = GetSpellInfo(3102)
 
 	--- Get Player Professions ---
 	local function CTS_GetProfessions()
@@ -65,15 +55,17 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 			if hdr then
 				section = section + 1
 			else
-				if (section == 2) or (section == 3) then
-					if (name == 'Mining') then name = 'Smelting' end
-					local profInfo = CTS_ProfsData[prof]
-					if profInfo then
-						tinsert(mProfs, name)
-
-						local subSpell = profInfo[2]
-						if subSpell then
-							tinsert(sProfs, subSpell)
+				if (section == 2) or (section == 3) and (name ~= profFishing) then
+					if (name == profMining) then
+						name = profSmelting
+					end
+					local id = select(7, GetSpellInfo(name))
+					if id then
+						tinsert(mProfs, id)
+						if (name == profEnchant) then
+							tinsert(sProfs, 13262) --Disenchant
+						elseif (name == profCooking) then
+							tinsert(sProfs, 818) --Campfire
 						end
 					end
 				end
@@ -87,7 +79,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 		--- Auto Hide Tab ---
 		local frame = self:GetParent()
 		if (frame == CraftFrame) and not UnitAffectingCombat('player') then
-			if IsCurrentSpell('Enchanting') then
+			if IsCurrentSpell(profEnchant) then
 				self:Show()
 			else
 				self:Hide()
@@ -96,10 +88,10 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 		end
 
 		--- Check Tab State ---
-		if self.tooltip and IsCurrentSpell(self.tooltip) then
-			if IsCurrentSpell('Enchanting') then
-				if (self.tooltip == 'Enchanting') then
-					CTradeSkillDB['Panel'] = self.tooltip
+		if self.id and IsCurrentSpell(self.id) then
+			if IsCurrentSpell(profEnchant) then
+				if (self.tooltip == profEnchant) then
+					CTradeSkillDB['Panel'] = self.id
 					self:SetChecked(true)
 					self:RegisterForClicks(nil)
 				elseif (self.isSub == 0) then
@@ -108,7 +100,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 				end
 			else
 				if TradeSkillFrame:IsShown() and (self.isSub == 0) then
-					CTradeSkillDB['Panel'] = self.tooltip
+					CTradeSkillDB['Panel'] = self.id
 				end
 				self:SetChecked(true)
 				self:RegisterForClicks(nil)
@@ -120,19 +112,20 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 	end
 
 	--- Add Tab Button ---
-	local function addTab(name, index, isSub, frame)
-		local icon = select(3, GetSpellInfo(name))
+	local function addTab(id, index, isSub, frame)
+		local name, _, icon = GetSpellInfo(id)
 		if (not name) or (not icon) then return end
 
 		local tab = _G['CTSTab-' .. frame:GetName() .. '_' .. index] or CreateFrame('CheckButton', 'CTSTab-' .. frame:GetName() .. '_' .. index, frame, 'SpellBookSkillLineTabTemplate, SecureActionButtonTemplate')
 		tab:SetScript('OnEvent', isCurrentTab)
 		tab:RegisterEvent('CURRENT_SPELL_CAST_CHANGED')
 
+		tab.id = id
 		tab.isSub = isSub
 		tab.tooltip = name
 		tab:SetNormalTexture(icon)
 		tab:SetAttribute('type', 'spell')
-		tab:SetAttribute('spell', name)
+		tab:SetAttribute('spell', id)
 		isCurrentTab(tab)
 
 		if skinUI and not tab.skinned then
@@ -172,9 +165,9 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 			for i = 1, numTabs do
 				local tab = _G['CTSTab-' .. frame:GetName() .. '_' .. i]
 				if tab then
-					if CTradeSkillDB['Tabs'][tab.tooltip] then
+					if CTradeSkillDB['Tabs'][tab.id] then
 						tab:SetPoint('TOPLEFT', frame, 'TOPRIGHT', skinUI and -33 or -34, (-50 * index) + (-50 * tab.isSub))
-						if (frame == CraftFrame) and (GetCraftDisplaySkillLine() ~= 'Enchanting') then
+						if (frame == CraftFrame) and (GetCraftDisplaySkillLine() ~= profEnchant) then
 							tab:Hide()
 						else
 							tab:Show()
@@ -199,17 +192,16 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 
 		local _, class = UnitClass('player')
 		if (class == 'ROGUE') then
-			local spell = GetSpellInfo(1804) --PickLock
-			if IsUsableSpell(spell) then
-				tinsert(subTabs, spell)
+			if IsUsableSpell(1804) then
+				tinsert(subTabs, 1804) --PickLock
 			end
 		end
 
 		local sameTabs = true
 		for i = 1, #mainTabs + #subTabs do
-			local name = mainTabs[i] or subTabs[i - #mainTabs]
-			if not CTradeSkillDB['Tabs'][name] then
-				CTradeSkillDB['Tabs'][name] = true
+			local id = mainTabs[i] or subTabs[i - #mainTabs]
+			if not CTradeSkillDB['Tabs'][id] then
+				CTradeSkillDB['Tabs'][id] = true
 				sameTabs = false
 			end
 		end
@@ -218,10 +210,10 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 			removeTabs()
 			numTabs = #mainTabs + #subTabs
 			for i = 1, numTabs do
-				local name = mainTabs[i] or subTabs[i - #mainTabs]
-				addTab(name, i, mainTabs[i] and 0 or 1, TradeSkillFrame)
+				local id = mainTabs[i] or subTabs[i - #mainTabs]
+				addTab(id, i, mainTabs[i] and 0 or 1, TradeSkillFrame)
 				if CraftFrame then
-					addTab(name, i, mainTabs[i] and 0 or 1, CraftFrame)
+					addTab(id, i, mainTabs[i] and 0 or 1, CraftFrame)
 					craftTabs = true
 				end
 			end
@@ -467,7 +459,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 			local prof
 			if (frame == CraftFrame) then
 				prof = GetCraftDisplaySkillLine()
-				if (prof ~= 'Enchanting') then return end
+				if (prof ~= profEnchant) then return end
 			else
 				prof = GetTradeSkillLine()
 			end
@@ -522,7 +514,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 			local prof
 			if (frame == CraftFrame) then
 				prof = GetCraftDisplaySkillLine()
-				if (prof ~= 'Enchanting') then return end
+				if (prof ~= profEnchant) then return end
 			else
 				prof = GetTradeSkillLine()
 			end
@@ -646,7 +638,7 @@ local function refreshRecipes(frame)
 							local frame = self:GetParent()
 							if (frame == CraftFrame) then
 								local prof = GetCraftDisplaySkillLine()
-								if (prof ~= 'Enchanting') then return end
+								if (prof ~= profEnchant) then return end
 							end
 
 							local offset = FauxScrollFrame_GetOffset(scrollFrame)
@@ -674,7 +666,7 @@ local function refreshRecipes(frame)
 						button.CTSLevel:SetPoint('RIGHT', button, 'LEFT', 20, 2)
 					end
 
-					if (frame == CraftFrame) and (GetCraftDisplaySkillLine() ~= 'Enchanting') then
+					if (frame == CraftFrame) and (GetCraftDisplaySkillLine() ~= profEnchant) then
 						button.CTSLevel:SetText('')
 					else
 						local offset = FauxScrollFrame_GetOffset(scrollFrame)
@@ -840,10 +832,10 @@ local function CTSDropdown_Init(self, level)
 				if tab and (tab.isSub == 0) then
 					info.text = tab.tooltip
 					info.func = function()
-						CTradeSkillDB['Tabs'][tab.tooltip] = not CTradeSkillDB['Tabs'][tab.tooltip]
+						CTradeSkillDB['Tabs'][tab.id] = not CTradeSkillDB['Tabs'][tab.id]
 						sortTabs()
 					end
-					info.checked = CTradeSkillDB['Tabs'][tab.tooltip]
+					info.checked = CTradeSkillDB['Tabs'][tab.id]
 					UIDropDownMenu_AddButton(info, level)
 				end
 			end
@@ -853,10 +845,10 @@ local function CTSDropdown_Init(self, level)
 				if tab and (tab.isSub == 1) then
 					info.text = tab.tooltip
 					info.func = function()
-						CTradeSkillDB['Tabs'][tab.tooltip] = not CTradeSkillDB['Tabs'][tab.tooltip]
+						CTradeSkillDB['Tabs'][tab.id] = not CTradeSkillDB['Tabs'][tab.id]
 						sortTabs()
 					end
-					info.checked = CTradeSkillDB['Tabs'][tab.tooltip]
+					info.checked = CTradeSkillDB['Tabs'][tab.id]
 					UIDropDownMenu_AddButton(info, level)
 				end
 			end
