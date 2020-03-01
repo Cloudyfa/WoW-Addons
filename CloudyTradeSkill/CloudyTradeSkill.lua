@@ -253,7 +253,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 		end
 		if not skinUI then
 			local scrollFix = _G[frame .. 'ListScrollFrame']:CreateTexture(nil, 'BACKGROUND')
-			scrollFix:SetPoint('TOPRIGHT', _G[frame .. 'ListScrollFrame'], 'TOPRIGHT', 29, -110)
+			scrollFix:SetPoint('TOPRIGHT', _G[frame .. 'ListScrollFrame'], 'TOPRIGHT', 28.9, -110)
 			scrollFix:SetTexture('Interface\\ClassTrainerFrame\\UI-ClassTrainer-ScrollBar')
 			scrollFix:SetTexCoord(.0, .5, .2, .9)
 			scrollFix:SetSize(32, 0)
@@ -278,7 +278,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 		if not skinUI then
 			--- Recipe Background ---
 			local RecipeInset = _G[frame .. 'Frame']:CreateTexture(nil, 'ARTWORK')
-			RecipeInset:SetPoint('TOPLEFT', _G[frame .. 'Frame'], 'TOPLEFT', 16.4, -72)
+			RecipeInset:SetPoint('TOPLEFT', _G[frame .. 'Frame'], 'TOPLEFT', 16.3, -72)
 			RecipeInset:SetTexture('Interface\\RaidFrame\\UI-RaidFrame-GroupBg')
 			RecipeInset:SetSize(326.5, 360.8)
 
@@ -289,22 +289,30 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 			DetailsInset:SetSize(324, 339)
 		end
 
-		-- Expand Tab ---
+		--- Expand Tab ---
 		_G[frame .. 'ExpandTabLeft']:Hide()
 
+		--- Frame Buttons ---
+		_G[frame .. 'CancelButton']:ClearAllPoints()
+		_G[frame .. 'CancelButton']:SetPoint('BOTTOMRIGHT', _G[frame .. 'Frame'], 'BOTTOMRIGHT', -40, skinUI and 79 or 54)
+		_G[frame .. 'CreateButton']:ClearAllPoints()
+		_G[frame .. 'CreateButton']:SetPoint('RIGHT', _G[frame .. 'CancelButton'], 'LEFT', -1, 0)
+
+		--- Craft Points ---
+		if (frame == 'Craft') then
+			CraftFramePointsLabel:ClearAllPoints()
+			CraftFramePointsLabel:SetPoint('RIGHT', CraftCreateButton, 'LEFT', -55, 0)
+			CraftFramePointsText:ClearAllPoints()
+			CraftFramePointsText:SetPoint('LEFT', CraftFramePointsLabel, 'RIGHT', 5, 0)
+		end
+
 		--- Filter Dropdown ---
-		if (frame ~= 'Craft') then
+		if (frame == 'TradeSkill') then
 			TradeSkillInvSlotDropDown:ClearAllPoints()
 			TradeSkillInvSlotDropDown:SetPoint('TOPLEFT', TradeSkillFrame, 'TOPLEFT', 190, -70)
 			TradeSkillSubClassDropDown:ClearAllPoints()
 			TradeSkillSubClassDropDown:SetPoint('TOPRIGHT', TradeSkillInvSlotDropDown, 'TOPLEFT', 29, 0)
 		end
-
-		--- Craft Buttons ---
-		_G[frame .. 'CancelButton']:ClearAllPoints()
-		_G[frame .. 'CancelButton']:SetPoint('BOTTOMRIGHT', _G[frame .. 'Frame'], 'BOTTOMRIGHT', -40, skinUI and 79 or 54)
-		_G[frame .. 'CreateButton']:ClearAllPoints()
-		_G[frame .. 'CreateButton']:SetPoint('RIGHT', _G[frame .. 'CancelButton'], 'LEFT', -1, 0)
 
 		--- Recipe Buttons ---
 		local skillButton
