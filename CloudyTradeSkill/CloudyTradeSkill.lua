@@ -59,18 +59,27 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 
 	--- Get Player Professions ---
 	local function CTS_GetProfessions()
-		local section, profs = 0, {}
+		local section, mProfs, sProfs = 0, {}, {}
 		for i = 1, GetNumSkillLines() do
 			local name, hdr = GetSkillLineInfo(i)
 			if hdr then
 				section = section + 1
 			else
 				if (section == 2) or (section == 3) then
-					tinsert(profs, name)
+					if (name == 'Mining') then name = 'Smelting' end
+					local profInfo = CTS_ProfsData[prof]
+					if profInfo then
+						tinsert(mProfs, name)
+
+						local subSpell = profInfo[2]
+						if subSpell then
+							tinsert(sProfs, subSpell)
+						end
+					end
 				end
 			end
 		end
-		return profs
+		return mProfs, sProfs
 	end
 
 	--- Check Current Tab ---
@@ -181,30 +190,18 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 
 	--- Update Profession Tabs ---
 	local function updateTabs(init)
-		local mainTabs, subTabs = {}, {}
+		local mainTabs, subTabs = CTS_GetProfessions()
+		if init and not CTradeSkillDB['Panel'] then
+			if mainTabs[1] then
+				CTradeSkillDB['Panel'] = mainTabs[1]
+			end
+		end
 
 		local _, class = UnitClass('player')
 		if (class == 'ROGUE') then
 			local spell = GetSpellInfo(1804) --PickLock
 			if IsUsableSpell(spell) then
 				tinsert(subTabs, spell)
-			end
-		end
-
-		local profs = CTS_GetProfessions()
-		for _, prof in pairs(profs) do
-			if (prof == 'Mining') then prof = 'Smelting' end
-			local profInfo = CTS_ProfsData[prof]
-			if profInfo then
-				local profID, subSpell = profInfo[1], profInfo[2]
-				tinsert(mainTabs, prof)
-				if subSpell then
-					tinsert(subTabs, subSpell)
-				end
-
-				if init and not CTradeSkillDB['Panel'] then
-					CTradeSkillDB['Panel'] = prof
-				end
 			end
 		end
 
