@@ -35,7 +35,7 @@ end
 local f = CreateFrame('Frame', 'CloudyTradeSkill')
 f:RegisterEvent('PLAYER_LOGIN')
 f:RegisterEvent('ADDON_LOADED')
-f:RegisterEvent('SPELLS_CHANGED')
+f:RegisterEvent('SKILL_LINES_CHANGED')
 f:RegisterEvent('PLAYER_REGEN_ENABLED')
 
 
@@ -935,7 +935,8 @@ f:SetScript('OnEvent', function(self, event, arg1)
 			TradeSkillFrame:HookScript('OnShow', switchPanel)
 			f:UnregisterEvent('ADDON_LOADED')
 		end
-	elseif (event == 'SPELLS_CHANGED') then
+	elseif (event == 'SKILL_LINES_CHANGED') then
+		if not CTradeSkillDB then return end
 		if UnitAffectingCombat('player') then
 			delay = true
 		else
