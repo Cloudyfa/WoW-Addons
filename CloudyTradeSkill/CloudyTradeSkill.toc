@@ -1,7 +1,7 @@
 ## Interface: 11303
 ## Title: Cloudy TradeSkill (Classic)
 ## Notes: Improve default TradeSkill UI.
-## Version: 1.0
+## Version: 1.1
 ## Author: Cloudyfa
 ## Dependencies: Blizzard_TradeSkillUI
 ## SavedVariablesPerCharacter: CTradeSkillDB
