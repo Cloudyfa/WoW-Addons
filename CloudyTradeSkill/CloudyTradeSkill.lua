@@ -62,7 +62,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 							name = profSmelting
 						end
 						local id = select(7, GetSpellInfo(name))
-						if id then
+						if id and not IsPassiveSpell(id) then
 							tinsert(mProfs, id)
 							if (name == profEnchant) then
 								tinsert(sProfs, 13262) --Disenchant
