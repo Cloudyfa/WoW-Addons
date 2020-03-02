@@ -43,6 +43,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 	--- Profession Data ---
 	local profMining = GetSpellInfo(2576)
 	local profSmelting = GetSpellInfo(2656)
+	local profSkinning = GetSpellInfo(8613)
 	local profEnchant = GetSpellInfo(7412)
 	local profFishing = GetSpellInfo(7731)
 	local profCooking = GetSpellInfo(3102)
@@ -55,17 +56,19 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 			if hdr then
 				section = section + 1
 			else
-				if (section == 2) or (section == 3) and (name ~= profFishing) then
-					if (name == profMining) then
-						name = profSmelting
-					end
-					local id = select(7, GetSpellInfo(name))
-					if id then
-						tinsert(mProfs, id)
-						if (name == profEnchant) then
-							tinsert(sProfs, 13262) --Disenchant
-						elseif (name == profCooking) then
-							tinsert(sProfs, 818) --Campfire
+				if (section == 2) or (section == 3) then
+					if (name ~= profSkinning) and (name ~= profFishing) then
+						if (name == profMining) then
+							name = profSmelting
+						end
+						local id = select(7, GetSpellInfo(name))
+						if id then
+							tinsert(mProfs, id)
+							if (name == profEnchant) then
+								tinsert(sProfs, 13262) --Disenchant
+							elseif (name == profCooking) then
+								tinsert(sProfs, 818) --Campfire
+							end
 						end
 					end
 				end
