@@ -200,7 +200,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 		local sameTabs = true
 		for i = 1, #mainTabs + #subTabs do
 			local id = mainTabs[i] or subTabs[i - #mainTabs]
-			if not CTradeSkillDB['Tabs'][id] then
+			if (CTradeSkillDB['Tabs'][id] == nil) then
 				CTradeSkillDB['Tabs'][id] = true
 				sameTabs = false
 			end
