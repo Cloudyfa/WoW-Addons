@@ -94,7 +94,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 	local function isCurrentTab(self)
 		if self.id and IsCurrentSpell(self.id) then
 			if TradeSkillFrame:IsShown() and (self.isSub == 0) then
-				CTradeSkillDB['Panel'] = self.tooltip
+				CTradeSkillDB['Panel'] = self.id
 				restoreFilters()
 			end
 			self:SetChecked(true)
@@ -185,8 +185,7 @@ f:RegisterEvent('TRADE_SKILL_DATA_SOURCE_CHANGED')
 		local mainTabs, subTabs = CTS_GetProfessions()
 		if init and not CTradeSkillDB['Panel'] then
 			if mainTabs[1] then
-				local prof = GetSpellInfo(mainTabs[1])
-				CTradeSkillDB['Panel'] = prof
+				CTradeSkillDB['Panel'] = mainTabs[1]
 			end
 		end
 
