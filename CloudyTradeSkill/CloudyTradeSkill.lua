@@ -95,7 +95,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 		if self.id and IsCurrentSpell(self.id) then
 			if IsCurrentSpell(profEnchant) then
 				if (self.tooltip == profEnchant) then
-					CTradeSkillDB['Panel'] = self.id
+					CTradeSkillDB['Panel'] = self.tooltip
 					self:SetChecked(true)
 					self:RegisterForClicks(nil)
 				elseif (self.isSub == 0) then
@@ -104,7 +104,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 				end
 			else
 				if TradeSkillFrame:IsShown() and (self.isSub == 0) then
-					CTradeSkillDB['Panel'] = self.id
+					CTradeSkillDB['Panel'] = self.tooltip
 				end
 				self:SetChecked(true)
 				self:RegisterForClicks(nil)
@@ -190,7 +190,8 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 		local mainTabs, subTabs = CTS_GetProfessions()
 		if init and not CTradeSkillDB['Panel'] then
 			if mainTabs[1] then
-				CTradeSkillDB['Panel'] = mainTabs[1]
+				local prof = GetSpellInfo(mainTabs[1])
+				CTradeSkillDB['Panel'] = prof
 			end
 		end
 
