@@ -61,6 +61,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 						if (name == profMining) then
 							name = profSmelting
 						end
+						if (name == '가죽 세공') then name = '가죽세공' end
 						local id = select(7, GetSpellInfo(name))
 						if id and not IsPassiveSpell(id) then
 							tinsert(mProfs, id)
