@@ -276,6 +276,7 @@ local function CTipMod_Hooks()
 	-- Modify Item Tooltip --
 	local function OnTooltipSetItem(self)
 		if (not CTipModDB['VendorPrice']) then return end
+		if MerchantFrame and MerchantFrame:IsShown() then return end
 
 		local _, link = self:GetItem()
 		if (not link) then return end
@@ -284,7 +285,7 @@ local function CTipMod_Hooks()
 		if (not self.shownMoneyFrames) and price and (price > 0) then
 			local container = GetMouseFocus()
 			local quantity = container and container.count and tonumber(container.count) or 1
-			SetTooltipMoney(self, price * quantity, 'STATIC', SELL_PRICE .. ':')
+			SetTooltipMoney(self, price * quantity, 'STATIC')
 		end
 	end
 	GameTooltip:HookScript('OnTooltipSetItem', OnTooltipSetItem)
