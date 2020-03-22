@@ -13,7 +13,7 @@ local function CTipModDB_Init()
 
 		-- Default configuration --
 		CTipModDB['MouseAnchor'] = 1
-		CTipModDB['MousePos'] = 1
+		CTipModDB['MousePos'] = 3
 		CTipModDB['OverlayAnchor'] = nil
 
 		CTipModDB['TipColor'] = 1
@@ -40,7 +40,7 @@ local function CTipModDB_Init()
 
 	-- DropDownMenu Init --
 	UIDropDownMenu_Initialize(CTipModUI_MousePos, CTipPos_Init)
-	UIDropDownMenu_SetSelectedValue(CTipModUI_MousePos, CTipModDB['MousePos'] or 1)
+	UIDropDownMenu_SetSelectedValue(CTipModUI_MousePos, CTipModDB['MousePos'] or 3)
 
 	-- Change tooltip style --
 	CTipBackdrop = GameTooltip:GetBackdrop()
@@ -214,7 +214,7 @@ local function CTipMod_Hooks()
 		elseif CTipModDB['OverlayAnchor'] then
 			self:ClearAllPoints()
 			if CTipModPOS and (#CTipModPOS ~= 0) then
-				self:SetPoint(CTipModPOS[1], parent, CTipModPOS[2], CTipModPOS[3], CTipModPOS[4])
+				self:SetPoint(CTipModPOS[1], UIParent, CTipModPOS[2], CTipModPOS[3], CTipModPOS[4])
 			else
 				self:SetPoint('BOTTOMRIGHT', 0, 8)
 			end
@@ -606,8 +606,8 @@ local function CTipMod_Handler()
 	if CTipModDB['HideBorder'] then
 		CTipBackdrop.edgeSize = 0.01
 	else
-		if CTipEdgeSize > 12 then
-			CTipBackdrop.edgeSize = 12
+		if CTipEdgeSize > 13 then
+			CTipBackdrop.edgeSize = 13
 		else
 			CTipBackdrop.edgeSize = CTipEdgeSize
 		end
