@@ -194,12 +194,14 @@ local function CTipMod_Hooks()
 		end
 
 		if CTipModDB['MouseAnchor'] then
-			if (CTipModDB['MousePos'] == 2) then
-				self:SetOwner(parent, 'ANCHOR_CURSOR_LEFT')
-			elseif (CTipModDB['MousePos'] == 3) then
-				self:SetOwner(parent, 'ANCHOR_CURSOR_RIGHT')
-			else
-				self:SetOwner(parent, 'ANCHOR_CURSOR')
+			if (GetMouseFocus() == WorldFrame) then
+				if (CTipModDB['MousePos'] == 2) then
+					self:SetOwner(parent, 'ANCHOR_CURSOR_LEFT')
+				elseif (CTipModDB['MousePos'] == 3) then
+					self:SetOwner(parent, 'ANCHOR_CURSOR_RIGHT')
+				else
+					self:SetOwner(parent, 'ANCHOR_CURSOR')
+				end
 			end
 		elseif CTipModDB['OverlayAnchor'] then
 			self:ClearAllPoints()
