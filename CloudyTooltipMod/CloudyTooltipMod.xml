@@ -368,6 +368,22 @@
 					<Anchor point="TOPLEFT" relativeTo="$parent_FactionIcon" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
+
+			<Frame>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentCredit" text="by Cloudyfa" inherits="GameFontDisableSmall">
+							<Anchors>
+								<Anchor point="BOTTOMRIGHT" relativeTo="$parent">
+									<Offset>
+										<AbsDimension x="-10" y="10"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
 		</Frames>
 
 		<Scripts>
