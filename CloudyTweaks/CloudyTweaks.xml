@@ -1,4 +1,4 @@
-	<!--
+<!--
 	Cloudy Tweaks
 	Copyright (c) 2020, Cloudyfa
 	All rights reserved.
@@ -117,6 +117,12 @@
 				</Anchors>
 			</CheckButton>
 
+			<CheckButton name="$parent_MobHealth" inherits="InterfaceOptionsCheckButtonTemplate">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parent_AutoRelease" relativePoint="BOTTOMLEFT" />
+				</Anchors>
+			</CheckButton>
+
 			<Frame>
 				<Layers>
 					<Layer level="ARTWORK">
@@ -125,7 +131,7 @@
 								<AbsDimension x="0" y="24"/>
 							</Size>
 							<Anchors>
-								<Anchor point="TOPLEFT" relativeTo="$parent_AutoRelease" relativePoint="BOTTOMLEFT">
+								<Anchor point="TOPLEFT" relativeTo="$parent_MobHealth" relativePoint="BOTTOMLEFT">
 									<Offset>
 										<AbsDimension x="0" y="-8"/>
 									</Offset>

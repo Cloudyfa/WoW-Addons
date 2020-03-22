@@ -18,6 +18,7 @@ local function CTweaksDB_Init()
 
 		CTweaksDB['AcceptResurrect'] = 1
 		CTweaksDB['AutoRelease'] = nil
+		CTweaksDB['MobHealth'] = 1
 
 		CTweaksDB['AutoSell'] = 1
 		CTweaksDB['AutoRepair'] = 1
@@ -230,6 +231,16 @@ end
 		PlaySound(SOUNDKIT.GS_TITLE_OPTION_OK)
 	end)
 
+	-- Mob Health --
+	local MobHeath = CreateFrame('Frame', nil, TargetFrame)
+	MobHeath:CreateFontString('MobHealthText', 'BORDER', 'TextStatusBarText')
+	MobHealthText:SetPoint('CENTER', TargetFrameHealthBar)
+	MobHeath:CreateFontString('MobManaText', 'BORDER', 'TextStatusBarText')
+	MobManaText:SetPoint('CENTER', TargetFrameManaBar)
+
+	UnitFrameHealthBar_Initialize('target', TargetFrameHealthBar, MobHealthText, true)
+	UnitFrameManaBar_Initialize('target', TargetFrameManaBar, MobManaText, true)
+
 
 --- Hook Functions ---
 local function CTweaks_Hooks()
@@ -366,6 +377,12 @@ local function CTweaks_Handler()
 		CTweaks:RegisterEvent('PLAYER_DEAD')
 	else
 		CTweaks:UnregisterEvent('PLAYER_DEAD')
+	end
+
+	if CTweaksDB['MobHealth'] then
+		MobHeath:Show()
+	else
+		MobHeath:Hide()
 	end
 
 	if CTweaksDB['AutoSell'] or CTweaksDB['AutoRepair'] then
@@ -655,6 +672,7 @@ function CTweaksUI_Load()
 
 	CTweaksUI_AcceptResurrect:SetChecked(CTweaksDB['AcceptResurrect'])
 	CTweaksUI_AutoRelease:SetChecked(CTweaksDB['AutoRelease'])
+	CTweaksUI_MobHealth:SetChecked(CTweaksDB['MobHealth'])
 
 	CTweaksUI_AutoSell:SetChecked(CTweaksDB['AutoSell'])
 	CTweaksUI_AutoRepair:SetChecked(CTweaksDB['AutoRepair'])
@@ -690,6 +708,7 @@ function CTweaksUI_Save()
 
 	CTweaksDB['AcceptResurrect'] = CTweaksUI_AcceptResurrect:GetChecked()
 	CTweaksDB['AutoRelease'] = CTweaksUI_AutoRelease:GetChecked()
+	CTweaksDB['MobHealth'] = CTweaksUI_MobHealth:GetChecked()
 
 	CTweaksDB['AutoSell'] = CTweaksUI_AutoSell:GetChecked()
 	CTweaksDB['AutoRepair'] = CTweaksUI_AutoRepair:GetChecked()
@@ -740,6 +759,7 @@ function CTweaksUI_OnLoad(self)
 
 	CTweaksUI_AcceptResurrectText:SetText('Auto accept resurrection')
 	CTweaksUI_AutoReleaseText:SetText('Auto release in BGs')
+	CTweaksUI_MobHealthText:SetText('Show mob health')
 
 	CTweaksUI_AutoSellText:SetText('Auto sell junk')
 	CTweaksUI_AutoRepairText:SetText('Auto repair all items')
