@@ -254,15 +254,15 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 		end
 
 		local regions = {_G[frame .. 'Frame']:GetRegions()}
-		regions[2]:SetTexture('Interface\\QuestFrame\\UI-QuestLogDualPane-Left')
-		regions[2]:SetSize(512, 512)
-
-		regions[3]:ClearAllPoints()
-		regions[3]:SetPoint('TOPLEFT', regions[2], 'TOPRIGHT')
-		regions[3]:SetTexture('Interface\\QuestFrame\\UI-QuestLogDualPane-Right')
-		regions[3]:SetSize(256, 512)
-
 		if not skinUI then
+			regions[2]:SetTexture('Interface\\QuestFrame\\UI-QuestLogDualPane-Left')
+			regions[2]:SetSize(512, 512)
+
+			regions[3]:ClearAllPoints()
+			regions[3]:SetPoint('TOPLEFT', regions[2], 'TOPRIGHT')
+			regions[3]:SetTexture('Interface\\QuestFrame\\UI-QuestLogDualPane-Right')
+			regions[3]:SetSize(256, 512)
+
 			regions[4]:Hide()
 			regions[5]:Hide()
 		end
@@ -446,7 +446,7 @@ f:RegisterEvent('PLAYER_REGEN_ENABLED')
 		local button = _G['CTSBookmark-' .. frame:GetName() .. '_' .. index] or CreateFrame('Button', 'CTSBookmark-' .. frame:GetName() .. '_' .. index, frame)
 		button:SetHighlightTexture('Interface\\Buttons\\ButtonHilight-Square', 'ADD')
 		button:RegisterForClicks('LeftButtonDown', 'RightButtonDown')
-		button:SetPoint('TOPRIGHT', frame, 'TOPRIGHT', -65 - (index * 25), -42)
+		button:SetPoint('TOPRIGHT', frame, 'TOPRIGHT', -65 - (index * 25), skinUI and -65 or -42)
 		button:SetSize(24, 24)
 		button:SetID(index)
 
@@ -942,7 +942,7 @@ f:SetScript('OnEvent', function(self, event, arg1)
 			f:UnregisterEvent('ADDON_LOADED')
 		end
 	elseif (event == 'SKILL_LINES_CHANGED') then
-		if not CTradeSkillDB then return end
+		if (numTabs == 0) then return end
 		if UnitAffectingCombat('player') then
 			delay = true
 		else
