@@ -254,17 +254,19 @@ local function CTweaks_Hooks()
 		for i = 1, QUESTS_DISPLAYED do
 			local questIndex = i + FauxScrollFrame_GetOffset(QuestLogListScrollFrame)
 			if (questIndex <= numEntries) then
-				local questButton = _G['QuestLogTitle' .. i]
-				local questCheck = _G['QuestLogTitle' .. i .. 'Check']
 				local title, level, _, isHeader = GetQuestLogTitle(questIndex)
 				if (not isHeader) and title and level then
+					local questTitle = _G['QuestLogTitle' .. i]
 					local questString = string.format('  [%d] %s', level, title)
-					questButton:SetText(questString)
-					QuestLogDummyText:SetText(questString)
+					questTitle:SetText(questString)
 
 					if IsQuestWatched(questIndex) then
-						local checkPos = QuestLogDummyText:GetWidth() + 24
-						questCheck:SetPoint('LEFT', questButton, 'LEFT', checkPos, 0)
+						local checkTxt = _G['QuestLogTitle' .. i .. 'NormalText']
+						local checkPos = checkTxt:GetStringWidth()
+						if (checkPos <= 215) then
+							local questCheck = _G['QuestLogTitle' .. i .. 'Check']
+							questCheck:SetPoint('LEFT', questTitle, 'LEFT', checkPos + 24, 0)
+						end
 					end
 				end
 			end
