@@ -57,7 +57,6 @@ end
 	-- Detect Friends --
 	local function UnitIsInFriendList(name)
 		C_FriendList.ShowFriends()
-
 		for i = 1, C_FriendList.GetNumOnlineFriends() do
 			local toon = C_FriendList.GetFriendInfoByIndex(i).name
 			if toon and (toon == name) then
@@ -71,7 +70,20 @@ end
 				return true
 			end
 		end
+		return false
+	end
 
+	-- Detect Guildmates --
+	local function UnitIsInGuildList(name)
+		for i = 1, GetNumGuildMembers() do
+			local toon, _, _, _, _, _, _, _, isOnline = GetGuildRosterInfo(i)
+			if toon and isOnline then
+				toon = gsub(toon, '-.+', '')
+				if (toon == name) then
+					return true
+				end
+			end
+		end
 		return false
 	end
 
@@ -539,7 +551,7 @@ function CTweaks_OnEvent(self, event, ...)
 
 	elseif (event == 'PARTY_INVITE_REQUEST') then
 		local sender = ...
-		if UnitIsInMyGuild(sender) or UnitIsInFriendList(sender) then
+		if UnitIsInFriendList(sender) or UnitIsInGuildList(sender) then
 			AcceptGroup()
 			for i = 1, STATICPOPUP_NUMDIALOGS do
 				local dialog = _G['StaticPopup' .. i]
