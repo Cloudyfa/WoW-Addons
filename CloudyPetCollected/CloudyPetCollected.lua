@@ -1,6 +1,6 @@
 --[[
 	Cloudy Pet Collected
-	Copyright (c) 2019, Cloudyfa
+	Copyright (c) 2020, Cloudyfa
 	All rights reserved.
 ]]
 

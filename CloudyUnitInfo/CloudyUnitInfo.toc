@@ -1,4 +1,4 @@
-## Interface: 80205
+## Interface: 80300
 ## Title: Cloudy Unit Info
 ## Notes: Adds gear info and specialization of inspected player to unit tooltips.
 ## Version: 2.7
