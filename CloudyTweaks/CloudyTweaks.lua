@@ -166,6 +166,49 @@ end
 	end
 	table.insert(UISpecialFrames, 'WorldMapFrame')
 
+	-- Helm & Cloak Buttons --
+	local helmButton = CreateFrame('CheckButton', 'helmButton', CharacterModelFrame, 'OptionsCheckButtonTemplate')
+	local helmText = gsub(SHOW_HELM, SHOW, '')
+	helmButtonText:SetText(helmText)
+	helmButton:SetSize(22, 22)
+	helmButton:SetPoint('BOTTOMLEFT', 4, 10)
+	helmButton:SetHitRectInsets(0, -36, 0, 0)
+	helmButton:SetScript('OnClick', function(self)
+		ShowHelm(not ShowingHelm())
+	end)
+
+	local cloakButton = CreateFrame('CheckButton', 'cloakButton', CharacterModelFrame, 'OptionsCheckButtonTemplate')
+	local cloakText = gsub(SHOW_CLOAK, SHOW, '')
+	cloakButtonText:SetText(cloakText)
+	cloakButton:SetSize(22, 22)
+	cloakButton:SetPoint('BOTTOMRIGHT', -44, 10)
+	cloakButton:SetHitRectInsets(0, -36, 0, 0)
+	cloakButton:SetScript('OnClick', function(self)
+		ShowCloak(not ShowingCloak())
+	end)
+
+	local timer = 0
+	cloakButton:SetScript('OnUpdate', function(_, elapsed)
+		timer = timer + elapsed
+		while (timer > 0.05) do
+			if UnitIsDeadOrGhost('player') then
+				helmButton:Disable()
+				helmButton:SetAlpha(0.5)
+				cloakButton:Disable()
+				cloakButton:SetAlpha(0.5)
+				return
+			else
+				helmButton:Enable()
+				helmButton:SetAlpha(1.0)
+				cloakButton:Enable()
+				cloakButton:SetAlpha(1.0)
+			end
+			helmButton:SetChecked(ShowingHelm())
+			cloakButton:SetChecked(ShowingCloak())
+			timer = 0
+		end
+	end)
+
 	-- Tabard Buttons --
 	local tabard1 = CreateFrame('Button', nil, DressUpFrame, 'UIPanelButtonTemplate')
 	tabard1.Text:SetText(TABARDSLOT)
@@ -414,9 +457,13 @@ local function CTweaks_Handler()
 	end
 
 	if CTweaksDB['DressUpButton'] then
+		helmButton:Show()
+		cloakButton:Show()
 		tabard1:Show()
 		tabard2:Show()
 	else
+		helmButton:Hide()
+		cloakButton:Hide()
 		tabard1:Hide()
 		tabard2:Hide()
 	end
