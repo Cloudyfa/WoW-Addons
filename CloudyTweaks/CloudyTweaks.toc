@@ -1,7 +1,7 @@
-## Interface: 11303
+## Interface: 11304
 ## Title: Cloudy Tweaks (Classic)
 ## Notes: A collection of useful tweaks.
-## Version: 1.0
+## Version: 1.1
 ## Author: Cloudyfa
 ## SavedVariables: CTweaksDB
 
