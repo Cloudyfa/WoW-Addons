@@ -19,7 +19,6 @@ local function CTipModDB_Init()
 		CTipModDB['TipColor'] = 1
 		CTipModDB['ClassColor'] = 1
 		CTipModDB['HideHealth'] = nil
-		CTipModDB['HideBorder'] = nil
 		CTipModDB['HidePVP'] = nil
 
 		CTipModDB['TipScale'] = 1
@@ -521,7 +520,10 @@ local function CTipMod_Hooks()
 		if CTipModDB['FactionIcon'] and faction then
 			if not self.icon then
 				self.icon = self:CreateTexture(nil, 'ARTWORK')
+				self.icon:SetPoint('TOPRIGHT', 9, 6.5)
 				self.icon:SetSize(32, 32)
+				self.icon:SetAlpha(0.85)
+				nameLine:SetWidth(nameLine:GetWidth() + 7)
 			end
 			if (faction == FACTION_ALLIANCE) then
 				self.icon:SetTexture('Interface\\Timer\\Alliance-Logo')
@@ -529,15 +531,6 @@ local function CTipMod_Hooks()
 				self.icon:SetTexture('Interface\\Timer\\Horde-Logo')
 			end
 
-			if CTipModDB['HideBorder'] then
-				nameLine:SetWidth(nameLine:GetWidth() + 15)
-				self.icon:SetPoint('TOPRIGHT', 3, -1)
-				self.icon:SetAlpha(0.55)
-			else
-				nameLine:SetWidth(nameLine:GetWidth() + 7)
-				self.icon:SetPoint('TOPRIGHT', 10, 7)
-				self.icon:SetAlpha(0.75)
-			end
 			self.icon:Show()
 		end
 
@@ -608,16 +601,6 @@ local function CTipMod_Handler()
 		GameTooltipStatusBar:SetStatusBarTexture('Interface\\TargetingFrame\\UI-TargetingFrame-BarFill')
 	end
 
-	if CTipModDB['HideBorder'] then
-		CTipBackdrop.edgeSize = 0.01
-	else
-		if CTipEdgeSize > 13 then
-			CTipBackdrop.edgeSize = 13
-		else
-			CTipBackdrop.edgeSize = CTipEdgeSize
-		end
-	end
-
 	GameTooltip:SetScale(CTipModDB['TipScale'])
 	ItemRefTooltip:SetScale(CTipModDB['TipScale'])
 end
@@ -649,7 +632,6 @@ local function CTipModUI_Load()
 	CTipModUI_TipColor:SetChecked(CTipModDB['TipColor'])
 	CTipModUI_ClassColor:SetChecked(CTipModDB['ClassColor'])
 	CTipModUI_HideHealth:SetChecked(CTipModDB['HideHealth'])
-	CTipModUI_HideBorder:SetChecked(CTipModDB['HideBorder'])
 	CTipModUI_HidePVP:SetChecked(CTipModDB['HidePVP'])
 
 	CTipModUI_TipScale:SetValue(CTipModDB['TipScale'] or 1)
@@ -676,7 +658,6 @@ local function CTipModUI_Save()
 	CTipModDB['TipColor'] = CTipModUI_TipColor:GetChecked()
 	CTipModDB['ClassColor'] = CTipModUI_ClassColor:GetChecked()
 	CTipModDB['HideHealth'] = CTipModUI_HideHealth:GetChecked()
-	CTipModDB['HideBorder'] = CTipModUI_HideBorder:GetChecked()
 	CTipModDB['HidePVP'] = CTipModUI_HidePVP:GetChecked()
 
 	CTipModDB['TipScale'] = CTipModUI_TipScale:GetValue() or 1
@@ -719,7 +700,6 @@ function CTipModUI_OnLoad(self)
 	CTipModUI_TipColorText:SetText('Colorize tooltip')
 	CTipModUI_ClassColorText:SetText('Class color priority')
 	CTipModUI_HideHealthText:SetText('Hide health bar')
-	CTipModUI_HideBorderText:SetText('Hide tooltip border')
 	CTipModUI_HidePVPText:SetText('Hide in combat')
 
 	CTipModUI_UnitTitleText:SetText('Player title')

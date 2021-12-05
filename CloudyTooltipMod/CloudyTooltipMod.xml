@@ -190,15 +190,9 @@
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_HideBorder" inherits="ChatConfigCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_HideHealth" relativePoint="BOTTOMLEFT" />
-				</Anchors>
-			</CheckButton>
-
 			<CheckButton name="$parent_HidePVP" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parent_HideBorder" relativePoint="BOTTOMLEFT" />
+					<Anchor point="TOPLEFT" relativeTo="$parent_HideHealth" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
