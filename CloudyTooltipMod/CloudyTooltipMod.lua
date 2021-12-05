@@ -45,7 +45,6 @@ local function CTipModDB_Init()
 	CTipBackdrop = {bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background',
 					edgeFile = 'Interface\\Tooltips\\UI-Tooltip-Border', edgeSize = 14,
 					insets = {left = 2, right = 2, top = 2, bottom = 2}}
-	GameTooltipStatusBar:SetHeight(5)
 end
 
 
@@ -596,9 +595,9 @@ local function CTipMod_Handler()
 	end
 
 	if CTipModDB['HideHealth'] then
-		GameTooltipStatusBar:SetStatusBarTexture('')
+		GameTooltipStatusBar:SetHeight(0.01)
 	else
-		GameTooltipStatusBar:SetStatusBarTexture('Interface\\TargetingFrame\\UI-TargetingFrame-BarFill')
+		GameTooltipStatusBar:SetHeight(5)
 	end
 
 	GameTooltip:SetScale(CTipModDB['TipScale'])
