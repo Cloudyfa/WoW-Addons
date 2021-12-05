@@ -43,9 +43,9 @@ local function CTipModDB_Init()
 	UIDropDownMenu_SetSelectedValue(CTipModUI_MousePos, CTipModDB['MousePos'] or 3)
 
 	-- Change tooltip style --
-	CTipBackdrop = GameTooltip:GetBackdrop()
-	CTipBackdrop.insets = {left = 2, right = 2, top = 2, bottom = 2}
-	CTipEdgeSize = CTipBackdrop.edgeSize
+	CTipBackdrop = {bgFile = 'Interface\\Tooltips\\UI-Tooltip-Background',
+					edgeFile = 'Interface\\Tooltips\\UI-Tooltip-Border', edgeSize = 14,
+					insets = {left = 2, right = 2, top = 2, bottom = 2}}
 	GameTooltipStatusBar:SetHeight(5)
 end
 
@@ -116,9 +116,14 @@ end
 			end
 		end
 
+		if not tooltip.SetBackdrop then
+			if (BackdropTemplateMixin) then
+				Mixin(tooltip, BackdropTemplateMixin)
+			end
+		end
 		tooltip:SetBackdrop(CTipBackdrop)
-		tooltip:SetBackdropColor(r * 0.2, g * 0.2, b * 0.2)
-		tooltip:SetBackdropBorderColor(r  * 1.2, g * 1.2, b * 1.2)
+		tooltip:SetBackdropColor(r * 1.2, g * 1.2, b * 1.2, 0.2)
+		tooltip:SetBackdropBorderColor(r * 1.2, g * 1.2, b * 1.2)
 	end
 
 	-- Get Anchor Position --
