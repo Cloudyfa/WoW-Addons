@@ -57,7 +57,7 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_MouseAnchor" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_MouseAnchor" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentAnchor" relativePoint="BOTTOMLEFT" />
 				</Anchors>
@@ -172,31 +172,31 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_TipColor" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_TipColor" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentStyle" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_ClassColor" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_ClassColor" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_TipColor" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_HideHealth" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_HideHealth" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_ClassColor" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_HideBorder" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_HideBorder" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_HideHealth" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_HidePVP" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_HidePVP" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_HideBorder" relativePoint="BOTTOMLEFT" />
 				</Anchors>
@@ -260,25 +260,25 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_UnitTitle" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_UnitTitle" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentDetail" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_UnitGender" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_UnitGender" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_UnitTitle" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_UnitStatus" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_UnitStatus" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_UnitGender" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_UnitRealm" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_UnitRealm" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_UnitStatus" relativePoint="BOTTOMLEFT" />
 				</Anchors>
@@ -295,7 +295,7 @@
 				</Scripts>
 			</CheckButton>
 
-			<CheckButton name="$parent_RealmLabel" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+			<CheckButton name="$parent_RealmLabel" inherits="ChatConfigSmallCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_UnitRealm" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -316,7 +316,7 @@
 				</Scripts>
 			</CheckButton>
 
-			<CheckButton name="$parent_GuildRank" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_GuildRank" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_RealmLabel" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -345,25 +345,25 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_TargetOfTarget" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_TargetOfTarget" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentInfo" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_TradeGoods" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_TradeGoods" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_TargetOfTarget" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_FactionIcon" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_FactionIcon" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_TradeGoods" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_LinkIcon" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_LinkIcon" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_FactionIcon" relativePoint="BOTTOMLEFT" />
 				</Anchors>
