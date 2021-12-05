@@ -1,7 +1,7 @@
-## Interface: 80300
+## Interface: 90105
 ## Title: Cloudy Tooltip Mod
 ## Notes: Modify the default tooltip.
-## Version: 3.0
+## Version: 3.1
 ## Author: Cloudyfa
 ## SavedVariables: CTipModDB, CTipModPOS
 
