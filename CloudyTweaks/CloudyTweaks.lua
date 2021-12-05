@@ -64,28 +64,18 @@ end
 				return true
 			end
 		end
-
 		for i = 1, BNGetNumFriends() do
-			local _, _, _, _, toon, _, client = BNGetFriendInfo(i)
-			if (toon == name) and (client == 'WoW') then
-				return true
+			for j = 1, C_BattleNet.GetFriendNumGameAccounts(i) do
+				local friendGameAccount = C_BattleNet.GetFriendGameAccountInfo(i, j)
+				local toon = friendGameAccount.characterName
+				local client = friendGameAccount.clientProgram
+				if (toon == name) and (client == 'WoW') then
+					return true
+				end
 			end
 		end
 
 		return false
-	end
-
-	-- Update Gossip Button --
-	local function updateGossip(index, data, step)
-		for i = 1, #data, step do
-			local button = _G['GossipTitleButton' .. index]
-			local title, level = data[i], data[i + 1]
-			if (level == -1) then level = UnitLevel('player') end
-			button:SetText('[' .. level .. '] ' .. title)
-			GossipResize(button)
-			index = index + 1
-		end
-		return index
 	end
 
 	-- Update Quest Title --
@@ -105,13 +95,13 @@ end
 	end
 
 	-- Update Quest Color --
-	local function updateQuestColor(id, level, freq)
-		local _, tag = GetQuestTagInfo(id)
-		local color = GetQuestDifficultyColor(level)
+	local function updateQuestColor(id, freq)
+		local tag = C_QuestLog.GetQuestTagInfo(id)
+		local color = GetDifficultyColor(C_PlayerInfo.GetContentDifficultyQuestForPlayer(id))
 
-		if (tag == ITEM_QUALITY5_DESC) then
+		if tag and (tag.tagName == ITEM_QUALITY5_DESC) then
 			color = {r = 1.0, g = 0.6, b = 0.1}
-		elseif (freq == LE_QUEST_FREQUENCY_DAILY) then
+		elseif (freq == Enum.QuestFrequency.Daily) then
 			color = {r = 0.1, g = 0.6, b = 1.0}
 		end
 		return color
@@ -177,22 +167,18 @@ local function CTweaks_Hooks()
 
 		for _, button in pairs{QuestMapFrame.QuestsFrame.Contents:GetChildren()} do
 			if button and button.Check then
-				local title, level = GetQuestLogTitle(button.questLogIndex)
-				if title and level then
+				local info = C_QuestLog.GetInfo(button.questLogIndex)
+				if info and info.questID then
+					local id, title, level = info.questID, info.title, info.level
 					title = '[' .. level .. '] ' .. title
 
-					local memberOnQuest = 0
-					for i = 1, GetNumSubgroupMembers() do
-						if IsUnitOnQuestByQuestID(button.questID, 'party'..i) then
-							memberOnQuest = memberOnQuest + 1
-						end
-					end
-					if ( memberOnQuest > 0 ) then
+					local memberOnQuest = QuestUtils_GetNumPartyMembersOnQuest(id)
+					if (memberOnQuest > 0) then
 						title = '[' .. memberOnQuest .. '] ' .. title
 					end
 					updateQuestTitle(button, title)
 
-					if IsQuestWatched(button.questLogIndex) then
+					if QuestUtils_IsQuestWatched(id) then
 						button.Check:SetPoint('LEFT', button.Text, button.Text:GetWrappedWidth() + 2, 0)
 						button.Check:Show()
 					else
@@ -206,118 +192,127 @@ local function CTweaks_Hooks()
 	-- QuestButton --
 	hooksecurefunc('QuestMapLogTitleButton_OnEnter', function(button)
 		if CTweaksDB['QuestLevel'] then
-			local title, level = GetQuestLogTitle(button.questLogIndex)
-			GameTooltipTextLeft1:SetText('[' .. level .. '] ' .. title)
-			GameTooltip:Show()
+			local info = C_QuestLog.GetInfo(button.questLogIndex)
+			if info and info.questID then
+				local title, level = info.title, info.level
+				GameTooltipTextLeft1:SetText('[' .. level .. '] ' .. title)
+				GameTooltip:Show()
+			end
 		end
 	end)
 
 	-- QuestInfo --
-	hooksecurefunc('QuestInfo_Display', function(self)
+	hooksecurefunc('QuestInfo_Display', function(template, frame)
 		if (not CTweaksDB['QuestLevel']) then return end
 
-		for i = 1, #self.elements, 3 do
-			if (self.elements[i] == QuestInfo_ShowTitle) then
-				local index = GetQuestLogSelection()
-				local title, level = GetQuestLogTitle(index)
-				if title and level then
-					QuestInfoTitleHeader:SetText('[' .. level .. '] ' .. title)
-				end
+		local questFrame = frame:GetParent():GetParent()
+		local id = template.questLog and questFrame.questID or GetQuestID()
+		local index = C_QuestLog.GetLogIndexForQuestID(id)
+		if index then
+			local info = C_QuestLog.GetInfo(index)
+			if info and info.questID then
+				local title, level = info.title, info.level
+				QuestInfoTitleHeader:SetText('[' .. level .. '] ' .. title)
 			end
 		end
 	end)
 
 	-- QuestTracker --
-	hooksecurefunc(QUEST_TRACKER_MODULE, 'Update', function(self)
+	local function hookQuestTracker(self, block, title, index)
 		if (not CTweaksDB['QuestLevel']) and (not CTweaksDB['QuestColor']) then return end
 
-		for i = 1, GetNumQuestWatches() do
-			local id, title, index = GetQuestWatchInfo(i)
-			local block = id and self:GetExistingBlock(id)
-			if not block then return end
-
-			local _, level, _, _, _, _ , freq = GetQuestLogTitle(index)
-			if CTweaksDB['QuestLevel'] and level then
+		local info = C_QuestLog.GetInfo(index)
+		if info and info.questID then
+			if CTweaksDB['QuestLevel'] then
+				local title, level = info.title, info.level
 				title = '[' .. level .. '] ' .. title
 				updateQuestTitle(block, title, true)
 			end
-
 			if CTweaksDB['QuestColor'] then
-				local color = updateQuestColor(id, level, freq)
+				local id, freq = info.questID, info.frequency
+				local color = updateQuestColor(id, freq)
 				block.HeaderText:SetTextColor(color.r * 0.75, color.g * 0.75, color.b * 0.75)
 			else
 				local color = OBJECTIVE_TRACKER_COLOR['Header']
 				block.HeaderText:SetTextColor(color.r, color.g, color.b)
 			end
 		end
-	end)
+	end
+	hooksecurefunc(QUEST_TRACKER_MODULE, 'SetBlockHeader', hookQuestTracker)
+	hooksecurefunc(CAMPAIGN_QUEST_TRACKER_MODULE, 'SetBlockHeader', hookQuestTracker)
 
 	-- QuestHighlight --
-	local function HookQuestTracker(self)
-		if CTweaksDB['QuestColor'] then
-			local block = self:GetParent()
-			if block and block.id then
-				local index = GetQuestLogIndexByID(block.id)
-				local _, level, _, _, _, _ , freq = GetQuestLogTitle(index)
-				local color = updateQuestColor(block.id, level, freq)
+	local function hookQuestHeader(self)
+		if not CTweaksDB['QuestColor'] then return end
 
-				if block.isHighlighted then
-					block.HeaderText:SetTextColor(color.r * 1.1, color.g * 1.1, color.b * 1.1)
-				else
-					block.HeaderText:SetTextColor(color.r * 0.75, color.g * 0.75, color.b * 0.75)
+		local block = self:GetParent()
+		if block and block.id then
+			local index = C_QuestLog.GetLogIndexForQuestID(block.id)
+			if index then
+				local info = C_QuestLog.GetInfo(index)
+				if info and info.questID then
+					local freq = info.frequency
+					local color = updateQuestColor(block.id, freq)
+					if block.isHighlighted then
+						block.HeaderText:SetTextColor(color.r * 1.1, color.g * 1.1, color.b * 1.1)
+					else
+						block.HeaderText:SetTextColor(color.r * 0.75, color.g * 0.75, color.b * 0.75)
+					end
 				end
 			end
 		end
 	end
-	hooksecurefunc('ObjectiveTrackerBlockHeader_OnEnter', HookQuestTracker)
-	hooksecurefunc('ObjectiveTrackerBlockHeader_OnLeave', HookQuestTracker)
+	hooksecurefunc('ObjectiveTrackerBlockHeader_OnEnter', hookQuestHeader)
+	hooksecurefunc('ObjectiveTrackerBlockHeader_OnLeave', hookQuestHeader)
 
 	-- QuestLink --
 	hooksecurefunc('ChatFrame_OnHyperlinkShow', function(_, text, link)
 		if CTweaksDB['QuestLevel'] then
-			local level = strmatch(text, 'quest:%d+:(\-?%d+):')
+			local level = strmatch(text, 'quest:%d+:(\-?%d+)')
 			local title = strmatch(link, '%[(.+)%]')
 			if level and title then
-				if (level == '-1') then level = UnitLevel('player') end
+				if (level == '-1') or (tonumber(level) > 60) then
+					level = UnitLevel('player')
+				end
 				ItemRefTooltipTextLeft1:SetText('[' .. level .. '] ' .. title)
 				ItemRefTooltip:Show()
 			end
 		end
 	end)
 
-	-- GossipFrame --
-	hooksecurefunc('GossipFrameUpdate', function()
-		if (not CTweaksDB['QuestLevel']) then return end
-
-		local availableQuests = {GetGossipAvailableQuests()}
-		local index = updateGossip(1, availableQuests, 8)
-
-		if #availableQuests > 1 then index = index + 1 end
-
-		local activeQuests = {GetGossipActiveQuests()}
-		updateGossip(index, activeQuests, 7)
-	end)
-
 	-- GreetingPanel --
-	QuestFrameGreetingPanel:HookScript('OnShow', function()
-		if (not CTweaksDB['QuestLevel']) then return end
+	QuestFrameGreetingPanel:HookScript('OnShow', function(self)
+		if (not self:IsVisible()) or (not CTweaksDB['QuestLevel']) then return end
 
-		local numActiveQuests = GetNumActiveQuests()
-		local numAvailableQuests = GetNumAvailableQuests()
-		for i = 1, numActiveQuests + numAvailableQuests do
+		for button in self.titleButtonPool:EnumerateActive() do
+			local id = button:GetID()
 			local title, level
-			if i <= numActiveQuests then
-				title = GetActiveTitle(i)
-				level = GetActiveLevel(i)
+			if button.isActive == 1 then
+				title = GetActiveTitle(id)
+				level = GetActiveLevel(id)
 			else
-				title = GetAvailableTitle(i)
-				level = GetAvailableLevel(i)
+				title = GetAvailableTitle(id)
+				level = GetAvailableLevel(id)
 			end
 
 			if title and level then
-				local button = _G['QuestTitleButton' .. i]
 				button:SetText('[' .. level .. '] ' .. title)
 				button:SetHeight(button:GetTextHeight() + 2)
+			end
+		end
+	end)
+
+	-- ProgressPanel --
+	QuestFrameProgressPanel:HookScript('OnShow', function(self)
+		if (not self:IsVisible()) or (not CTweaksDB['QuestLevel']) then return end
+
+		local id = GetQuestID()
+		local index = C_QuestLog.GetLogIndexForQuestID(id)
+		if index then
+			local info = C_QuestLog.GetInfo(index)
+			if info and info.questID then
+				local title, level = info.title, info.level
+				QuestProgressTitleText:SetText('[' .. level .. '] ' .. title)
 			end
 		end
 	end)
@@ -436,7 +431,7 @@ local function CTweaks_Handler()
 		CTweaks:UnregisterEvent('QUEST_COMPLETE')
 	end
 
-	SortQuestWatches()
+	C_QuestLog.SortQuestWatches()
 
 	if CTweaksDB['MapFade'] then
 		SetCVar('mapFade', '1')
@@ -551,7 +546,7 @@ function CTweaks_OnEvent(self, event, ...)
 	elseif event == 'QUEST_ACCEPT_CONFIRM' then
 		if IsShiftKeyDown() then return end
 
-		local _, numQuests = GetNumQuestLogEntries()
+		local _, numQuests = C_QuestLog.GetNumQuestLogEntries()
 		if (numQuests < MAX_QUESTS) then
 			ConfirmAcceptQuest()
 			StaticPopup_Hide('QUEST_ACCEPT')

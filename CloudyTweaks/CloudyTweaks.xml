@@ -68,19 +68,19 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_ConfirmLoot" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_ConfirmLoot" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentGroup" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_AcceptInvite" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_AcceptInvite" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_ConfirmLoot" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_AcceptSummon" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_AcceptSummon" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_AcceptInvite" relativePoint="BOTTOMLEFT" />
 				</Anchors>
@@ -105,13 +105,13 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_AcceptResurrect" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_AcceptResurrect" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentCombat" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_AutoRelease" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_AutoRelease" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_AcceptResurrect" relativePoint="BOTTOMLEFT" />
 				</Anchors>
@@ -136,13 +136,13 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_AutoSell" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_AutoSell" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMerchant" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_AutoRepair" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_AutoRepair" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_AutoSell" relativePoint="BOTTOMLEFT" />
 				</Anchors>
@@ -159,7 +159,7 @@
 				</Scripts>
 			</CheckButton>
 
-			<CheckButton name="$parent_SelfRepair" inherits="InterfaceOptionsSmallCheckButtonTemplate">
+			<CheckButton name="$parent_SelfRepair" inherits="ChatConfigSmallCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_AutoRepair" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -177,7 +177,7 @@
 				</Scripts>
 			</CheckButton>
 
-			<CheckButton name="$parent_SkipGossip" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_SkipGossip" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_SelfRepair" relativePoint="BOTTOMLEFT">
 						<Offset>
@@ -206,19 +206,19 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_ChatFade" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_ChatFade" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentChat" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_ChatArrow" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_ChatArrow" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_ChatFade" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_ChatScroll" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_ChatScroll" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_ChatArrow" relativePoint="BOTTOMLEFT" />
 				</Anchors>
@@ -243,19 +243,19 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_MinimapScroll" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_MinimapScroll" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMinimap" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_HideMapButton" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_HideMapButton" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_MinimapScroll" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_DayNight" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_DayNight" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_HideMapButton" relativePoint="BOTTOMLEFT" />
 				</Anchors>
@@ -280,25 +280,25 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_QuestLevel" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_QuestLevel" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentQuest" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_QuestColor" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_QuestColor" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_QuestLevel" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_QuestAccept" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_QuestAccept" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_QuestColor" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_QuestTurnin" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_QuestTurnin" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_QuestAccept" relativePoint="BOTTOMLEFT" />
 				</Anchors>
@@ -323,37 +323,37 @@
 				</Layers>
 			</Frame>
 
-			<CheckButton name="$parent_MapFade" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_MapFade" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentMisc" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_MapCoords" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_MapCoords" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_MapFade" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_EliteFrame" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_EliteFrame" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_MapCoords" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_HideGryphons" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_HideGryphons" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_EliteFrame" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_CamDistance" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_CamDistance" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_HideGryphons" relativePoint="BOTTOMLEFT" />
 				</Anchors>
 			</CheckButton>
 
-			<CheckButton name="$parent_RemoveGlow" inherits="InterfaceOptionsCheckButtonTemplate">
+			<CheckButton name="$parent_RemoveGlow" inherits="ChatConfigCheckButtonTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parent_CamDistance" relativePoint="BOTTOMLEFT" />
 				</Anchors>
