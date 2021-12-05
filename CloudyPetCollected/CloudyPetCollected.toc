@@ -1,7 +1,7 @@
-## Interface: 80300
+## Interface: 90105
 ## Title: Cloudy Pet Collected
 ## Notes: Adds best quality and level of collected pet to wild battle pet tooltips.
-## Version: 1.8
+## Version: 1.9
 ## Author: Cloudyfa
 
 CloudyPetCollected.lua
