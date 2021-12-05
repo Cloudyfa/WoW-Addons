@@ -18,6 +18,7 @@ local furySpec = GetSpecializationNameForSpecID(72)
 
 --- Create Frame ---
 local f = CreateFrame('Frame', 'CloudyUnitInfo')
+f:RegisterEvent('UPDATE_MOUSEOVER_UNIT')
 f:RegisterEvent('UNIT_INVENTORY_CHANGED')
 
 
@@ -240,7 +241,6 @@ local function ScanUnit(unit, forced)
 
 		cachedSpec = SpecDB[currentGUID]
 		cachedGear = GearDB[currentGUID]
-
 		if cachedGear or forced then
 			SetUnitInfo(cachedGear, cachedSpec)
 		end
@@ -286,7 +286,13 @@ end)
 
 --- Handle Events ---
 f:SetScript('OnEvent', function(self, event, ...)
-	if (event == 'UNIT_INVENTORY_CHANGED') then
+	if (event == 'UPDATE_MOUSEOVER_UNIT') then
+		local _, unit = GameTooltip:GetUnit()
+		if (not unit) or (not CanInspect(unit)) then return end
+
+		currentUNIT, currentGUID = unit, UnitGUID(unit)
+		ScanUnit(unit)
+	elseif (event == 'UNIT_INVENTORY_CHANGED') then
 		local unit = ...
 		if (UnitGUID(unit) == currentGUID) then
 			ScanUnit(unit, true)
@@ -294,16 +300,13 @@ f:SetScript('OnEvent', function(self, event, ...)
 	elseif (event == 'INSPECT_READY') then
 		local guid = ...
 		if (guid == currentGUID) then
-			local spec = UnitSpec(currentUNIT)
-			SpecDB[guid] = spec
+			GearDB[guid] = UnitGear(currentUNIT)
+			SpecDB[guid] = UnitSpec(currentUNIT)
 
-			local gear = UnitGear(currentUNIT)
-			GearDB[guid] = gear
-
-			if (not gear) or (not spec) then
+			if (not GearDB[guid]) or (not SpecDB[guid]) then
 				ScanUnit(currentUNIT, true)
 			else
-				SetUnitInfo(gear, spec)
+				SetUnitInfo(GearDB[guid], SpecDB[guid])
 			end
 		end
 		self:UnregisterEvent('INSPECT_READY')
@@ -322,12 +325,4 @@ f:SetScript('OnUpdate', function(self, elapsed)
 		self:RegisterEvent('INSPECT_READY')
 		NotifyInspect(currentUNIT)
 	end
-end)
-
-GameTooltip:HookScript('OnTooltipSetUnit', function(self)
-	local _, unit = self:GetUnit()
-	if (not unit) or (not CanInspect(unit)) then return end
-
-	currentUNIT, currentGUID = unit, UnitGUID(unit)
-	ScanUnit(unit)
 end)
