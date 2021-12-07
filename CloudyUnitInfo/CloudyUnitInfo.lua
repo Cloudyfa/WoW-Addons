@@ -6,7 +6,7 @@
 
 
 --- Variables ---
-local currentUNIT, currentGUID
+local scanGUID
 local GearDB, SpecDB = {}, {}
 local prefixColor = '|cffffeeaa'
 local detailColor = '|cffffffff'
@@ -23,7 +23,7 @@ local function SetUnitInfo(gear, spec)
 	if (not gear) then return end
 
 	local _, unit = GameTooltip:GetUnit()
-	if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
+	if (not unit) or (UnitGUID(unit) ~= scanGUID) then return end
 	if UnitLevel(unit) <= 10 then
 		spec = STAT_AVERAGE_ITEM_LEVEL
 	elseif (not spec) then
@@ -72,8 +72,6 @@ end
 
 --- Unit Gear Info ---
 local function UnitGear(unit)
-	if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
-
 	local boa, pvp = 0, 0
 	local ilvl, delay = nil, nil
 
@@ -120,8 +118,6 @@ end
 
 --- Unit Specialization ---
 local function UnitSpec(unit)
-	if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
-
 	local specName
 	if (unit == 'player') then
 		local specIndex = GetSpecialization()
@@ -148,10 +144,10 @@ local function ScanUnit(unit, forced)
 
 		SetUnitInfo(cachedGear or CONTINUED, cachedSpec)
 	else
-		if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
+		if (not unit) or (UnitGUID(unit) ~= scanGUID) then return end
 
-		cachedSpec = SpecDB[currentGUID]
-		cachedGear = GearDB[currentGUID]
+		cachedSpec = SpecDB[scanGUID]
+		cachedGear = GearDB[scanGUID]
 		if cachedGear or forced then
 			SetUnitInfo(cachedGear, cachedSpec)
 		end
@@ -202,23 +198,23 @@ end)
 f:SetScript('OnEvent', function(self, event, ...)
 	if (event == 'UPDATE_MOUSEOVER_UNIT') then
 		local _, unit = GameTooltip:GetUnit()
-		if (not unit) or (not CanInspect(unit)) then return end
-
-		currentUNIT, currentGUID = unit, UnitGUID(unit)
-		ScanUnit(unit)
+		if unit and CanInspect(unit) then
+			scanGUID = UnitGUID(unit)
+			ScanUnit(unit)
+		end
 	elseif (event == 'UNIT_INVENTORY_CHANGED') then
 		local unit = ...
-		if (UnitGUID(unit) == currentGUID) then
+		if (UnitGUID(unit) == scanGUID) then
 			ScanUnit(unit, true)
 		end
 	elseif (event == 'INSPECT_READY') then
 		local guid = ...
-		if (guid == currentGUID) then
-			GearDB[guid] = UnitGear(currentUNIT)
-			SpecDB[guid] = UnitSpec(currentUNIT)
+		if (guid == UnitGUID('mouseover')) and (guid == scanGUID) then
+			GearDB[guid] = UnitGear('mouseover')
+			SpecDB[guid] = UnitSpec('mouseover')
 
 			if (not GearDB[guid]) or (not SpecDB[guid]) then
-				ScanUnit(currentUNIT, true)
+				ScanUnit('mouseover', true)
 			else
 				SetUnitInfo(GearDB[guid], SpecDB[guid])
 			end
@@ -234,9 +230,9 @@ f:SetScript('OnUpdate', function(self, elapsed)
 	self:Hide()
 	ClearInspectPlayer()
 
-	if currentUNIT and (UnitGUID(currentUNIT) == currentGUID) then
+	if (UnitGUID('mouseover') == scanGUID) then
 		self.lastUpdate = GetTime()
 		self:RegisterEvent('INSPECT_READY')
-		NotifyInspect(currentUNIT)
+		NotifyInspect('mouseover')
 	end
 end)
