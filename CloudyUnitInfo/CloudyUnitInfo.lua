@@ -7,13 +7,9 @@
 
 --- Variables ---
 local currentUNIT, currentGUID
-local GearDB, SpecDB, ItemDB, SlotDB = {}, {}, {}, {}
-
+local GearDB, SpecDB = {}, {}
 local prefixColor = '|cffffeeaa'
 local detailColor = '|cffffffff'
-local lvlPattern1 = ITEM_LEVEL:gsub('%%d', '(%%d+)')
-local lvlPattern2 = ITEM_LEVEL_ALT:gsub('([()])', '%%%1'):gsub('%%d', '(%%d+)')
-local furySpec = GetSpecializationNameForSpecID(72)
 
 
 --- Create Frame ---
@@ -28,7 +24,7 @@ local function SetUnitInfo(gear, spec)
 
 	local _, unit = GameTooltip:GetUnit()
 	if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
-	if UnitLevel(unit) < 10 then
+	if UnitLevel(unit) <= 10 then
 		spec = STAT_AVERAGE_ITEM_LEVEL
 	elseif (not spec) then
 		spec = CONTINUED
@@ -74,131 +70,47 @@ local function IsPVPItem(link)
 end
 
 
---- Inventory Slots ---
-local InvSlots = {}
-for i = 1, 17 do
-	if i ~= 4 then
-		tinsert(InvSlots, i)
-	end
-end
-
-
---- Scan Item Level ---
-for _, i in pairs(InvSlots) do
-	local scanTip = CreateFrame('GameTooltip', 'CUnitScan' .. i, nil, 'GameTooltipTemplate')
-	scanTip:SetOwner(WorldFrame, 'ANCHOR_NONE')
- 	scanTip:SetScript('OnTooltipSetItem', function(self)
-		local _, link = self:GetItem()
-		if link then
-			local name = self:GetName()
-			for i = 2, self:NumLines() do
-				local line = _G[name .. 'TextLeft' .. i]
-				local text = line and line:GetText()
-				if text then
-					local level = text:match(lvlPattern1) or text:match(lvlPattern2)
-					if level then
-						ItemDB[link] = tonumber(level)
-						break
-					end
-				end
-			end
-		end
-	end)
-	SlotDB[i] = scanTip
-end
-
 --- Unit Gear Info ---
 local function UnitGear(unit)
 	if (not unit) or (UnitGUID(unit) ~= currentGUID) then return end
 
-	local ulvl = UnitLevel(unit)
-	local class = select(2, UnitClass(unit))
-
 	local boa, pvp = 0, 0
-	local wlvl, wslot = 0, 0
-	local ilvl, total, delay = nil, 0, nil
+	local ilvl, delay = nil, nil
 
-	for _, i in pairs(InvSlots) do
-		local hasItem = GetInventoryItemTexture(unit, i)
-		if hasItem then
-			local link = GetInventoryItemLink(unit, i)
-			if (not link) then
-				delay = true
-			else
-				SlotDB[i]:SetInventoryItem(unit, i)
-				local _, _, rarity, level, _, _, _, _, slot = GetItemInfo(link)
-				level = ItemDB[link] or level
-				if (not rarity) or (not level) then
+	for i = 1, 17 do
+		if (i ~= 4) then
+			local hasItem = GetInventoryItemTexture(unit, i)
+			if hasItem then
+				local link = GetInventoryItemLink(unit, i)
+				if (not link) then
 					delay = true
 				else
-					if (rarity == 6) and (i == 16 or i == 17) then
-						local relics = {select(4, strsplit(':', link))}
-						for i = 1, 3 do
-							local relicID = relics[i] ~= '' and relics[i]
-							local relicLink = select(2, GetItemGem(link, i))
-							if relicID and (not relicLink) then
-								delay = true
-								break
-							end
-						end
-					elseif (rarity == 7) then
-						boa = boa + 1
+					local _, _, rarity = GetItemInfo(link)
+					if (not rarity) then
+						delay = true
 					else
-						if IsPVPItem(link) then
-							pvp = pvp + 1
-						end
-					end
-
-					if (i == 16) then
-						if (SpecDB[currentGUID] == furySpec) or (rarity == 6) then
-							wlvl = level
-							wslot = slot
-						end
-						if (slot == 'INVTYPE_2HWEAPON') or (slot == 'INVTYPE_RANGED') or ((slot == 'INVTYPE_RANGEDRIGHT') and (class == 'HUNTER')) then
-							level = level * 2
-						end
-					end
-
-					if (i == 17) then
-						if (SpecDB[currentGUID] == furySpec) then
-							if (wslot ~= 'INVTYPE_2HWEAPON') and (slot == 'INVTYPE_2HWEAPON') then
-								if (level > wlvl) then
-									level = level * 2 - wlvl
-								end
-							elseif (wslot == 'INVTYPE_2HWEAPON') then
-								if (level > wlvl) then
-									if (slot == 'INVTYPE_2HWEAPON') then
-										level = level * 2 - wlvl * 2
-									else
-										level = level - wlvl
-									end
-								else
-									level = 0
-								end
-							end
-						elseif (rarity == 6) and wlvl then
-							if level > wlvl then
-								level = level * 2 - wlvl
-							else
-								level = wlvl
+						if (rarity == 7) then
+							boa = boa + 1
+						else
+							if IsPVPItem(link) then
+								pvp = pvp + 1
 							end
 						end
 					end
-
-					total = total + level
 				end
 			end
 		end
 	end
 
 	if (not delay) then
-		if (unit == 'player') and (GetAverageItemLevel() > 0) then
+		if (unit == 'player') then
 			ilvl = select(2, GetAverageItemLevel())
 		else
-			ilvl = total / 16
+			ilvl = C_PaperDollInfo.GetInspectItemLevel(unit)
 		end
-		if (ilvl > 0) then ilvl = string.format('%.1f', ilvl) end
+		ilvl = (ilvl > 0.5) and (ilvl - 0.5) or 0
 
+		if (ilvl > 0) then ilvl = string.format('%.0f', ilvl) end
 		if (boa > 0) then ilvl = ilvl .. '  |cffe6cc80' .. boa .. ' BOA' end
 		if (pvp > 0) then ilvl = ilvl .. '  |cffa335ee' .. pvp .. ' PVP' end
 	end
@@ -222,7 +134,6 @@ local function UnitSpec(unit)
 			specName = GetSpecializationNameForSpecID(specID)
 		end
 	end
-
 	return specName
 end
 
@@ -273,8 +184,11 @@ hooksecurefunc('PaperDollFrame_SetItemLevel', function(frame, unit)
 	if (unit ~= 'player') then return end
 
 	local total, equip = GetAverageItemLevel()
-	if (total > 0) then total = string.format('%.1f', total) end
-	if (equip > 0) then equip = string.format('%.1f', equip) end
+	total = (total > 0.5) and (total - 0.5) or 0
+	equip = (equip > 0.5) and (equip - 0.5) or 0
+
+	if (total > 0) then total = string.format('%.0f', total) end
+	if (equip > 0) then equip = string.format('%.0f', equip) end
 
 	local ilvl = equip
 	if (equip ~= total) then
